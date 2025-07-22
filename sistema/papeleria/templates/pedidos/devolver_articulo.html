@@ -1,0 +1,26 @@
+{% extends 'navbar.html' %}
+{% load static %}
+
+{% block contenido %}
+<link rel="stylesheet" href="{% static 'css/devolucion.css' %}?v={% now 'U' %}">
+
+
+
+
+{% if pedido %}
+    <section>
+    <ul>
+        <h4>Registrar Devolución del Pedido #{{ pedido.id }}</h4>
+        {% for pa in pedido.pedidoarticulo_set.all %}
+            <li>{{ pa.articulo.nombre }} - Cantidad: {{ pa.cantidad }}</li>
+        {% endfor %}
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Registrar devolución</button>
+    </form>
+    </section>
+{% endif %}
+{% endblock %}
