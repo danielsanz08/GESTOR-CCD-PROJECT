@@ -64,7 +64,7 @@ class DevolucionCde(models.Model):
         related_name='devoluciones'
     )
     cantidad_devuelta = models.PositiveIntegerField()
-    motivo = models.TextField()
+    motivo = models.CharField(max_length=40, blank=False, null=False)
     devuelto_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

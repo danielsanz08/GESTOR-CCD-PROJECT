@@ -76,7 +76,7 @@ class Devolucion(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     articulo = models.ForeignKey(Articulo, on_delete=models.CASCADE)
     cantidad_devuelta = models.PositiveIntegerField()
-    razon = models.TextField()
+    razon = models.CharField(max_length=40, blank=False, null=False)
     fecha = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):

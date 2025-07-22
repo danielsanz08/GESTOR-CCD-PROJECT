@@ -2,32 +2,22 @@
 {% load static %}
 
 {% block contenido %}
-<h2>Registrar Devolución (CDE)</h2>
-
-<form method="get">
-    <label for="pedido_id">Seleccionar Pedido:</label>
-    <select name="pedido_id" id="pedido_id" onchange="this.form.submit()">
-        <option value="">-- Selecciona un pedido --</option>
-        {% for p in pedidos %}
-            <option value="{{ p.id }}" {% if p.id|stringformat:"s" == request.GET.pedido_id %}selected{% endif %}>
-                Pedido #{{ p.id }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
+<link rel="stylesheet" href="{% static 'css/devolucion.css' %}?v={% now 'U' %}">
 
 {% if pedido %}
-    <h4>Detalles del Pedido #{{ pedido.id }} cde</h4>
-    <ul>
-        {% for pp in pedido.productos.all %}
-            <li>{{ pp.producto.nombre }} - Cantidad: {{ pp.cantidad }}</li>
-        {% endfor %}
-    </ul>
+<section>
+    <h4>Detalles del Pedido #{{ pedido.id }} (CDE)</h4>
 
-    <form method="post">
+    <form method="post" style="flex: 1; display: flex; flex-direction: column;">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Registrar devolución</button>
+        <div class="devolucion-form">
+            {{ form.as_p }}
+        </div>
+        <div class="botones-principales" style="margin-top: auto;">
+            <button type="submit">Registrar devolución</button>
+        </div>
     </form>
+</section>
 {% endif %}
+
 {% endblock %}

@@ -25,8 +25,8 @@
                         <option value="">-- Seleccionar Artículo --</option>
                         {% for articulo in articulos %}
                             {% if articulo.cantidad > 0 %}
-                                <option value="{{ articulo.id }}" data-cantidad="{{ articulo.cantidad }}" {% if articulo.cantidad < 10 %}class="rojo"{% endif %}>
-                                    {{ articulo.nombre }} ({{ articulo.cantidad }})
+                                <option value="{{ articulo.id }}" data-cantidad="{{ articulo.tipo }}" {% if articulo.cantidad < 10 %}class="rojo"{% endif %}>
+                                    {{ articulo.nombre }} {{ articulo.tipo }}
                                 </option>
                             {% endif %}
                         {% endfor %}

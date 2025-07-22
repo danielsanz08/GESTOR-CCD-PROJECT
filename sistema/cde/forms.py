@@ -48,7 +48,7 @@ class DevolucionFormCde(forms.ModelForm):
         model = DevolucionCde
         fields = ['pedido_producto', 'cantidad_devuelta', 'motivo']
         widgets = {
-            'motivo': forms.Textarea(attrs={'rows': 3}),
+            'motivo': forms.TextInput(attrs={'maxlength': 40}),  # Cambiar a TextInput
         }
 
     def __init__(self, *args, **kwargs):
