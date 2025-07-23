@@ -435,6 +435,7 @@ def cambiar_contraseña_id(request, user_id):
             return redirect('libreria:lista_usuarios')
         else:
             messages.error(request, 'Formulario inválido. Revisa los datos ingresados.')
+            print(form.errors)
     else:
         form = CustomPasswordChangeForm(user=target_user)
 
@@ -728,8 +729,8 @@ def reporte_usuario_pdf(request):
     # Encabezado empresa
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "contacto@gestorccd.com", "Teléfono: (123) 456-7890"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([

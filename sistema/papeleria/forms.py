@@ -243,5 +243,6 @@ class DevolucionForm(forms.ModelForm):
         if pedido_id:
             articulos_ids = PedidoArticulo.objects.filter(pedido_id=pedido_id).values_list('articulo_id', flat=True)
             self.fields['articulo'].queryset = self.fields['articulo'].queryset.filter(id__in=articulos_ids)
+            self.fields['articulo'].label_from_instance = lambda obj: f"{obj.nombre} - {obj.tipo}"
             self.fields['pedido'].initial = pedido_id
             self.fields['pedido'].widget = forms.HiddenInput()

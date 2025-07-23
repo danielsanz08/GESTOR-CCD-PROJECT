@@ -63,7 +63,7 @@ section {
   width: 190vh;
   height: 60vh;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 20px;
+  border-radius: 10px;
 
 }
 table {
@@ -116,7 +116,7 @@ td {
 .eliminar{
 background-color: #b30000;
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   width: 9vh;
@@ -130,7 +130,7 @@ background-color: #b30000;
 .restaurar{
   background-color: #00b35f;
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   width: 9vh;
@@ -144,7 +144,7 @@ background-color: #b30000;
 .descargar{
 background-color: #005cb3;
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   width: 9vh;
@@ -177,7 +177,7 @@ background-color: #005cb3;
 .buscador {
   background-color: #ffffff;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   height: 3.5vh;
   width: 50vh;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -189,7 +189,7 @@ background-color: #005cb3;
   border: none;
   width: 10vh;
   height: 25px;
-  border-radius: 20px;
+  border-radius: 10px;
   margin-right: 1vh;
   right: 40vh;
   position: absolute;
@@ -203,7 +203,7 @@ background-color: #005cb3;
   border: none;
   width: 10vh;
   height: 25px;
-  border-radius: 20px;
+  border-radius: 10px;
   position: absolute;
   font-weight: bold;
   right: 30vh;
@@ -217,7 +217,7 @@ background-color: #005cb3;
   border: none;
   width: 10vh;
   height: 25px;
-  border-radius: 20px;
+  border-radius: 10px;
   position: absolute;
   right: 18vh;
   font-weight: bold;
@@ -232,7 +232,7 @@ background-color: #005cb3;
   border: none;
   width: 10vh;
   height: 35px;
-  border-radius: 20px;
+  border-radius: 10px;
   position: absolute;
   top: 12vh;
   left: 80vh;
@@ -272,7 +272,6 @@ background-color: #005cb3;
 }
 
 
-
 .search-date:hover {
   background-color: #044080;
   cursor: pointer;
@@ -281,7 +280,7 @@ background-color: #005cb3;
 .clean {
   background-color: #b30000;
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   position: absolute;
@@ -305,7 +304,7 @@ background-color: #005cb3;
 .btn-search {
   background-color: #0056b3;
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   position: absolute;
@@ -330,7 +329,7 @@ background-color: #005cb3;
 .search-date {
   background-color: #0056b3;
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   position: absolute;
@@ -350,3 +349,4 @@ background-color: #005cb3;
   background-color: #044080;
   cursor: pointer;
 }
+

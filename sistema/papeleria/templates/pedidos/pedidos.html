@@ -5,16 +5,7 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/crear_pedido.css' %}?v={% now 'U' %}">
-<style>
-    body.dark section{
-    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
-    color: white;
-}
-body.dark h1{
-    color: white;
-}
 
-</style>
 <div id="container">
     <section>
         <h1>Realizar Pedido</h1>
@@ -34,8 +25,9 @@ body.dark h1{
                         <option value="">-- Seleccionar Artículo --</option>
                         {% for articulo in articulos %}
                             {% if articulo.cantidad > 0 %}
-                                <option value="{{ articulo.id }}" data-cantidad="{{ articulo.tipo }}" {% if articulo.cantidad < 10 %}class="rojo"{% endif %}>
-                                    {{ articulo.nombre }} {{ articulo.tipo }}
+                                <option value="{{ articulo.id }}" data-cantidad="{{ articulo.cantidad }}"
+                                    {% if articulo.cantidad < 10 %}class="rojo"{% endif %}>
+                                    {{ articulo.nombre }} {{ articulo.tipo }} ({{ articulo.cantidad }})
                                 </option>
                             {% endif %}
                         {% endfor %}
@@ -45,7 +37,9 @@ body.dark h1{
                         <option value="">-- Seleccionar Tipo --</option>
                         {% for articulo in articulos %}
                             {% if articulo.cantidad > 0 %}
-                                <option value="{{ articulo.tipo }}" data-articulo="{{ articulo.id }}" data-cantidad="{{ articulo.cantidad }}" {% if articulo.cantidad < 10 %}class="rojo"{% endif %}>
+                                <option value="{{ articulo.tipo }}" data-articulo="{{ articulo.id }}"
+                                    data-cantidad="{{ articulo.cantidad }}"
+                                    {% if articulo.cantidad < 10 %}class="rojo"{% endif %}>
                                     {{ articulo.tipo }}
                                 </option>
                             {% endif %}
@@ -56,34 +50,12 @@ body.dark h1{
                 </div>
             </div>
 
-            {% if request.user.role == 'Administrador' %}
-<div class="mb-3">
-    <input type="checkbox" id="usar_fecha_personalizada" name="usar_fecha_personalizada">
-    <label for="usar_fecha_personalizada">Usar fecha personalizada</label>
-    <div id="contenedor_fecha"></div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const checkbox = document.getElementById('usar_fecha_personalizada');
-        const contenedorFecha = document.getElementById('contenedor_fecha');
-
-        checkbox.addEventListener('change', function () {
-            if (this.checked) {
-                const input = document.createElement('input');
-                input.type = 'datetime-local';
-                input.id = 'fecha_personalizada';
-                input.name = 'fecha_personalizada';
-                input.className = 'form-control mt-2';
-                contenedorFecha.appendChild(input);
-            } else {
-                contenedorFecha.innerHTML = '';
-            }
-        });
-    });
-</script>
-
-            {% endif %}
+            <!-- NUEVO: Fecha personalizada -->
+            <div class="mb-3">
+                <input type="checkbox" id="usar_fecha_personalizada" name="usar_fecha_personalizada">
+                <label for="usar_fecha_personalizada">Usar fecha personalizada</label>
+                <input type="datetime-local" id="fecha_personalizada" name="fecha_personalizada" disabled class="form-control">
+            </div>
 
             <div class="botones-principales">
                 <button type="button" onclick="agregarArticulo()" id="agregar">Añadir otro artículo</button>
@@ -99,8 +71,10 @@ body.dark h1{
 
         function actualizarOpcionesDisponibles() {
             const selectsArticulos = document.querySelectorAll('.select-articulo');
+
             selectsArticulos.forEach(select => {
                 const currentSelected = select.value;
+
                 Array.from(select.options).forEach(option => {
                     if (option.value) {
                         if (!articulosSeleccionadosEnPedido.includes(option.value) || option.value === currentSelected) {
@@ -247,6 +221,11 @@ body.dark h1{
                 }, 300);
             }
         };
+
+        document.getElementById('usar_fecha_personalizada').addEventListener('change', function () {
+            const inputFecha = document.getElementById('fecha_personalizada');
+            inputFecha.disabled = !this.checked;
+        });
 
         const style = document.createElement('style');
         style.textContent = `

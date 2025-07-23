@@ -20,7 +20,8 @@ class Articulo(models.Model):
         null=True,
         blank=True
     )
-    fecha_registro = models.DateField(auto_now=True)
+    fecha_registro = models.DateField(auto_now_add=True)
+
 
     def nombre_formateado(self):
         """

@@ -67,41 +67,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const areaError = document.getElementById('error-area');
 
     const regexCorreo = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    const caracteresRepetidosRegex = /(.)\1{2,}/;
+
+    function capitalizarPalabras(texto) {
+        return texto.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    }
 
     function tieneCaracteresRepetidos(str) {
-        return /(.)\1\1/.test(str);
+        return caracteresRepetidosRegex.test(str.toLowerCase());
     }
 
-    // Validación en tiempo real
-    usernameInput.addEventListener('input', () => {
-        usernameError.textContent = '';
-        const value = usernameInput.value.replace(/\d/g, '');
-        usernameInput.value = value;
+    function validarCampoTexto(input, errorEl, nombreCampo) {
+        let valor = input.value.replace(/[0-9]/g, '');
 
-        if (value.length < 3) {
-            usernameError.textContent = 'Mínimo 3 caracteres';
-        } else if (tieneCaracteresRepetidos(value)) {
-            usernameError.textContent = 'No se permiten 3 caracteres iguales seguidos.';
+        if (tieneCaracteresRepetidos(valor)) {
+            errorEl.textContent = `No se permiten 3 o más caracteres iguales seguidos en ${nombreCampo}.`;
+            return false;
         }
+
+        if (valor.trim().length < 3) {
+            errorEl.textContent = `Mínimo 3 caracteres en ${nombreCampo}.`;
+            return false;
+        }
+
+        input.value = capitalizarPalabras(valor);
+        errorEl.textContent = '';
+        return true;
+    }
+
+    usernameInput.addEventListener('input', () => {
+        validarCampoTexto(usernameInput, usernameError, 'el nombre de usuario');
     });
 
-    if (cargoInput) {
-        cargoInput.addEventListener('input', () => {
-            cargoError.textContent = '';
-            const value = cargoInput.value.replace(/\d/g, '');
-            cargoInput.value = value;
-
-            if (value.length < 3) {
-                cargoError.textContent = 'Mínimo 3 caracteres';
-            } else if (tieneCaracteresRepetidos(value)) {
-                cargoError.textContent = 'No se permiten 3 caracteres iguales seguidos.';
-            }
-        });
-    }
+    cargoInput.addEventListener('input', () => {
+        validarCampoTexto(cargoInput, cargoError, 'el cargo');
+    });
 
     emailInput.addEventListener('input', () => {
         emailError.textContent = '';
-        const email = emailInput.value;
+        const email = emailInput.value.trim();
 
         if (!regexCorreo.test(email)) {
             emailError.textContent = 'Correo no válido.';
@@ -113,53 +117,46 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Verificar si el correo ya existe
+        // Verificar si el correo ya existe (validación asincrónica)
         fetch(`/validar_datos?email=${encodeURIComponent(email)}`)
             .then(res => res.json())
             .then(data => {
                 if (data.email) {
                     emailError.textContent = data.email;
                 }
+            })
+            .catch(err => {
+                console.error('Error al verificar email:', err);
             });
     });
 
-    // Validación al enviar el formulario
     form.addEventListener('submit', (e) => {
         let valido = true;
 
-        // Validar username
-        const nombre = usernameInput.value.replace(/\d/g, '');
-        if (nombre.length < 3 || tieneCaracteresRepetidos(nombre)) {
-            usernameError.textContent = 'Nombre inválido.';
+        const nombreValido = validarCampoTexto(usernameInput, usernameError, 'el nombre de usuario');
+        const cargoValido = validarCampoTexto(cargoInput, cargoError, 'el cargo');
+        const email = emailInput.value.trim();
+
+        if (!regexCorreo.test(email)) {
+            emailError.textContent = 'Correo no válido.';
+            valido = false;
+        } else if (tieneCaracteresRepetidos(email)) {
+            emailError.textContent = 'No se permiten 3 caracteres iguales seguidos en el correo.';
             valido = false;
         }
 
-        // Validar email
-        const email = emailInput.value;
-        if (!regexCorreo.test(email) || tieneCaracteresRepetidos(email)) {
-            emailError.textContent = 'Correo inválido.';
-            valido = false;
-        }
-
-        // Validar cargo
-        const cargo = cargoInput.value.replace(/\d/g, '');
-        if (cargo.length < 3 || tieneCaracteresRepetidos(cargo)) {
-            cargoError.textContent = 'Cargo inválido.';
-            valido = false;
-        }
-
-        // Validar área (si es un select vacío)
-        if (!areaInput.value) {
+        if (!areaInput.value || areaInput.value.trim() === '') {
             areaError.textContent = 'Seleccione un área.';
             valido = false;
         } else {
             areaError.textContent = '';
         }
 
-        if (!valido) {
-            e.preventDefault(); // Evita el envío del formulario
+        if (!nombreValido || !cargoValido || !valido) {
+            e.preventDefault(); // Evita el envío
         }
     });
 });
 </script>
+
 {% endblock %}

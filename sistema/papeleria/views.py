@@ -714,7 +714,7 @@ def listado_pedidos(request):
     fecha_fin_str = request.GET.get('fecha_fin')
 
     # Filtrar pedidos confirmados o cancelados
-    pedidos = Pedido.objects.filter(estado__in=['Confirmado', 'Cancelado']).order_by('-fecha_estado')
+    pedidos = Pedido.objects.filter(estado__in=['Confirmado', 'Cancelado']).order_by('-id')
 
     
     if query:
@@ -868,7 +868,9 @@ def graficas_articulos(request):
         {'name': 'Grafico de articulos', 'url': reverse('papeleria:graficas_articulos')}, 
     ]
     articulos = Articulo.objects.all()
-    nombres = [art.nombre for art in articulos]
+    
+    # Mostrar "nombre (tipo)" para cada artículo
+    nombres = [f"{art.nombre} {art.tipo}" for art in articulos]
     cantidades = [art.cantidad for art in articulos]
 
     return render(request, 'estadisticas/grafica_articulos.html', {
@@ -876,6 +878,7 @@ def graficas_articulos(request):
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs
     })
+
 #grafica de usuario
 @login_required(login_url='/acceso_denegado/')
 def graficas_usuario(request):
@@ -906,9 +909,18 @@ def grafica_pedidos(request):
     pedidos = Pedido.objects.all()
 
     if fecha_inicio:
-        pedidos = pedidos.filter(fecha_pedido__gte=fecha_inicio)
+        try:
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            pedidos = pedidos.filter(fecha_pedido__gte=fecha_inicio_dt)
+        except ValueError:
+            pass  # o maneja el error si prefieres
+
     if fecha_fin:
-        pedidos = pedidos.filter(fecha_pedido__lte=fecha_fin)
+        try:
+            fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(fecha_pedido__lt=fecha_fin_dt)
+        except ValueError:
+            pass
 
     pendientes = pedidos.filter(estado='Pendiente').count()
     confirmados = pedidos.filter(estado='Confirmado').count()
@@ -937,18 +949,28 @@ def grafica_pedidos_administrativa(request):
         {'name': 'Gráfico de pedidos Administrativa', 'url': reverse('papeleria:pedidos_administrativa')},
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
     pedidos = PedidoArticulo.objects.filter(area='Administrativa')
 
-    if fecha_inicio:
-        pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    # Filtrado por fecha (con validación)
+    if fecha_inicio_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = None  # Opcional: podrías registrar un error
 
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+        except ValueError:
+            fecha_fin = None
+
+    # Agrupación por artículo
     pedidos_por_area_articulo = pedidos.values(
-        'area',
         'articulo__nombre'
     ).annotate(
         total_cantidad=Sum('cantidad')
@@ -961,8 +983,8 @@ def grafica_pedidos_administrativa(request):
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str
     })
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_rues(request):
@@ -972,16 +994,27 @@ def grafica_pedidos_rues(request):
         {'name': 'Pedidos RUES', 'url': reverse('papeleria:pedidos_rues')},
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
     pedidos = PedidoArticulo.objects.filter(area='Registros públicos')
 
-    if fecha_inicio:
-        pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    # Filtro por fechas
+    try:
+        if fecha_inicio_str:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+    except ValueError:
+        fecha_inicio = None
 
+    try:
+        if fecha_fin_str:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    except ValueError:
+        fecha_fin = None
+
+    # Agrupación de pedidos por nombre de artículo
     pedidos_por_area_articulo = pedidos.values(
         'area',
         'articulo__nombre'
@@ -996,8 +1029,8 @@ def grafica_pedidos_rues(request):
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str
     })
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_presidencia(request):
@@ -1007,15 +1040,25 @@ def grafica_pedidos_presidencia(request):
         {'name': 'Pedidos Presidencia', 'url': reverse('papeleria:pedidos_presidencia')},
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
     pedidos = PedidoArticulo.objects.filter(area='Presidencia')
 
-    if fecha_inicio:
-        pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    # Filtrado por fecha de forma segura
+    if fecha_inicio_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = None
+
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'area',
@@ -1031,8 +1074,8 @@ def grafica_pedidos_presidencia(request):
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str
     })
 @login_required(login_url='/acceso_denegado/')
 @never_cache
@@ -1043,18 +1086,26 @@ def grafica_pedidos_financiera(request):
         {'name': 'Pedidos financiera', 'url': reverse('papeleria:pedidos_financiera')},
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
     pedidos = PedidoArticulo.objects.filter(area='Financiera')
 
-    if fecha_inicio:
-        pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    if fecha_inicio_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = None
+
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'area',
         'articulo__nombre'
     ).annotate(
         total_cantidad=Sum('cantidad')
@@ -1067,8 +1118,8 @@ def grafica_pedidos_financiera(request):
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str
     })
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_gestion_empresarial(request):
@@ -1076,58 +1127,81 @@ def grafica_pedidos_gestion_empresarial(request):
         {'name': 'Inicio', 'url': '/index_pap'},
         {'name': 'Estadísticas', 'url': reverse('papeleria:index_estadistica')},
         {'name': 'Pedidos gestión empresarial', 'url': reverse('papeleria:pedidos_gestion_empresarial')},
-
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
     pedidos = PedidoArticulo.objects.filter(area='Gestión empresarial')
 
-    if fecha_inicio:
-        pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    if fecha_inicio_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = None
+
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(pedido__fecha_pedido__lt=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'area',
-        'articulo__nombre'
+        'articulo__nombre',
+        'articulo__tipo',
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    etiquetas = [item['articulo__nombre'] or 'Sin artículo' for item in pedidos_por_area_articulo]
+    etiquetas = [
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})"
+        if item['articulo__nombre'] and item['articulo__tipo']
+        else item['articulo__nombre'] or 'Sin artículo'
+        for item in pedidos_por_area_articulo
+    ]
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_gestion_empresarial.html', {
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str
     })
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_competitividad(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
         {'name': 'Estadísticas', 'url': reverse('papeleria:index_estadistica')},
-        {'name': 'Pedidos gestión empresarial', 'url': reverse('papeleria:pedidos_gestion_empresarial')},
-
+        {'name': 'Pedidos competitividad', 'url': reverse('papeleria:pedidos_competitividad')},
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
     pedidos = PedidoArticulo.objects.filter(area='Competitividad')
 
-    if fecha_inicio:
-        pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+    if fecha_inicio_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = None
+
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(pedido__fecha_pedido__lt=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'area',
-        'articulo__nombre'
+        'articulo__nombre',
+        'articulo__tipo',
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
@@ -1139,8 +1213,8 @@ def grafica_pedidos_competitividad(request):
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str
     })
 @login_required(login_url='/acceso_denegado/')
 def grafica_bajo_Stock(request):
@@ -1150,7 +1224,7 @@ def grafica_bajo_Stock(request):
         {'name': 'Grafico de bajo stock', 'url': reverse('papeleria:grafica_bajoStock')}, 
     ]
     articulos = Articulo.objects.filter(cantidad__lt=10)
-    nombres = [art.nombre for art in articulos]
+    nombres = [f"{art.nombre} {art.tipo}" for art in articulos]
     cantidades = [art.cantidad for art in articulos]
     return render(request, 'estadisticas/grafica_bajoStock.html', {
         'nombres': nombres,
@@ -1231,8 +1305,8 @@ def reporte_articulo_pdf(request):
     # Encabezado empresa
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "contacto@gestorccd.com", "Teléfono: (123) 456-7890"],
+       ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -1476,8 +1550,8 @@ def reporte_pedidos_pdf(request):
     # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de usuarios", "Correo: gestorccd@gmail.com", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "(Correo de la camara)", "Teléfono: (tel. camara)"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -1560,7 +1634,7 @@ def reporte_pedidos_pdf(request):
                 wrap_text_p(devoluciones_raw),
             ])
 
-        tabla_pedidos = Table(data_pedidos, colWidths=[30, 60, 80, 140, 170, 90, 150])
+        tabla_pedidos = Table(data_pedidos, colWidths=[30, 60, 80, 120, 170, 110, 150])
         style_pedidos = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -1744,8 +1818,8 @@ def reporte_pedidos_pendientes_pdf(request):
     # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de usuarios", "Correo: gestorccd@gmail.com", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "(Correo de la camara)", "Teléfono: (tel. camara)"],
+       ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -1990,8 +2064,8 @@ def reporte_articulo_bajo_stock_pdf(request):
     # Encabezado empresa
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "contacto@gestorccd.com", "Teléfono: (123) 456-7890"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -2182,6 +2256,11 @@ def reporte_articulo_bajo_stock_excel(request):
 
 @login_required
 def crear_devolucion(request, pedido_id):
+    breadcrumbs = [
+        {'name': 'Inicio', 'url': '/index_pap'},
+        {'name': 'Devoluciones Papeleria', 'url': reverse('papeleria:crear_devolucion', args=[pedido_id])
+}
+    ]
     pedido = get_object_or_404(Pedido, id=pedido_id)
 
     if request.method == 'POST':
@@ -2218,5 +2297,6 @@ def crear_devolucion(request, pedido_id):
 
     return render(request, 'pedidos/devolver_articulo.html', {
         'form': form,
-        'pedido': pedido
+        'pedido': pedido,
+        'breadcrumbs': breadcrumbs
     })

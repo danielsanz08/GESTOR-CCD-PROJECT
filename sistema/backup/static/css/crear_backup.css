@@ -19,8 +19,7 @@ section {
     box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.233);
     border: 2px solid rgba(2, 47, 90, 0.63);
     padding: 5vh 5vh 5vh 5vh;
-
-    border-radius: 15px;
+    border-radius: 10px;
     height: 40vh;
 }
 
@@ -42,8 +41,9 @@ section {
 .form-group input {
     display: block;
     width: 100%;
-    border-radius: 20px;
+    border-radius: 10px;
     height: 4vh;
+    border: 1px solid black;
 }
 
 .error-limite,
@@ -57,23 +57,23 @@ section {
 
 
 .botones {
-    background-color: aqua;
+    
     width: 30vh;
 }
 
 #crear {
-    margin-right: 15px;
+    
     background-color: red;
     background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);
     font-weight: bold;
-    border: 2px solid black;
+    border: 1px solid black;
     height: 6vh;
     width: 25vh;
-    border-radius: 20px;
-    position: absolute;
-    left: 77vh;
-    top: 65vh;
+    border-radius: 10px;
+    position: relative;
+    left: 23vh;
+    top: 3vh;
     cursor: pointer;
 }
 

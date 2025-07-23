@@ -99,12 +99,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const repeatedCharRegex = /(.)\1{2,}/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Función para capitalizar correctamente palabras con ñ
     function capitalizeWords(str) {
-        return str.replace(/\w\S*/g, function(txt) {
-            // Convertir toda la palabra a minúsculas primero
+        return str.replace(/\w\S*/g, function (txt) {
             txt = txt.toLowerCase();
-            // Capitalizar solo el primer carácter, teniendo en cuenta la ñ
             return txt.charAt(0).toUpperCase() + txt.substr(1);
         });
     }
@@ -211,7 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             validateForm();
-
         } catch (error) {
             hideVerificationIndicator();
             console.error('Error al verificar contraseña:', error);
@@ -226,25 +222,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 3000);
 
     password.addEventListener('input', function () {
-        debouncedVerifyPassword(password.value);
+        if (repeatedCharRegex.test(password.value)) {
+            errorPassword.textContent = 'No se permiten 3 o más caracteres iguales seguidos';
+            passwordFeedback.textContent = '';
+            validateForm();
+            return;
+        } else {
+            errorPassword.textContent = '';
+            debouncedVerifyPassword(password.value);
+        }
     });
 
     username.addEventListener('input', function () {
         let value = username.value;
-        // Eliminar números si es necesario
         value = value.replace(/[0-9]/g, '');
-        // Aplicar capitalización a cada palabra
         value = capitalizeWords(value);
         username.value = value;
 
-        if (value.trim().length < 3) {
-            errorUsername.textContent = 'Mínimo 3 caracteres';
+        if (repeatedCharRegex.test(value)) {
+            errorUsername.textContent = 'No se permiten 3 o más caracteres iguales seguidos';
             validateForm();
             return;
         }
 
-        if (repeatedCharRegex.test(value)) {
-            errorUsername.textContent = 'No se permiten 3 o más caracteres iguales seguidos';
+        if (value.trim().length < 3) {
+            errorUsername.textContent = 'Mínimo 3 caracteres';
             validateForm();
             return;
         }
@@ -262,20 +264,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     cargo.addEventListener('input', function () {
         let value = cargo.value;
-        // Eliminar números si es necesario
         value = value.replace(/[0-9]/g, '');
-        // Aplicar capitalización a cada palabra
         value = capitalizeWords(value);
         cargo.value = value;
 
-        if (value.trim().length < 3) {
-            errorCargo.textContent = 'Mínimo 3 caracteres';
+        if (repeatedCharRegex.test(value)) {
+            errorCargo.textContent = 'No se permiten 3 o más caracteres iguales seguidos';
             validateForm();
             return;
         }
 
-        if (repeatedCharRegex.test(value)) {
-            errorCargo.textContent = 'No se permiten 3 o más caracteres iguales seguidos';
+        if (value.trim().length < 3) {
+            errorCargo.textContent = 'Mínimo 3 caracteres';
             validateForm();
             return;
         }

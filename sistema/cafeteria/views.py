@@ -2166,6 +2166,10 @@ def reporte_producto_bajo_stock_excel(request):
 
 @login_required
 def crear_devolucion_caf(request, pedido_id):
+    breadcrumbs = [
+        {'name': 'Inicio', 'url': '/index_caf'},
+        {'name': 'Devoluciones Cafeteria', 'url': reverse('cafeteria:crear_devolucion_caf', args=[pedido_id])
+}]
     pedido = get_object_or_404(Pedido, id=pedido_id)
 
     if request.method == 'POST':
@@ -2204,5 +2208,6 @@ def crear_devolucion_caf(request, pedido_id):
 
     return render(request, 'pedidos/devolver_producto.html', {
         'form': form,
-        'pedido': pedido
+        'pedido': pedido,
+        'breadcrumbs': breadcrumbs
     })

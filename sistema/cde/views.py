@@ -1431,6 +1431,10 @@ def cambiar_contraseña_cde(request):
 
 @login_required
 def crear_devolucion_cde(request, pedido_id):
+    breadcrumbs = [
+        {'name': 'Inicio', 'url': '/index_cde'},
+        {'name': 'Devoluciones CDE', 'url': reverse('cde:crear_devolucion_cde', args=[pedido_id])
+}]
     pedido = get_object_or_404(PedidoCde, id=pedido_id)
 
     if request.method == 'POST':
@@ -1466,5 +1470,6 @@ def crear_devolucion_cde(request, pedido_id):
 
     return render(request, 'pedidos_cde/devolver_producto_cde.html', {
         'form': form,
-        'pedido': pedido
+        'pedido': pedido,
+        'breadcrumbs': breadcrumbs
     })

@@ -6,6 +6,9 @@ from django.conf import settings
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.db.models import Q
+from datetime import timedelta
+from django.db.models import Q, CharField
+from django.db.models.functions import Cast
 from django.db import transaction, connections
 from django.core import management
 from django.contrib.auth import get_user_model
@@ -51,29 +54,32 @@ def lista_backups(request):
     fecha_fin_str = request.GET.get('fecha_fin')
     
     backups = Backup.objects.all().order_by('-fecha_creacion')
-    
-    # Buscar solo por nombre
-    if query:
-        backups = backups.filter(Q(nombre__icontains=query))
 
-    # Filtrar por rango de fechas
+    if query:
+        backups = backups.annotate(
+            fecha_creacion_str=Cast('fecha_creacion', CharField()),
+            creado_por_str=Cast('creado_por__username', CharField())
+        ).filter(
+            Q(nombre__icontains=query) |
+            Q(fecha_creacion_str__icontains=query) |
+            Q(creado_por_str__icontains=query)
+        )
+
     try:
         if fecha_inicio_str:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
-            backups = backups.filter(fecha_creacion__date__gte=fecha_inicio)
+            backups = backups.filter(fecha_creacion__gte=fecha_inicio)
 
         if fecha_fin_str:
             fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date() + timedelta(days=1)
-            backups = backups.filter(fecha_creacion__date__lt=fecha_fin)
+            backups = backups.filter(fecha_creacion__lt=fecha_fin)
     except ValueError:
         backups = Backup.objects.none()
 
-    # Paginación
     paginator = Paginator(backups, 4)
     page_number = request.GET.get('page')
     backups_page = paginator.get_page(page_number)
 
-    # Parámetros para mantener filtros en la paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'

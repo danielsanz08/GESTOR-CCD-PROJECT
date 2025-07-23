@@ -117,7 +117,7 @@
             if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s.,;:¡!¿?\"'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$/.test(valor)) {
                 return "No se permiten números en este campo.";
             }
-            if (/(.)\1{2,}/.test(valor)) {
+            if (/(.)\1{1,}/.test(valor)) {
                 return "No repita un mismo carácter más de 2 veces.";
             }
             return "";

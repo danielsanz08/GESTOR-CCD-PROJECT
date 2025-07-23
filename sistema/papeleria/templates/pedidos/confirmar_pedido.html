@@ -127,7 +127,7 @@ body.dark .paginacion a,
                             <p><strong>Artículos:</strong></p>
                             <ul>
                                 {% for articulo in pedido.articulos.all %}
-                                <li>{{ articulo.articulo.nombre }} × {{ articulo.cantidad }}</li>
+                                <li>{{ articulo.cantidad }} {{ articulo.articulo.nombre }} {{ articulo.tipo }} </li>
                                 {% endfor %}
                             </ul>
                         </div>

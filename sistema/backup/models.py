@@ -10,7 +10,7 @@ class Backup(models.Model):
     archivo = models.FileField(upload_to='backups/')  # Esto guardará en MEDIA_ROOT/backups/
     tamano = models.CharField(max_length=100)
     modelos_incluidos = models.TextField()
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_creacion = models.DateField(auto_now_add=True)
     creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     
     def __str__(self):
