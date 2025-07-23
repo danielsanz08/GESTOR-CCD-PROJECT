@@ -5,7 +5,25 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/index_estadistica.css' %}?v={% now 'U' %}">
+<style>
+    body.dark .card{
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    }
+    body.dark .icono{
+        color: white;
+    }
+    body.dark .modal-content,
+    body.ddark #modal-card{
+        background-color: black;
+    }
+    body.dark .modal-card {
+  background-color: #2b2b2b; /* Fondo oscuro */
+  color: #ffffff;            /* Texto claro */
+  border: 1px solid #444;    /* Borde tenue */
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}
 
+</style>
 <section>
     <a href="{% url 'papeleria:graficas_usuarios' %}">
         <div class="card">
@@ -55,7 +73,7 @@
                 </div>
             </a>
             <a href="{% url 'papeleria:pedidos_rues' %}">
-                <div class="modal-card">
+                <div class="modal-card" id="modal-card">
                     <p class="modal-name"><i data-feather="book" class="modal-icono"></i> Pedidos RUES</p>
                 </div>
             </a>

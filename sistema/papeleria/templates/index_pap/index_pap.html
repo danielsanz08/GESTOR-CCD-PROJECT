@@ -5,12 +5,52 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/index_pap.css' %}?v={% now 'U' %}">
-
+<style>
+    body.dark .main-card {
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: #fff;
+    border: 2px solid rgba(0, 16, 31, 0.63);
+}
+ body.dark .alert-box{
+        background-color: black;
+    }
+body.dark .main-card-icon,
+body.dark .main-card-title {
+    color: #fff;
+}
+body.dark .close-btn{
+    color: rgb(196, 196, 196);
+}
+body.dark .close-btn:hover{
+    color: white;
+}
+body.resaltar-enlaces .main-card-title {
+ background-color: #1c96bb !important;
+  width: 150px;
+  
+}
+body.dark .modal-container{
+    background-color: #000;
+}
+body.dark .modal-option{
+    background-color: gray;
+}
+body.dark span,
+body.dark .main-card-icon{
+    color: white;
+}
+body.resaltar-titulos .main-card-title {
+  background-color: #bbb01c!important;
+  width: 150px;
+  display: inline;
+  
+}
+</style>
 {% if user.is_authenticated %}
 {% if request.user.role == 'Administrador' %}
 <div class="main-container">
     <div class="main-cards">
-        <div class="main-card" onclick="openModal('usuarios-modal')" >
+        <div class="main-card" onclick="openModal('usuarios-modal')" id="cards">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
@@ -36,7 +76,18 @@
         </div>
     </div>
 </div>
-
+<style>
+    body.dark .modal-container,
+    body.dark .modal-option,
+    body.dark .modal-option:hover {
+        background-color: #000;
+        color: #fff;
+        border: 2px solid rgba(0, 16, 31, 0.63);
+    }
+    body.dark .modal-option:hover {
+        background-color: #5a5959;
+    }
+</style>
 <!-- Modal Usuarios -->
 <div class="modal-overlay" id="usuarios-modal">
     <div class="modal-container">
@@ -178,6 +229,7 @@
 </div>
 {% endif %}
 {% if request.user.role == 'Empleado' %}
+sty
 <div class="main-container">
     <div class="main-cards_empleado">
         <div class="main-card" onclick="openModal('usuarios-modal')" >

@@ -8,6 +8,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
+    body.dark section{
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: white;
+}
+body.dark #modal{
+    background-color: black;
+    color: white;
+}
+body.dark .paginacion a,
+    body.dark .paginacion span {
+        color: white;
+
+    }
+
+    body.dark .paginacion .disabled {
+        background-color: black;
+        cursor: not-allowed;
+    }
     /* Modal */
     #modal {
         display: none;
@@ -138,7 +156,7 @@
                     <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')">
                         <i data-feather="eye" class="icono"></i>
                     </button>
-                    <a href="{% url 'cafeteria:crear_devolucion_caf' pedido.id %}" class="btn btn-warning">Devolver</a>
+                    <a href="{% url 'cafeteria:crear_devolucion_caf' pedido.id %}" ><button class="devolver"><i class="fas fa-undo-alt text-white" title="Devolver"></i></button></a>
 
                     <!-- Contenido oculto para el modal -->
                     <div id="detalles-{{ pedido.id }}" class="detalles-ocultos" style="display:none;">

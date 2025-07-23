@@ -48,31 +48,32 @@ class DevolucionFormCde(forms.ModelForm):
         model = DevolucionCde
         fields = ['pedido_producto', 'cantidad_devuelta', 'motivo']
         widgets = {
-            'motivo': forms.TextInput(attrs={'maxlength': 40}),  # Cambiar a TextInput
+            'motivo': forms.TextInput(attrs={
+                'maxlength': 40,
+                'placeholder': 'Ingrese el motivo de la devolución'
+            }),
+            'pedido_producto': forms.Select(attrs={
+                'class': 'form-control select-producto'
+            }),
+            'cantidad_devuelta': forms.NumberInput(attrs={
+                'min': 1,
+                'class': 'form-control'
+            })
         }
-
+        labels = {
+            'pedido_producto': 'Producto a devolver',
+            'cantidad_devuelta': 'Cantidad',
+            'motivo': 'Motivo de devolución'
+        }
+    
     def __init__(self, *args, **kwargs):
         pedido_id = kwargs.pop('pedido_id', None)
         super().__init__(*args, **kwargs)
-
+        
         if pedido_id:
-            self.fields['pedido_producto'].queryset = PedidoProductoCde.objects.filter(pedido__id=pedido_id)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        pedido_producto = cleaned_data.get('pedido_producto')
-        cantidad_devuelta = cleaned_data.get('cantidad_devuelta')
-
-        if pedido_producto and cantidad_devuelta is not None:
-            total_devuelto = pedido_producto.devoluciones.aggregate(
-                total=Sum('cantidad_devuelta')
-            )['total'] or 0
-
-            disponible = pedido_producto.cantidad - total_devuelto
-
-            if cantidad_devuelta > disponible:
-                raise forms.ValidationError(
-                    f"La cantidad excede lo disponible para devolución ({disponible} unidades)."
-                )
-
-        return cleaned_data
+            self.fields['pedido_producto'].queryset = PedidoProductoCde.objects.filter(
+                pedido__id=pedido_id
+            ).select_related('producto')
+            
+            # Configurar para mostrar solo el nombre del producto
+            self.fields['pedido_producto'].label_from_instance = lambda obj: obj.producto.nombre

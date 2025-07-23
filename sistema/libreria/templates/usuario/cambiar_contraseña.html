@@ -3,7 +3,15 @@
 {% block titulo %}Cambiar contraseña{% endblock %}
 {% block contenido %}
 
-
+<style>
+    body.dark h1,
+    body.dark label{
+        color: white;
+    }
+     body.dark .card-confirm{
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    }
+</style>
 <link rel="stylesheet" href="{% static 'css/cambiar_contraseña.css' %}?v={% now 'U' %}">
 
 <div class="card-confirm">

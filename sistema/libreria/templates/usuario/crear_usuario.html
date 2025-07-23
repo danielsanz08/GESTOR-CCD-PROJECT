@@ -6,6 +6,15 @@ Crear usuario
 {% endblock %}
 
 {% block contenido %}
+<style>
+    body.dark .formulario{
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    }
+    body.dark h1,
+    body.dark label{
+        color: white;
+    }
+</style>
 <link rel="stylesheet" href="{% static 'css/crear_usuario.css' %}?v={% now 'U' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 

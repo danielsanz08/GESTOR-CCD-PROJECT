@@ -73,6 +73,24 @@
         margin-top: 15px;
         text-align: right;
     }
+    body.dark section{
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: white;
+}
+body.dark #modal{
+    background-color: black;
+    color: white;
+}
+body.dark .paginacion a,
+    body.dark .paginacion span {
+        color: white;
+
+    }
+
+    body.dark .paginacion .disabled {
+        background-color: black;
+        cursor: not-allowed;
+    }
 </style>
 <section>
     <h1>Pedidos Confirmados y cancelados papeleria</h1>
@@ -124,9 +142,10 @@
                 <td>{{ pedido.estado }}</td>
                 <td>
                     <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')">
-                        <i data-feather="eye" class="icono"></i>
+                        <i class="fas fa-eye text-white" title="Ver"></i>
+
                     </button>
-                    <a href="{% url 'papeleria:crear_devolucion' pedido.id %}" class="btn btn-warning">Devolver</a>
+                    <a href="{% url 'papeleria:crear_devolucion' pedido.id %}" class="devolver"><button class="devolver"><i class="fas fa-undo-alt text-white" title="Devolver"></i></button></a>
                     <!-- Contenido oculto para el modal -->
                     <div id="detalles-{{ pedido.id }}" class="detalles-ocultos" style="display:none;">
                         <div class="modal-header">

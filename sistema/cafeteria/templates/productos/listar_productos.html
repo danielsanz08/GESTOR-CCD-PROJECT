@@ -3,7 +3,30 @@
 {% block titulo %}Listar productos{% endblock %}
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/listar_articulo.css' %}?v={% now 'U' %}">
+<style>
+    body.dark #section,
+    body.dark .modal-contenido {
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+        color: #fff;
+        border: 2px solid rgba(0, 16, 31, 0.63);
+    }
 
+    body.dark .modal-contenido,
+    body.dark #modal-detalles {
+        background-color: black;
+    }
+
+    body.dark .paginacion a,
+    body.dark .paginacion span {
+        color: white;
+
+    }
+
+    body.dark .paginacion .disabled {
+        background-color: black;
+        cursor: not-allowed;
+    }
+</style>
 <div class="fondo">
     <img src="{% static 'imagen/LOGO.png' %}" alt="Logo CCD">
 </div>

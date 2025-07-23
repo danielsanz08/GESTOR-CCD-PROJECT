@@ -4,6 +4,16 @@
 {% block titulo %}Ver perfil{% endblock %}
 
 {% block contenido %}
+<style>
+    body.dark .card{
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    }
+    body.dark h1,
+    body.dark label,
+    body.dark span{
+        color: white;
+    }
+</style>
 <link rel="stylesheet" href="{% static 'css/ver_perfil.css' %}?v={% now 'U' %}">
 <div class="card">
     <h2 class="info"><i class="fas fa-user"></i>Información</h2><br>
@@ -24,7 +34,7 @@
         </div>
         {% if user.is_authenticated %}
         <div class="botones">
-            <a href="{% url 'libreria:editar_usuario' user.id %}"><button class="editar">Editar usuario</button></a>
+            
             <a href="{% url 'cde:index_cde' %}"><button class="atras">Atrás</button></a>
         </div>
         {% endif %}

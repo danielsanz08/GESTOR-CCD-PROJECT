@@ -51,6 +51,7 @@ section {
   width: 100px;
   height: 7px;
   left: -15px;
+  z-index: 1;
 }
 
 .desde {
@@ -68,6 +69,7 @@ section {
   transition: border-color 0.3s ease;
   width: 100px;
   height: 7px;
+  z-index: 1;
   left: 15px;
 }
 
@@ -93,6 +95,7 @@ section {
   width: 60px;
   height: 25px;
   top: -2px;
+  z-index: 1;
   text-align: center;
 }
 
@@ -106,6 +109,7 @@ section {
   background-color: #0056b3;
   color: rgb(0, 0, 0);
   border-radius: 10px;
+  z-index: 1;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   position: absolute;
@@ -117,6 +121,7 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1;
 }
 
 .btn-search:hover {
@@ -136,6 +141,7 @@ section {
 .clean {
   background-color: #b30000;
   color: rgb(0, 0, 0);
+  z-index: 1;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
@@ -266,18 +272,20 @@ td {
 
 .cl-toggle-switch {
   position: relative;
+  z-index: 1;
 }
 
 .cl-switch {
   position: relative;
   display: inline-block;
+  z-index: 1;
 }
 
 .cl-switch>input {
   appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
-  z-index: -1;
+  z-index: 1;
   position: absolute;
   right: 6px;
   top: -8px;
@@ -297,6 +305,7 @@ td {
 .cl-switch>span::before {
   content: "";
   display: inline-block;
+  z-index: 1;
   margin: 5px 0 5px 10px;
   border-radius: 7px;
   width: 36px;
@@ -308,6 +317,7 @@ td {
 
 .cl-switch>span::after {
   content: "";
+  z-index: 1;
   position: absolute;
   top: 2px;
   right: 16px;
@@ -324,52 +334,63 @@ td {
   right: -10px;
   background-color: #85b8b7;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
   cursor: pointer;
 }
 
 .cl-switch>input:checked+span::before {
   background-color: #85b8b7;
+  z-index: 1;
 }
 
 .cl-switch>input:checked+span::after {
   background-color: #018786;
   transform: translateX(16px);
   cursor: pointer;
+  z-index: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cl-switch:hover>input {
   opacity: 0.04;
+  z-index: 1;
 }
 
 .cl-switch>input:focus {
   opacity: 0.12;
+  z-index: 1;
 }
 
 .cl-switch:hover>input:focus {
   opacity: 0.16;
+  z-index: 1;
 }
 
 .cl-switch>input:active {
   opacity: 1;
   transform: scale(0);
   transition: transform 0s, opacity 0s;
+  z-index: 1;
 }
 
 .cl-switch>input:active+span::before {
   background-color: #8f8f8f;
+  z-index: 1;
 }
 
 .cl-switch>input:checked:active+span::before {
   background-color: #85b8b7;
+  z-index: 1;
 }
 
 .cl-switch>input:disabled {
   opacity: 0;
+  z-index: 1;
 }
 
 .cl-switch>input:disabled+span::before {
   background-color: #ddd;
+  z-index: 1;
 }
 
 .cl-switch>input:checked:disabled+span::before {
@@ -390,6 +411,7 @@ td {
   margin-right: 1vh;
   cursor: pointer;
   color: rgb(0, 0, 0);
+  z-index: 1;
 }
 
 .editar-btn:hover {
@@ -408,6 +430,7 @@ td {
   margin-right: 1vh;
   cursor: pointer;
   color: rgb(0, 0, 0);
+  z-index: 1;
 }
 
 .permisos-btn {
@@ -416,6 +439,7 @@ td {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   width: 60px;
   height: 25px;
+  z-index: 1;
   border-radius: 10px;
   margin-right: 1vh;
   cursor: pointer;

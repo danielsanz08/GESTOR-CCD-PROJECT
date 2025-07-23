@@ -5,12 +5,14 @@
 <link rel="stylesheet" href="{% static 'css/devolucion.css' %}?v={% now 'U' %}">
 
 {% if pedido %}
+<br>
 <section>
     <h4>Registrar Devolución del Pedido #{{ pedido.id }}</h4>
 
+
     <form method="post">
         {% csrf_token %}
-
+        
         <div id="devoluciones-container">
             <div class="devolucion-form default-form">
                 {{ form.as_p }}

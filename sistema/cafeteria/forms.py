@@ -85,31 +85,19 @@ class DevolucionFormCaf(forms.ModelForm):
         model = DevolucionCaf
         fields = ['pedido_producto', 'cantidad_devuelta', 'motivo']
         widgets = {
-            'motivo': forms.TextInput(attrs={'maxlength': 40}),  # Cambiar a TextInput
+            'motivo': forms.TextInput(attrs={'maxlength': 40}),
+            'pedido_producto': forms.Select(attrs={'class': 'select-producto'}),
         }
-
+    
     def __init__(self, *args, **kwargs):
         pedido_id = kwargs.pop('pedido_id', None)
         super().__init__(*args, **kwargs)
-
+        
         if pedido_id:
-            self.fields['pedido_producto'].queryset = PedidoProducto.objects.filter(pedido__id=pedido_id)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        pedido_producto = cleaned_data.get('pedido_producto')
-        cantidad_devuelta = cleaned_data.get('cantidad_devuelta')
-
-        if pedido_producto and cantidad_devuelta is not None:
-            total_devuelto = pedido_producto.devoluciones.aggregate(
-                total=Sum('cantidad_devuelta')
-            )['total'] or 0
-
-            disponible = pedido_producto.cantidad - total_devuelto
-
-            if cantidad_devuelta > disponible:
-                raise forms.ValidationError(
-                    f"La cantidad excede lo disponible para devolución ({disponible} unidades)."
-                )
-
-        return cleaned_data
+            # Forzar la actualización del label para mostrar solo el nombre
+            self.fields['pedido_producto'].queryset = PedidoProducto.objects.filter(
+                pedido__id=pedido_id
+            ).select_related('producto')
+            
+            # Opcional: puedes agregar esto para mejorar el formato en el select
+            self.fields['pedido_producto'].label_from_instance = lambda obj: obj.producto.nombre

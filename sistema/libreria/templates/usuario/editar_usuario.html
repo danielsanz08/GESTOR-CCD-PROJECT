@@ -3,6 +3,15 @@
 {% block titulo %}Editar usuario{% endblock %}
 
 {% block contenido %}
+<style>
+     body.dark .formulario{
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    }
+    body.dark h1,
+    body.dark label{
+        color: white;
+    }
+</style>
 <link rel="stylesheet" href="{% static 'css/editar_usuario.css' %}?v={% now 'U' %}">
 
 <div class="formulario">

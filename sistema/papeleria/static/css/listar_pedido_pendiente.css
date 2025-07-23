@@ -379,7 +379,20 @@ td {
   cursor: pointer;
   color: white;
 }
+.devolver {
+  width: 10vh;
+  height: 25px;
+  background-color: #b30000;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border: none;
+}
 
+.devolver:hover {
+  background-color: #8a0101;
+  cursor: pointer;
+  color: white;
+}
 .btn-accion {
   width: 10vh;
   height: 25px;

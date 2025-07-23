@@ -3,11 +3,30 @@
 {% block titulo %}Listar articulos{% endblock %}
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/listar_articulo.css' %}?v={% now 'U' %}">
+<style>
+    body.dark #section,
+    body.dark #modal-detalles,
+    body.dark #eliminar_modal {
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+        color: #fff;
+        border: 2px solid rgba(0, 16, 31, 0.63);
+    }
 
-<div class="fondo">
-    <img src="{% static 'imagen/LOGO.png' %}" alt="Logo CCD">
-</div>
+    body.dark #modal-detalles {
+        background-color: black;
+    }
 
+    body.dark .paginacion a,
+    body.dark .paginacion span {
+        color: white;
+
+    }
+
+    body.dark .paginacion .disabled {
+        background-color: black;
+        cursor: not-allowed;
+    }
+</style>
 <section id="section">
     <h1>Artículos de papelería</h1>
 
@@ -89,13 +108,13 @@
                         padding-bottom: 5px;
                         margin-bottom: 15px;
                         text-align: center;
-                        color: blue;
+
                     }
                 </style>
                 <tr style="display: none;">
                     <td colspan="6">
-                        <div id="detalles-{{ articulo.id }}">
-                            <h4 class="detalle-header">Detalles</h4>
+                        <div id="detalles-{{ articulo.id }}" class="details">
+                            <h4 class="detalle-header">Detalles del articulo</h4>
                             <p><strong>ID:</strong> {{ articulo.id }}</p>
                             <p><strong>Nombre:</strong> {{ articulo.nombre }}</p>
                             <p><strong>Marca:</strong> {{ articulo.marca }}</p>
@@ -138,7 +157,7 @@
 
     <!-- Modal para eliminar -->
     <div id="modoEliminar" class="modal" style="display: none;">
-        <div class="modal-contenido">
+        <div class="modal-contenido" id="eliminar_modal">
             <h4>¿Estás seguro de eliminar este artículo?</h4>
             <form id="formEliminar" method="POST" action="{% url 'papeleria:eliminar_articulo' 0 %}">
                 {% csrf_token %}

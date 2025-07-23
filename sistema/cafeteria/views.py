@@ -46,8 +46,6 @@ from reportlab.lib import colors
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
-def index_caf(request):
-    return render(request, 'index_caf/index_caf.html')
 # Create your views here.
 def login_cafeteria(request):
     if request.method == 'POST':

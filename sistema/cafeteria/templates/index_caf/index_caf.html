@@ -5,7 +5,47 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/index_pap.css' %}?v={% now 'U' %}">
-
+<style>
+    body.dark .main-card {
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: #fff;
+    border: 2px solid rgba(0, 16, 31, 0.63);
+}
+ body.dark .alert-box{
+        background-color: black;
+    }
+body.dark .main-card-icon,
+body.dark .main-card-title {
+    color: #fff;
+}
+body.dark .close-btn{
+    color: rgb(196, 196, 196);
+}
+body.dark .close-btn:hover{
+    color: white;
+}
+body.resaltar-enlaces .main-card-title {
+ background-color: #1c96bb !important;
+  width: 150px;
+  
+}
+body.dark .modal-container{
+    background-color: #000;
+}
+body.dark .modal-option{
+    background-color: gray;
+}
+body.dark span,
+body.dark .main-card-icon{
+    color: white;
+}
+body.resaltar-titulos .main-card-title {
+  background-color: #bbb01c!important;
+  width: 150px;
+  display: inline;
+  
+}
+</style>
 {% if user.is_authenticated %}
   {% if request.user.role == 'Administrador' %}
   <div class="main-container">
@@ -123,7 +163,7 @@
                   </a>
                   <a href="{% url 'cafeteria:lista_pedidos_caf' %}" class="modal-option">
                       <i data-feather="list" class="modal-option-icon"></i>
-                      <span class="modal-option-text">Pedidos confirmados</span>
+                      <span class="modal-option-text">Pedidos confirmados y cancelados</span>
                   </a>
                   <a href="{% url 'cafeteria:pedidos_pendientes' %}" class="modal-option">
                       <i data-feather="clock" class="modal-option-icon"></i>
@@ -243,14 +283,15 @@
   
 
   <!-- Alerta de bajo stock solo para administrador -->
- {% if request.user.is_authenticated and request.user.role == 'Administrador' and request.user.acceso_caf and mostrar_alerta %}
+ {% if request.user.is_authenticated and request.user.role == 'Administrador' and request.user.acceso_caf and mostrar_alerta_caf %}
   <div id="stock-alert" class="alert-overlay">
       <div class="alert-box">
           <button class="close-btn" onclick="cerrarAlerta()">&times;</button>
           <p>¡Atención! Hay productos con stock menor a 10 unidades.</p>
       </div>
   </div>
-  {% endif %}
+{% endif %}
+
 {% endif %}
 
 <script>

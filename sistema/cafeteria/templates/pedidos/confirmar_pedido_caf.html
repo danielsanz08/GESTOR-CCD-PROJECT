@@ -6,7 +6,28 @@
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/listar_pedido_pendiente.css' %}?v={% now 'U' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    /* Modal */
+    body.dark section{
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: white;
+}
+body.dark #modal,
+body.dark .context-menu{
+    background-color: black;
+    color: white;
+}
+body.dark .paginacion a,
+    body.dark .paginacion span {
+        color: white;
 
+    }
+
+    body.dark .paginacion .disabled {
+        background-color: black;
+        cursor: not-allowed;
+    }
+</style>
 <style>
     /* Modal */
 </style>

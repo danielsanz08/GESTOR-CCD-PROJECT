@@ -2,9 +2,17 @@
 {% load static %}
 {% block titulo %}Crear backup{% endblock %}
 {% block contenido %}
+<style>
+    body.dark section{
+        background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    }
+    body.dark h1{
+        color: white;
+    }
+</style>
 <link rel="stylesheet" href="{% static 'css/crear_backup.css' %}?v={% now 'U' %}">
 <section>
-    <h1>Crear nueva copia de seguridad</h1>
+    <h1 style="text-align: center;">Crear nueva copia de seguridad</h1>
     <form method="post">
         {% csrf_token %}
         <div class="form-group">

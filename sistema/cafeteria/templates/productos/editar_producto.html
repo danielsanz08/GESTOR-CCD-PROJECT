@@ -3,7 +3,13 @@
 {% block titulo %}Editar productos{% endblock %}
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/editar_articulo.css' %}?v={% now 'U' %}">
-
+<style>
+ body.dark .formulario {
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: #fff;
+    border: 2px solid rgba(0, 16, 31, 0.63);
+}
+</style>
 <div class="formulario">
     <h2>Editar producto</h2>
     <form method="POST" class="form_producto" id="form_articulo" action="{% url 'cafeteria:editar_producto' producto.id %}">

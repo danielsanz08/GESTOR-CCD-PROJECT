@@ -3,7 +3,15 @@
 
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/devolucion.css' %}?v={% now 'U' %}">
-
+<style>
+    body.dark section{
+    background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
+    color: white;
+}
+body.dark h4{
+    color: white;
+}
+</style>
 {% if pedido %}
 <section>
     <ul>
