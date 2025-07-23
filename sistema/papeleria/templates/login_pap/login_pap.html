@@ -3,6 +3,31 @@
 {% block contenido %}
 
 <link rel="stylesheet" href="{% static 'css/login_pap.css' %}?v={% now 'U' %}">
+<style>
+    body.dark .login{
+        background-color: rgba(0, 0, 0, 0.788);
+    }
+    body.dark h3,
+    body.dark label,
+    body.dark .op .contraseña{
+        color: white;
+    }
+    body.dark #btn{
+        background: #013770;
+    }
+    body.dark #btn:hover{
+        background: #011d3b;
+        
+    }
+    body.resaltar-enlaces .papeleria,
+    body.resaltar-enlaces .cafeteria,
+    body.resaltar-enlaces .cde{
+        background-color: #1c96bb !important;
+        width: 100px;
+        display: inline;
+    }
+
+</style>
 <form method="POST" action="{% url 'papeleria:login_papeleria' %}" class="login">
     <h3 class="titulo"><i data-feather="user"></i>
         Iniciar sesión - Módulo papeleria</h3>
@@ -17,7 +42,7 @@
     </div>
     <button type="submit" class="btn btn-primary btn-block" id="btn">Iniciar sesión</button>
     <div class="op">
-        <a href="{% url 'libreria:password_reset' %}">¿Olvidaste la contraseña?</a>
+        <a href="{% url 'libreria:password_reset' %}" class="contraseña">¿Olvidaste la contraseña?</a>
     </div>
 </form>
 

@@ -3,6 +3,27 @@
 {% block titulo %}GESTOR CCD{% endblock %}
 {% block contenido %}
 <link rel="stylesheet" href="{% static 'css/index.css' %}?v={% now 'U' %}">
+<style>
+    body.dark .contenedor-principal,
+    body.dark .seccion {
+        background-color: rgba(0, 0, 0, 0.788);
+    }
+
+    body.dark .registrate {
+        color: white;
+    }
+
+    body.resaltar-enlaces .registrate{
+        background-color: #1c96bb !important;
+    }
+    body.resaltar-enlaces .papeleria,
+    body.resaltar-enlaces .cafeteria,
+    body.resaltar-enlaces .cde{
+        background-color: #1c96bb !important;
+        width: 100px;
+        display: inline;
+    }
+</style>
 <div class="contenedor-principal">
     <!-- Botón "Regístrate" en esquina superior derecha -->
     <a href="{% url 'libreria:crear_usuario' %}" class="registrate">Registrate</a>
@@ -16,19 +37,19 @@
     <div class="div-derecho">
         <a href="{% url 'papeleria:login_papeleria' %}">
             <div class="seccion" onclick="location.href='#';">
-                <h2>Papelería</h2>
+                <h2 class="papeleria">Papelería</h2>
                 <p>Gestión completa de articulos y servicios de papelería</p>
             </div>
         </a>
         <a href="{% url 'cafeteria:login_cafeteria' %}">
             <div class="seccion">
-                <h2>Cafetería</h2>
+                <h2 class="cafeteria">Cafetería</h2>
                 <p>Administración de productos y productos de cafetería y aseo</p>
             </div>
         </a>
         <a href="{% url 'cde:login_cde' %}">
             <div class="seccion">
-                <h2>Centro de Eventos</h2>
+                <h2 class="cde">Centro de Eventos</h2>
                 <p> Gestión de pedidos para centro de eventos</p>
             </div>
         </a>
