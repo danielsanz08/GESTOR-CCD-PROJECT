@@ -118,175 +118,215 @@ def crear_usuario(request):
                     # Crear el contenido HTML del email
                     html_content = f"""
                     <!DOCTYPE html>
-                    <html lang="es">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>Nuevo Usuario Registrado</title>
-                        <style>
-                            body {{
-                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                                line-height: 1.6;
-                                color: #333333;
-                                max-width: 600px;
-                                margin: 0 auto;
-                                padding: 20px;
-                                background-color: #f5f5f5;
-                            }}
-                            .email-container {{
-                                background-color: #ffffff;
-                                border-radius: 8px;
-                                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                                overflow: hidden;
-                            }}
-                            .header {{
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                padding: 20px;
-                                text-align: center;
-                            }}
-                            .logo {{
-                                max-width: 380px;
-                                height: 200px;
-                                margin-bottom: 15px;
-                            }}
-                            .content {{
-                                padding: 25px;
-                            }}
-                            .role-badge {{
-                                display: inline-block;
-                                background-color: #007bff;
-                                color: white;
-                                padding: 5px 15px;
-                                border-radius: 20px;
-                                font-size: 14px;
-                                font-weight: bold;
-                                margin: 10px 0;
-                            }}
-                            .role-badge.admin {{
-                                background-color: #dc3545;
-                            }}
-                            .info-box {{
-                                background-color: #f8f9fa;
-                                border-left: 4px solid #007bff;
-                                padding: 15px;
-                                margin: 20px 0;
-                                border-radius: 0 5px 5px 0;
-                            }}
-                            .info-label {{
-                                font-weight: bold;
-                                color: #495057;
-                                display: inline-block;
-                                min-width: 150px;
-                            }}
-                            .permisos-grid {{
-                                display: grid;
-                                grid-template-columns: 1fr 1fr 1fr;
-                                gap: 10px;
-                                margin: 15px 0;
-                            }}
-                            .permiso-item {{
-                                text-align: center;
-                                padding: 10px;
-                                border-radius: 5px;
-                                font-size: 14px;
-                            }}
-                            .permiso-si {{
-                                background-color: #d4edda;
-                                color: #155724;
-                                border: 1px solid #c3e6cb;
-                            }}
-                            .permiso-no {{
-                                background-color: #f8d7da;
-                                color: #721c24;
-                                border: 1px solid #f5c6cb;
-                            }}
-                            .alert-box {{
-                                background-color: #fff3cd;
-                                border: 1px solid #ffeaa7;
-                                color: #856404;
-                                padding: 15px;
-                                border-radius: 5px;
-                                margin: 20px 0;
-                            }}
-                            .footer {{
-                                text-align: center;
-                                padding: 15px;
-                                font-size: 12px;
-                                color: #6c757d;
-                                border-top: 1px solid #e9ecef;
-                                background-color: #f8f9fa;
-                            }}
-                            .btn-action {{
-                                display: inline-block;
-                                background-color: #007bff;
-                                color: white;
-                                padding: 12px 25px;
-                                text-decoration: none;
-                                border-radius: 5px;
-                                margin: 15px 0;
-                                font-weight: bold;
-                            }}
-                        </style>
-                    </head>
-                    <body>
-                        <div class="email-container">
-                            <div class="header">
-                                <img src="https://ccduitama.org.co/wp-content/uploads/2021/05/LOGOCCD-TRANSPARENCIA.png" alt="Logo CCD" class="logo">
-                                <h2>🎉 Nuevo Usuario Registrado</h2>
-                            </div>
-                            
-                            <div class="content">
-                                <p>Estimado/a Administrador/a,</p>
-                                <p>Se ha registrado un nuevo usuario en el sistema <strong>Gestor CCD</strong> que requiere su revisión y aprobación.</p>
-                                
-                                <div class="info-box">
-                                    <h3>📋 Información del Usuario</h3>
-                                    <p><span class="info-label">👤 Nombre de usuario:</span> <strong>{user.username}</strong></p>
-                                    <p><span class="info-label">🏷️ Rol:</span> <span class="role-badge {'admin' if role == 'Administrador' else ''}">{role}</span></p>
-                                    <p><span class="info-label">💼 Cargo:</span> {cargo if cargo else 'No especificado'}</p>
-                                    <p><span class="info-label">📧 Email:</span> <a href="mailto:{email_nuevo}">{email_nuevo}</a></p>
-                                    <p><span class="info-label">📅 Fecha de registro:</span> {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
-                                </div>
+<html lang="es">
 
-                                <div class="info-box">
-                                    <h3>🔐 Permisos Asignados</h3>
-                                    <div class="permisos-grid">
-                                        <div class="permiso-item {'permiso-si' if user.acceso_pap else 'permiso-no'}">
-                                            <strong>📄 Papelería</strong><br>
-                                            {'✅ Habilitado' if user.acceso_pap else '❌ Deshabilitado'}
-                                        </div>
-                                        <div class="permiso-item {'permiso-si' if user.acceso_caf else 'permiso-no'}">
-                                            <strong>☕ Cafetería</strong><br>
-                                            {'✅ Habilitado' if user.acceso_caf else '❌ Deshabilitado'}
-                                        </div>
-                                        <div class="permiso-item {'permiso-si' if user.acceso_cde else 'permiso-no'}">
-                                            <strong>🎭 Centro de Eventos</strong><br>
-                                            {'✅ Habilitado' if user.acceso_cde else '❌ Deshabilitado'}
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="alert-box">
-                                    <strong>⚠️ Acción Requerida:</strong><br>
-                                    Este usuario necesita su aprobación para poder acceder completamente al sistema. 
-                                    Por favor, revise la información y proceda según considere conveniente.
-                                </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Usuario Registrado</title>
+    <style>
+        body {
+             
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            
+        }
 
-                                <div style="text-align: center;">
-                                    <p>Puede acceder al panel de administración para gestionar este usuario:</p>
-                                    <a href="#" class="btn-action">🔧 Ir al Panel de Administración</a>
-                                </div>
-                            </div>
-                            
-                            <div class="footer">
-                                <p>📧 Este es un mensaje automático, por favor no respondas a este correo.</p>
-                                <p>© {datetime.now().year} Gestor CCD - Todos los derechos reservados</p>
-                                <p>🏢 Centro Cultural y de Convenciones de Duitama</p>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
+        .email-container {
+                
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+            
+        }
+
+        .header {
+                
+                background-color: white;
+                color: white;
+                padding: 20px;
+                text-align: center;
+            
+        }
+
+        .logo {
+                
+                max-width: 380px;
+                height: 200px;
+                margin-bottom: 15px;
+            
+        }
+
+        .content {
+                
+                padding: 25px;
+            
+        }
+
+        .role-badge {
+                
+                display: inline-block;
+                background-color: #007bff00;
+                color: white;
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: bold;
+                margin: 10px 0;
+            
+        }
+
+        .role-badge.admin {
+                
+                background-color: #dc3545;
+            
+        }
+
+        .info-box {
+                
+                background-color: #f8f9fa;
+                border-left: 4px solid #00000000;
+                padding: 15px;
+                margin: 20px 0;
+                border-radius: 0 5px 5px 0;
+            
+        }
+
+        .info-label {
+                
+                font-weight: bold;
+                color: #495057;
+                display: inline-block;
+                min-width: 150px;
+            
+        }
+
+        .permisos-grid {
+                
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 10px;
+                margin: 15px 0;
+            
+        }
+
+        .permiso-item {
+                
+                text-align: center;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 14px;
+            
+        }
+
+        .permiso-si {
+                
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            
+        }
+
+        .permiso-no 
+                {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            
+        }
+
+        .alert-box 
+                {
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                color: #856404;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            
+        }
+
+        .footer {
+                
+                text-align: center;
+                padding: 15px;
+                font-size: 12px;
+                color: #6c757d;
+                border-top: 1px solid #e9ecef;
+                background-color: #f8f9fa;
+            }
+        
+
+        
+        
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="https://ccduitama.org.co/wp-content/uploads/2021/05/LOGOCCD-TRANSPARENCIA.png" alt="Logo CCD"
+                class="logo">
+            <h2>Nuevo Usuario Registrado CCD</h2>
+        </div>
+
+        <div class="content">
+            <p>Estimado/a Administrador/a,</p>
+            <p>Se ha registrado un nuevo usuario en el sistema <strong>Gestor CCD</strong> que requiere su revisión y
+                aprobación.</p>
+
+            <div class="info-box">
+                <h3>📋 Información del Usuario</h3>
+                <p><span class="info-label">Nombre de usuario:</span> <strong>{user.username}</strong></p>
+                <p><span class="info-label">Rol:</span> <span
+                        class="role-badge {'admin' if role == 'Administrador' else ''}">{role}</span></p>
+                <p><span class="info-label"> Cargo:</span> {cargo if cargo else 'No especificado'}</p>
+                <p><span class="info-label">Correo:</span> <a href="mailto:{email_nuevo}">{email_nuevo}</a></p>
+                <p><span class="info-label">Fecha de registro:</span> {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Permisos Asignados</h3>
+                <div class="permisos-grid">
+                    <div class="permiso-item {'permiso-si' if user.acceso_pap else 'permiso-no'}">
+                        <strong>Papelería</strong><br>
+                        {' Habilitado' if user.acceso_pap else ' Deshabilitado'}
+                    </div>
+                    <div class="permiso-item {'permiso-si' if user.acceso_caf else 'permiso-no'}">
+                        <strong>Cafetería</strong><br>
+                        {' Habilitado' if user.acceso_caf else ' Deshabilitado'}
+                    </div>
+                    <div class="permiso-item {'permiso-si' if user.acceso_cde else 'permiso-no'}">
+                        <strong>Centro de Eventos</strong><br>
+                        {' Habilitado' if user.acceso_cde else ' Deshabilitado'}
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert-box">
+                <strong> Acción Requerida:</strong><br>
+                Este usuario necesita su aprobación para poder acceder completamente al sistema.
+                Por favor, revise la información y proceda según considere conveniente.
+            </div>
+
+            
+        </div>
+
+        <div class="footer">
+            <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
+            <p>© {datetime.now().year} Gestor CCD - Todos los derechos reservados</p>
+            <p>Centro Cultural y de Convenciones de Duitama</p>
+        </div>
+    </div>
+</body>
+
+</html>
                     """
                     
                     # Contenido de texto plano como respaldo
