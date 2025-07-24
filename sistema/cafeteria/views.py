@@ -1564,24 +1564,37 @@ def graficas_usuario_caf(request):
 def grafica_pedidos_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
-        {'name': 'Estadisticas', 'url': reverse('cafeteria:index_estadistica_caf')}, 
+        {'name': 'Estadísticas', 'url': reverse('cafeteria:index_estadistica_caf')}, 
         {'name': 'Gráfico de pedidos Administrativa', 'url': reverse('cafeteria:grafica_pedidos_caf')},
     ]
 
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
+    fecha_inicio_str = request.GET.get('fecha_inicio')
+    fecha_fin_str = request.GET.get('fecha_fin')
 
-    productos = PedidoProducto.objects.select_related('producto')
+    productos = PedidoProducto.objects.select_related('producto', 'pedido')
 
-    if fecha_inicio:
-        productos = productos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    if fecha_fin:
-        fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d') + timedelta(days=1)
-        productos = productos.filter(pedido__fecha_pedido__lt=fecha_fin_dt)
+    if fecha_inicio_str:
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
+            productos = productos.filter(pedido__fecha_pedido__gte=fecha_inicio)
+        except ValueError:
+            fecha_inicio = None
+    else:
+        fecha_inicio = None
 
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            productos = productos.filter(pedido__fecha_pedido__lt=fecha_fin)
+        except ValueError:
+            fecha_fin = None
+    else:
+        fecha_fin = None
+
+    # ✅ Agrupar por producto y sumar cantidades
     datos = productos.values('producto__nombre').annotate(
         total_cantidad=Sum('cantidad')
-    ).order_by('producto__nombre')
+    ).order_by('-total_cantidad')  # puedes usar 'producto__nombre' si prefieres orden alfabético
 
     etiquetas = [item['producto__nombre'] for item in datos]
     cantidades = [item['total_cantidad'] for item in datos]
@@ -1590,8 +1603,8 @@ def grafica_pedidos_caf(request):
         'nombres': etiquetas,
         'cantidades': cantidades,
         'breadcrumbs': breadcrumbs,
-        'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin,
+        'fecha_inicio': fecha_inicio_str,
+        'fecha_fin': fecha_fin_str,
     })
 @login_required(login_url='/acceso_denegado/')
 def grafica_estado_pedido_caf(request):

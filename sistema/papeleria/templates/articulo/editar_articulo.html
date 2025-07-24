@@ -93,7 +93,6 @@
             if (valor.trim().length > 0 && valor.length < 3) {
                 return "Debe tener al menos 3 caracteres.";
             }
-            // Expresión regular mejorada para aceptar más caracteres especiales
             if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,;:¡!¿?\"'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$/.test(valor)) {
                 return "Contiene caracteres inválidos.";
             }
@@ -103,20 +102,26 @@
             return "";
         }
 
-        // Formateador de cantidad (máximo 10 dígitos)
-        const cantidadInput = document.getElementById('id_cantidad');
-        cantidadInput.addEventListener('input', function () {
-            let value = this.value.replace(/[^\d]/g, '');
-            if (value.length > 10) value = value.substring(0, 10);
-            this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        });
+        function validarCantidad(valor) {
+            const limpio = valor.replace(/\./g, "");
+            if (limpio === "") return "Este campo es requerido.";
+            if (!/^\d{1,10}$/.test(limpio)) {
+                return "Debe contener solo números (máximo 10 dígitos).";
+            }
+            return "";
+        }
 
         function validarPrecio(valor) {
             const limpio = valor.replace(/[.,]/g, "");
+            if (limpio === "") return "Este campo es requerido.";
             if (!/^\d{1,14}(\.\d{0,2})?$/.test(valor.replace(/,/g, ""))) {
                 return "Máximo 14 dígitos antes del punto y 2 decimales.";
             }
             return "";
+        }
+
+        function validarObservacion(valor) {
+            return validarTexto(valor);
         }
 
         function aplicarEventosCampoTexto(nombreCampo, validarFn) {
@@ -133,10 +138,6 @@
             });
         }
 
-        function validarObservacion(valor) {
-            return validarTexto(valor);
-        }
-
         aplicarEventosCampoTexto("nombre", validarTexto);
         aplicarEventosCampoTexto("tipo", validarTexto);
         aplicarEventosCampoTexto("marca", validarTexto);
@@ -146,7 +147,7 @@
         campos.precio.addEventListener("input", function () {
             let valor = campos.precio.value.replace(/[^0-9.]/g, "");
             const partes = valor.split(".");
-            const entero = partes[0].slice(0, 14); // Limitar a 14 dígitos
+            const entero = partes[0].slice(0, 14);
             const decimal = partes[1] ? partes[1].slice(0, 2) : "";
 
             const enteroFormateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -156,10 +157,9 @@
         });
 
         campos.cantidad.addEventListener("input", function () {
-            let valor = campos.cantidad.value.replace(/\D/g, ""); // solo números
-            valor = valor.slice(0, 10); // máximo 10 dígitos reales
+            let valor = campos.cantidad.value.replace(/\D/g, "");
+            valor = valor.slice(0, 10);
 
-            // Aplicar puntos de derecha a izquierda
             let formateado = "";
             let contador = 0;
             for (let i = valor.length - 1; i >= 0; i--) {
@@ -174,7 +174,54 @@
             errores.cantidad.textContent = validarCantidad(formateado);
         });
 
-        document.getElementById("form_articulo").addEventListener("submit", function () {
+        document.getElementById("form_articulo").addEventListener("submit", function (event) {
+            let hayErrores = false;
+            
+            // Validar campos requeridos
+            if (campos.nombre.value.trim() === "") {
+                errores.nombre.textContent = "Este campo es requerido.";
+                hayErrores = true;
+            }
+            
+            if (campos.marca.value.trim() === "") {
+                errores.marca.textContent = "Este campo es requerido.";
+                hayErrores = true;
+            }
+            
+            if (campos.precio.value.trim() === "") {
+                errores.precio.textContent = "Este campo es requerido.";
+                hayErrores = true;
+            }
+            
+            if (campos.cantidad.value.trim() === "") {
+                errores.cantidad.textContent = "Este campo es requerido.";
+                hayErrores = true;
+            }
+            
+            // Validar otros campos
+            const camposAValidar = {
+                nombre: validarTexto(campos.nombre.value),
+                tipo: validarTexto(campos.tipo.value),
+                marca: validarTexto(campos.marca.value),
+                precio: validarPrecio(campos.precio.value),
+                cantidad: validarCantidad(campos.cantidad.value),
+                proveedor: validarTexto(campos.proveedor.value),
+                observacion: validarObservacion(campos.observacion.value)
+            };
+            
+            Object.keys(camposAValidar).forEach(campo => {
+                if (camposAValidar[campo]) {
+                    errores[campo].textContent = camposAValidar[campo];
+                    hayErrores = true;
+                }
+            });
+            
+            if (hayErrores) {
+                event.preventDefault();
+                return false;
+            }
+            
+            // Formatear valores antes de enviar
             campos.precio.value = campos.precio.value.replace(/,/g, "");
             campos.cantidad.value = campos.cantidad.value.replace(/\./g, "");
             ["nombre", "tipo", "marca", "proveedor", "observacion"].forEach(campo => {

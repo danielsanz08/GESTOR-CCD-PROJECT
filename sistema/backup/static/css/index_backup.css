@@ -74,3 +74,22 @@ section {
     text-align: center;
     font-weight: bold;
 }
+/* Móviles (hasta 767px) */
+@media (max-width: 767px) {
+    section {
+        display: block;
+        margin-top: 10vh;
+}
+.card {
+    margin-bottom: 5vh;
+}
+#listar{
+    display: none;
+}
+}
+/* Tablets (768px — 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    #listar{
+    display: none;
+}
+}

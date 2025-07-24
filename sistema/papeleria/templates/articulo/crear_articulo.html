@@ -9,7 +9,6 @@
     color: #fff;
     border: 2px solid rgba(0, 16, 31, 0.63);
 }
-
 </style>
 
 <link rel="stylesheet" href="{% static 'css/crear_articulo.css' %}?v={% now 'U' %}">
@@ -99,7 +98,6 @@
             if (valor.trim().length > 0 && valor.length < 3) {
                 return "Debe tener al menos 3 caracteres.";
             }
-            // Expresión regular mejorada para aceptar más caracteres especiales
             if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,;:¡!¿?\"'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$/.test(valor)) {
                 return "Contiene caracteres inválidos.";
             }
@@ -113,11 +111,10 @@
             if (valor.trim().length > 0 && valor.length < 3) {
                 return "Debe tener al menos 3 caracteres.";
             }
-            // Expresión regular que NO permite números
             if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s.,;:¡!¿?\"'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$/.test(valor)) {
                 return "No se permiten números en este campo.";
             }
-            if (/(.)\1{1,}/.test(valor)) {
+            if (/(.)\1{2,}/.test(valor)) {
                 return "No repita un mismo carácter más de 2 veces.";
             }
             return "";
@@ -129,7 +126,6 @@
         }
 
         function validarPrecio(valor) {
-            const limpio = valor.replace(/[.,]/g, "");
             if (!/^\d{1,14}(\.\d{0,2})?$/.test(valor.replace(/,/g, ""))) {
                 return "Máximo 14 dígitos antes del punto y 2 decimales.";
             }
@@ -139,12 +135,10 @@
         function aplicarEventosCampoTexto(nombreCampo, validarFn) {
             const input = campos[nombreCampo];
             const errorDiv = errores[nombreCampo];
-
             input.addEventListener("input", function () {
                 const pos = input.selectionStart;
                 input.value = capitalizarPrimeraLetra(input.value);
                 input.setSelectionRange(pos, pos);
-
                 const msg = validarFn(input.value);
                 errorDiv.textContent = input.value.trim() ? msg : "";
             });
@@ -153,20 +147,16 @@
         function aplicarEventosCampoTextoSinNumeros(nombreCampo) {
             const input = campos[nombreCampo];
             const errorDiv = errores[nombreCampo];
-
             input.addEventListener("input", function () {
-                // Eliminar números del valor
                 const valorSinNumeros = input.value.replace(/[0-9]/g, "");
                 const pos = input.selectionStart;
                 input.value = capitalizarPrimeraLetra(valorSinNumeros);
                 input.setSelectionRange(pos, pos);
-
                 const msg = validarTextoSinNumeros(input.value);
                 errorDiv.textContent = input.value.trim() ? msg : "";
             });
         }
 
-        // Aplicar validaciones sin números para nombre, marca, tipo, observación y proveedor
         aplicarEventosCampoTextoSinNumeros("nombre");
         aplicarEventosCampoTextoSinNumeros("tipo");
         aplicarEventosCampoTextoSinNumeros("marca");
@@ -178,39 +168,54 @@
             const partes = valor.split(".");
             const entero = partes[0].slice(0, 14);
             const decimal = partes[1] ? partes[1].slice(0, 2) : "";
-
             const enteroFormateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             campos.precio.value = decimal ? `${enteroFormateado}.${decimal}` : enteroFormateado;
-
             errores.precio.textContent = validarPrecio(entero + (decimal ? "." + decimal : ""));
         });
 
         campos.cantidad.addEventListener("input", function () {
-            let valor = campos.cantidad.value.replace(/\D/g, "");
-            valor = valor.slice(0, 10);
-
+            let valor = campos.cantidad.value.replace(/\D/g, "").slice(0, 10);
             let formateado = "";
-            let contador = 0;
-            for (let i = valor.length - 1; i >= 0; i--) {
+            for (let i = valor.length - 1, count = 0; i >= 0; i--, count++) {
                 formateado = valor[i] + formateado;
-                contador++;
-                if (contador === 3 && i !== 0) {
-                    formateado = "." + formateado;
-                    contador = 0;
-                }
+                if (count % 3 === 2 && i !== 0) formateado = "." + formateado;
             }
             campos.cantidad.value = formateado;
             errores.cantidad.textContent = validarCantidad(formateado);
         });
 
-        document.getElementById("form_articulo").addEventListener("submit", function () {
+        document.getElementById("form_articulo").addEventListener("submit", function (e) {
+            // Limpieza final
             campos.precio.value = campos.precio.value.replace(/,/g, "");
             campos.cantidad.value = campos.cantidad.value.replace(/\./g, "");
             ["nombre", "tipo", "marca", "proveedor", "observacion"].forEach(campo => {
                 campos[campo].value = capitalizarPrimeraLetra(campos[campo].value);
             });
+
+            let hayErrores = false;
+
+            // Verifica si algún campo tiene mensaje de error
+            for (const clave in errores) {
+                if (errores[clave].textContent.trim() !== "") {
+                    hayErrores = true;
+                    break;
+                }
+            }
+
+            // Verifica si los campos obligatorios están vacíos
+            const camposRequeridos = ["nombre", "marca", "precio", "cantidad"];
+            for (const campo of camposRequeridos) {
+                if (campos[campo].value.trim() === "") {
+                    errores[campo].textContent = "Este campo es obligatorio.";
+                    hayErrores = true;
+                }
+            }
+
+            if (hayErrores) {
+                e.preventDefault();
+                alert("Por favor corrige los errores antes de enviar el formulario.");
+            }
         });
     });
 </script>
-
 {% endblock %}

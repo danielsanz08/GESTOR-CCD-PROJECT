@@ -1292,14 +1292,14 @@ def grafica_pedidos_cde(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    productos = PedidoProductoCde.objects.select_related('pedido', 'producto', 'pedido__registrado_por')
+    productos = PedidoProductoCde.objects.select_related('pedido', 'producto')
 
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d")
             productos = productos.filter(pedido__fecha_pedido__gte=fecha_inicio)
         except ValueError:
-            fecha_inicio = None  # puedes manejar errores si quieres
+            fecha_inicio = None
     else:
         fecha_inicio = None
 
@@ -1312,12 +1312,12 @@ def grafica_pedidos_cde(request):
     else:
         fecha_fin = None
 
+    # ✅ Agrupar solo por producto para evitar repeticiones
     datos = productos.values(
-        'pedido__registrado_por__username',
         'producto__nombre'
     ).annotate(
         total_cantidad=Sum('cantidad')
-    ).order_by('pedido__registrado_por__username', 'producto__nombre')
+    ).order_by('producto__nombre')
 
     etiquetas = [item['producto__nombre'] for item in datos]
     cantidades = [item['total_cantidad'] for item in datos]

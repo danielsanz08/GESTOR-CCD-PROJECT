@@ -57,12 +57,12 @@ section {
 
 
 .botones {
-    
+
     width: 30vh;
 }
 
 #crear {
-    
+
     background-color: red;
     background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);
@@ -106,4 +106,36 @@ section {
 .modelos {
 
     margin-top: 5vh;
+}
+
+/* Móviles (hasta 767px) */
+@media (max-width: 767px) {
+    section {
+        display: block;
+        margin-top: 10vh;
+    }
+
+    #crear {
+        left: 5vh;
+        font-size: 15px;
+    }
+}
+
+/* Tablets (768px — 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    section {
+        display: block;
+        margin-top: 10vh;
+        height: 320px;
+        overflow: hidden;
+        margin-top: 10vh;
+    }
+
+    #crear {
+        left: 12vh;
+        font-size: 15px;
+    }
+    label, .modelos{
+        font-size: 20px;
+    }
 }

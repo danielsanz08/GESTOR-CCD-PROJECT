@@ -27,8 +27,9 @@ section {
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  position: absolute;
-  left: 130px;
+  position: relative;
+  left: -53vh;
+  top: -4vh;
   width: 320px !important;
   height: 25px !important;
   box-sizing: border-box;
@@ -240,7 +241,7 @@ table {
   width: 1180px;
   border-spacing: 10px;
   position: absolute;
-  top: 8vh;
+  top: 2vh;
   left: 4vh;
   table-layout: fixed;
   position: relative;
@@ -485,7 +486,7 @@ td {
   transition: background-color 0.3s, color 0.3s;
   cursor: pointer;
   position: relative;
-  top: 40px;
+  top: 20px;
 }
 
 .paginacion a:hover {

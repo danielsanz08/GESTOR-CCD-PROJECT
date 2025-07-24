@@ -50,13 +50,15 @@
                 </div>
             </div>
 
-            <!-- NUEVO: Fecha personalizada -->
+            {% if request.user.role == 'Administrador' %}
+             <!-- NUEVO: Fecha personalizada -->
             <div class="mb-3">
                 <input type="checkbox" id="usar_fecha_personalizada" name="usar_fecha_personalizada">
                 <label for="usar_fecha_personalizada">Usar fecha personalizada</label>
                 <input type="datetime-local" id="fecha_personalizada" name="fecha_personalizada" disabled class="form-control">
             </div>
 
+            {% endif %}
             <div class="botones-principales">
                 <button type="button" onclick="agregarArticulo()" id="agregar">Añadir otro artículo</button>
                 <button type="submit" id="realizar">Realizar Pedido</button>
