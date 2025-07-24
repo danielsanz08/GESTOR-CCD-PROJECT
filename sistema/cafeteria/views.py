@@ -881,7 +881,7 @@ def cambiar_estado_pedido(request, pedido_id):
     <meta charset="UTF-8">
     <title>Estado de Pedido Actualizado</title>
     <style>
-        body {{
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333333;
@@ -889,71 +889,71 @@ def cambiar_estado_pedido(request, pedido_id):
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
-        }}
-        .email-container {{
+        }
+        .email-container {
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-        }}
-        .header {{
+        }
+        .header {
             color: white;
             padding: 20px;
             text-align: center;
-        }}
-        .logo {{
+        }
+        .logo {
             max-width: 180px;
             height: auto;
             margin-bottom: 15px;
-        }}
-        .content {{
+        }
+        .content {
             padding: 25px;
-        }}
-        .status {{
-            font-size: 18px;
+        }
+        .status {
+            font-size: 15px;
             font-weight: bold;
             margin: 15px 0;
             padding: 10px;
             border-radius: 5px;
             text-align: center;
-        }}
-        .status.Confirmado {{
+        }
+        .status.Confirmado {
             color: #155724;
-        }}
-        .status.Cancelado {{
+        }
+        .status.Cancelado {
             background-color: #f8d7da;
             color: #721c24;
-        }}
-        .status.Pendiente {{
+        }
+        .status.Pendiente {
             color: #856404;
-        }}
-        .info-box {{
+        }
+        .info-box {
             background-color: #f8f9fa;
             border-left: 4px solid #007bff;
             padding: 15px;
             margin: 20px 0;
-        }}
-        .info-label {{
+        }
+        .info-label {
             font-weight: bold;
             color: #495057;
             display: inline-block;
             min-width: 150px;
-        }}
-        .articulos-list {{
+        }
+        .articulos-list {
             margin: 15px 0;
             padding-left: 20px;
-        }}
-        .articulo-item {{
+        }
+        .articulo-item {
             margin-bottom: 8px;
-        }}
-        .footer {{
+        }
+        .footer {
             text-align: center;
             padding: 15px;
             font-size: 12px;
             color: #6c757d;
             border-top: 1px solid #e9ecef;
             background-color: #f8f9fa;
-        }}
+        }
     </style>
 </head>
 <body>
@@ -988,6 +988,7 @@ def cambiar_estado_pedido(request, pedido_id):
     </div>
 </body>
 </html>
+       
         """
 
         text_content = f"""
