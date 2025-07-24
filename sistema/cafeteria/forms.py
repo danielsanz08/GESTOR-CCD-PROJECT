@@ -63,7 +63,7 @@ class ProductosEditForm(forms.ModelForm):
         self.fields['precio'].widget.attrs.update({'class':'form-control', 'placeholder': 'Precio del  producto'})
         self.fields['cantidad'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Cantidad de producto'})
         self.fields['proveedor'].widget.attrs.update({'class':'form-control', 'placeholder': 'Proveedor'})
-        self.fields['unidad_medida'].widget.attrs.update({'class': 'form-select'})
+        self.fields['unidad_medida'].widget.attrs.update({'class': 'form-select', 'id':'unidad'})
     
 class PedidoProductoForm(forms.ModelForm):
     class Meta:
