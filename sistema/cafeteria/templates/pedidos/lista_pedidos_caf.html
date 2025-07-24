@@ -211,6 +211,7 @@ body.dark .paginacion a,
                             {% if devoluciones %}
                             <ul>
                                 {% for devolucion in devoluciones %}
+                                
                                 <li>
                                     {{ devolucion.cantidad_devuelta }}  {{ producto.producto.nombre }}
                                     <strong>Motivo:</strong> {{ devolucion.motivo }} 
@@ -221,7 +222,7 @@ body.dark .paginacion a,
                             {% endif %}
                             {% endwith %}
                             {% empty %}
-                            <p>No hay devoluciones para este pedido.</p>
+                            <p> </p>
                             {% endfor %}
 
 
@@ -231,7 +232,12 @@ body.dark .paginacion a,
                     </div>
                 </td>
             </tr>
-            {% endfor %}
+            {% empty %}
+                <tr>
+                    <td colspan="6">No se encontraron resultados</td>
+                </tr>
+                {% endfor %}
+            
         </tbody>
     </table>
 

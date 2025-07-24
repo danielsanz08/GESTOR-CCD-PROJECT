@@ -23,7 +23,8 @@ class Productos(models.Model):
         blank=False,
         null=False
     )
-    fecha_registro = models.DateField(auto_now=True)
+    fecha_registro = models.DateField(auto_now_add=True)
+
     unidad_medida = models.CharField(
         max_length=15,
         choices=UNIDAD_MEDIDA_CHOICES,

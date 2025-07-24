@@ -160,13 +160,13 @@
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidadesAbsolutas = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    // Definir máximo para calcular porcentaje
-    const maxCantidad = 100;
+    // Calcular el valor máximo real entre las cantidades
+    const maxCantidad = Math.max(...cantidadesAbsolutas);
 
-    // Calcular porcentaje y limitar a 100%
+    // Calcular porcentaje relativo al máximo
     const cantidadesPorcentaje = cantidadesAbsolutas.map(c => {
-        let porcentaje = (c / maxCantidad) * 100;
-        return porcentaje > 100 ? 100 : porcentaje.toFixed(2);
+        let porcentaje = maxCantidad > 0 ? (c / maxCantidad) * 100 : 0;
+        return parseFloat(porcentaje.toFixed(2));
     });
 
     // Crear la gráfica
@@ -208,7 +208,10 @@
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            return context.parsed.y + '%';
+                            const index = context.dataIndex;
+                            const porcentaje = context.parsed.y;
+                            const cantidadOriginal = cantidadesAbsolutas[index];
+                            return `Cantidad: ${cantidadOriginal} (${porcentaje}%)`;
                         }
                     }
                 }
@@ -231,4 +234,5 @@
         }
     });
 </script>
+
 {% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 )
@@ -51,6 +52,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     fecha_registro = models.DateField(auto_now_add=True)  # no necesita blank/null; se gestiona automáticamente
     is_active = models.BooleanField(default=True)     # booleanos no aceptan null por defecto
     is_staff = models.BooleanField(default=False)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    session_token = models.CharField(max_length=255, null=True, blank=True)  # ← Nuevo campo
     
     # Campos para los permisos de módulos
     acceso_pap = models.BooleanField(default=False, verbose_name='Acceso Papelería')

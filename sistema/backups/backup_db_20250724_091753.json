@@ -3,7 +3,7 @@
     "model": "libreria.customuser",
     "fields": {
         "password": "pbkdf2_sha256$1000000$EldYPalor37H4MmhcZrtlw$my5nhgY2mXfZvM0nWV2p7Iji1oNeT0qBCGewq35YYDQ=",
-        "last_login": "2025-07-23T20:33:35.937Z",
+        "last_login": "2025-07-24T14:17:34.577Z",
         "is_superuser": false,
         "username": "Daniel Sanchez",
         "email": "jonnathansz73@gmail.com",
@@ -464,14 +464,14 @@
     "pk": 6,
     "fields": {
         "nombre": "Azucar",
-        "marca": "Rtytr",
+        "marca": "riopaila",
         "precio": 1556151,
         "cantidad": 177,
         "proveedor": "Fghfgh",
         "registrado_por": [
             "jonnathansz73@gmail.com"
         ],
-        "fecha_registro": "2025-07-23",
+        "fecha_registro": "2025-07-24",
         "unidad_medida": "Kilogramos",
         "presentacion": "Gfhfghgf"
     }

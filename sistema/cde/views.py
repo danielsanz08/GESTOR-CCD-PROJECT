@@ -66,14 +66,14 @@ def login_cde(request):
             messages.error(request, "Credenciales inválidas.")
 
     return render(request, 'login_cde/login_cde.html')
-
+@login_required(login_url='/acceso_denegado/')
 def logout_cde(request):
     logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect(reverse('libreria:inicio'))
 User = get_user_model()
 
-
+@login_required(login_url='/acceso_denegado/')
 def crear_pedido_cde(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cde:index_cde')},
@@ -210,6 +210,7 @@ Este es un mensaje automático, por favor no respondas.
         'productos': productos,
         'breadcrumbs': breadcrumbs
     })
+@login_required(login_url='/acceso_denegado/')
 def ver_usuario_cde(request, id):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
@@ -218,14 +219,14 @@ def ver_usuario_cde(request, id):
     usuario = get_object_or_404(CustomUser, id=id)
     return render(request, 'usuario_cde/ver_perfil_cde.html', {'usuario': usuario, 'breadcrumbs': breadcrumbs})
 
-
+@login_required(login_url='/acceso_denegado/')
 def index_cde(request):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
     ]
     return render(request, 'index_cde/index_cde.html',{'breadcrumbs': breadcrumbs})
 
-
+@login_required(login_url='/acceso_denegado/')
 def mis_pedidos_cde(request):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
@@ -243,7 +244,6 @@ def mis_pedidos_cde(request):
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
             Q(fecha_pedido__icontains=query) |
-            Q(fecha_estado__icontains=query) |
             Q(registrado_por__username__icontains=query) |
             Q(productos__producto__nombre__icontains=query) |
             Q(productos__cantidad__icontains=query) |
@@ -291,7 +291,7 @@ def mis_pedidos_cde(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
-
+@login_required(login_url='/acceso_denegado/')
 @csrf_exempt  # Solo si no puedes usar {% csrf_token %} en el formulario
 @require_POST
 def cambiar_estado_pedido_cde(request, pedido_id):
@@ -495,7 +495,7 @@ def cambiar_estado_pedido_cde(request, pedido_id):
             print(f"Error enviando email: {str(e)}")
 
     return redirect('cde:pedidos_pendientes_cde')
-
+@login_required(login_url='/acceso_denegado/')
 def pedidos_pendientes_cde(request):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
@@ -514,7 +514,6 @@ def pedidos_pendientes_cde(request):
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
             Q(fecha_pedido__icontains=query) |
-            Q(fecha_estado__icontains=query) |
             Q(registrado_por__username__icontains=query) |
             Q(productos__producto__nombre__icontains=query) |
             Q(productos__cantidad__icontains=query) |
@@ -564,7 +563,7 @@ def pedidos_pendientes_cde(request):
         'current_fecha_fin': fecha_fin_str,
     })
 
-
+@login_required(login_url='/acceso_denegado/')
 def listado_pedidos_cde(request):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
@@ -583,7 +582,6 @@ def listado_pedidos_cde(request):
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
             Q(fecha_pedido__icontains=query) |
-            Q(fecha_estado__icontains=query) |
             Q(registrado_por__username__icontains=query) |
             Q(productos__producto__nombre__icontains=query) |
             Q(productos__cantidad__icontains=query) |
@@ -647,7 +645,7 @@ def draw_table_on_canvas(canvas, doc):
                          width=600, height=600, mask='auto')
         canvas.restoreState()
 
-def wrap_text_p(text, max_len=26):
+def wrap_text_p(text, max_len=20):
     if not text:
         return ""
     
@@ -684,7 +682,8 @@ def wrap_text(text, max_len=23):
     for i in range(len(parts) - 1):
         parts[i] += '-'  # Agrega guion al final de todas menos la última
     return '\n'.join(parts)
-
+from django.utils.dateparse import parse_date
+@login_required(login_url='/acceso_denegado/')
 def get_pedidos_filtrados_cde(request):
     query = request.GET.get('q')
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -697,7 +696,6 @@ def get_pedidos_filtrados_cde(request):
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
             Q(fecha_pedido__icontains=query) |
-            Q(fecha_estado__icontains=query) |
             Q(registrado_por__username__icontains=query) |
             Q(productos__producto__nombre__icontains=query) |
             Q(productos__cantidad__icontains=query) |
@@ -706,9 +704,18 @@ def get_pedidos_filtrados_cde(request):
         ).distinct()
 
     if fecha_inicio and fecha_fin:
-        pedidos = pedidos.filter(fecha_pedido__range=[fecha_inicio, fecha_fin])
+        fecha_inicio_parseada = parse_date(fecha_inicio)
+        fecha_fin_parseada = parse_date(fecha_fin)
+
+        if fecha_inicio_parseada and fecha_fin_parseada:
+            # +1 día a la fecha fin para que incluya todo ese día
+            pedidos = pedidos.filter(
+                fecha_pedido__gte=fecha_inicio_parseada,
+                fecha_pedido__lt=fecha_fin_parseada + timedelta(days=1)
+            )
 
     return pedidos
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pdf_cde(request):
     buffer = BytesIO()
 
@@ -729,18 +736,18 @@ def reporte_pedidos_pdf_cde(request):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título principal
+    # Título
     titulo = Paragraph("REPORTE DE PEDIDOS DE CENTRO DE EVENTOS", styles["Title"])
     elements.append(titulo)
 
     # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de usuarios", "Correo: gestorccd@gmail.com", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "(Correo de la camara)", "Teléfono: (tel. camara)"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
-    estilo_encabezado = TableStyle([
+    tabla_encabezado.setStyle(TableStyle([
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -750,21 +757,20 @@ def reporte_pedidos_pdf_cde(request):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    tabla_encabezado.setStyle(estilo_encabezado)
+    ]))
     elements.append(tabla_encabezado)
 
     # Datos del usuario
     usuario = request.user
     data_usuario = [["Usuario:", "Email:", "Rol:", "Cargo:"]]
     data_usuario.append([
-        usuario.username,
-        usuario.email,
-        getattr(usuario, 'role', 'No definido'),
-        getattr(usuario, 'cargo', 'No definido'),
-    ])
+        wrap_text(usuario.username),
+        wrap_text(usuario.email),
+        wrap_text(getattr(usuario, 'role', 'No definido')),
+        wrap_text(getattr(usuario, 'cargo', 'No definido')),
+])
     table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
-    style_usuario = TableStyle([
+    table_usuario.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -774,78 +780,39 @@ def reporte_pedidos_pdf_cde(request):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    table_usuario.setStyle(style_usuario)
+    ]))
     elements.append(table_usuario)
 
-    # Obtener filtros
-    q = request.GET.get('q', '')
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
-
-    # Fetch pedidos con prefetch para productos, producto y devoluciones
-    pedidos = PedidoCde.objects.prefetch_related(
+    # Pedidos filtrados
+    pedidos = get_pedidos_filtrados_cde(request).prefetch_related(
         'productos__producto',
         'productos__devoluciones'
-    ).filter(estado__in=['Confirmado', 'Cancelado'])
-
-    if q:
-        pedidos = pedidos.filter(
-            Q(id__icontains=q) |
-            Q(estado__icontains=q) |
-            Q(fecha_pedido__icontains=q) |
-            Q(fecha_estado__icontains=q) |
-            Q(registrado_por__username__icontains=q) |
-            Q(productos__producto__nombre__icontains=q) |
-            Q(productos__cantidad__icontains=q) |
-            Q(productos__area__icontains=q) |
-            Q(productos__evento__icontains=q)
-        ).distinct()
-
-    if fecha_inicio:
-        try:
-            pedidos = pedidos.filter(fecha_pedido__gte=datetime.strptime(fecha_inicio, '%Y-%m-%d'))
-        except ValueError:
-            pass
-    if fecha_fin:
-        try:
-            pedidos = pedidos.filter(fecha_pedido__lte=datetime.strptime(fecha_fin, '%Y-%m-%d'))
-        except ValueError:
-            pass
+    )
 
     if not pedidos.exists():
-        centered_style = ParagraphStyle(
-            name="CenteredNormal",
-            parent=styles["Normal"],
-            alignment=TA_CENTER,
-        )
-        no_results = Paragraph("No se encontraron pedidos.", centered_style)
-        elements.append(no_results)
+        centered_style = ParagraphStyle(name="CenteredNormal", parent=styles["Normal"], alignment=TA_CENTER)
+        elements.append(Paragraph("No se encontraron pedidos.", centered_style))
     else:
-        # Encabezado de la tabla
         data_pedidos = [["ID", "Fecha", "Estado", "Registrado Por", "Productos", "Área", "Devoluciones"]]
-
-        # Filas de pedidos
         for pedido in pedidos:
             try:
                 productos = pedido.productos.all()
                 if productos.exists():
                     productos_raw = ", ".join([
-                        f"{pa.cantidad} {pa.producto.presentacion} de {pa.producto.nombre}"
-                        if pa.producto.presentacion else f"{pa.cantidad} {pa.producto.nombre}"
-                        for pa in productos
+                        f"{p.cantidad} {p.producto.presentacion} de {p.producto.nombre}"
+                        if p.producto.presentacion else f"{p.cantidad} {p.producto.nombre}"
+                        for p in productos
                     ])
-                    areas = set(pa.area for pa in productos if pa.area and pa.area != 'No establecido')
+                    areas = set(p.area for p in productos if p.area and p.area != 'No establecido')
                     area_raw = ", ".join(areas) if areas else 'No establecido'
 
                     devoluciones_list = []
-                    for producto_pedido in productos:
-                        for devolucion in producto_pedido.devoluciones.all():
-                            nombre = devolucion.pedido_producto.producto.nombre
-                            presentacion = devolucion.pedido_producto.producto.presentacion
-                            presentacion_str = f" {presentacion}" if presentacion else ""
+                    for p in productos:
+                        for d in p.devoluciones.all():
+                            nombre = d.pedido_producto.producto.nombre
+                            presentacion = d.pedido_producto.producto.presentacion
                             devoluciones_list.append(
-                                f"{devolucion.cantidad_devuelta} {presentacion_str} de {nombre} "
+                                f"{d.cantidad_devuelta} {presentacion if presentacion else ''} de {nombre}"
                             )
                     devoluciones_raw = ", ".join(devoluciones_list) if devoluciones_list else "Sin devoluciones"
                 else:
@@ -860,7 +827,7 @@ def reporte_pedidos_pdf_cde(request):
                     wrap_text_p(pedido.registrado_por.username if pedido.registrado_por else 'No definido'),
                     wrap_text_p(productos_raw),
                     wrap_text_p(area_raw),
-                    wrap_text_p(devoluciones_raw)
+                    wrap_text_p(devoluciones_raw),
                 ])
             except Exception as e:
                 print(f"Error processing pedido {pedido.id}: {str(e)}")
@@ -874,9 +841,8 @@ def reporte_pedidos_pdf_cde(request):
                     wrap_text_p('Error al cargar devoluciones')
                 ])
 
-        # Crear la tabla de pedidos
-        tabla_productos = Table(data_pedidos, colWidths=[20, 90, 100, 140, 150, 100, 120])
-        style_productos = TableStyle([
+        tabla_productos = Table(data_pedidos, colWidths=[20, 90, 80, 160, 150, 100, 120])
+        tabla_productos.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -887,18 +853,16 @@ def reporte_pedidos_pdf_cde(request):
             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ])
-        tabla_productos.setStyle(style_productos)
+        ]))
         elements.append(tabla_productos)
 
-    # Construir el PDF
     doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
 
     buffer.seek(0)
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'
-    return response
-
+    return HttpResponse(buffer, content_type='application/pdf', headers={
+        'Content-Disposition': 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'
+    })
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_excel_cde(request):
     pedidos = get_pedidos_filtrados_cde(request).prefetch_related(
         'productos__producto',
@@ -1015,7 +979,7 @@ def reporte_pedidos_excel_cde(request):
     response['Content-Disposition'] = 'attachment; filename="Reporte pedidos cde.xlsx"'
     wb.save(response)
     return response
-
+@login_required(login_url='/acceso_denegado/')
 def get_pedidos_filtrados_pendientes_cde(request):
     query = request.GET.get('q')
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -1028,7 +992,6 @@ def get_pedidos_filtrados_pendientes_cde(request):
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
             Q(fecha_pedido__icontains=query) |
-            Q(fecha_estado__icontains=query) |
             Q(registrado_por__username__icontains=query) |
             Q(productos__producto__nombre__icontains=query) |
             Q(productos__cantidad__icontains=query) |
@@ -1040,9 +1003,8 @@ def get_pedidos_filtrados_pendientes_cde(request):
         pedidos = pedidos.filter(fecha_pedido__range=[fecha_inicio, fecha_fin])
 
     return pedidos
-
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_pdf_cde(request):
-
     buffer = BytesIO()
 
     doc = SimpleDocTemplate(
@@ -1069,8 +1031,8 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de usuarios", "Correo: gestorccd@gmail.com", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "(Correo de la camara)", "Teléfono: (tel. camara)"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", "Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -1091,10 +1053,10 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     usuario = request.user
     data_usuario = [["Usuario:", "Email:", "Rol:", "Cargo:"]]
     data_usuario.append([
-        usuario.username,
+        wrap_text(usuario.username),
         wrap_text(usuario.email),
-        getattr(usuario, 'role', 'No definido'),
-        getattr(usuario, 'cargo', 'No definido'),
+        wrap_text(getattr(usuario, 'role', 'No definido')),
+        wrap_text(getattr(usuario, 'cargo', 'No definido')),
     ])
     table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
     style_usuario = TableStyle([
@@ -1116,7 +1078,7 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
-    # Fetch pedidos with prefetch for productos and producto
+    # Fetch pedidos con prefetch
     pedidos = get_pedidos_filtrados_pendientes_cde(request).prefetch_related('productos__producto')
 
     if q:
@@ -1124,7 +1086,6 @@ def reporte_pedidos_pendientes_pdf_cde(request):
             Q(id__icontains=q) |
             Q(estado__icontains=q) |
             Q(fecha_pedido__icontains=q) |
-            Q(fecha_estado__icontains=q) |
             Q(registrado_por__username__icontains=q) |
             Q(productos__producto__nombre__icontains=q) |
             Q(productos__cantidad__icontains=q) |
@@ -1136,12 +1097,12 @@ def reporte_pedidos_pendientes_pdf_cde(request):
         try:
             pedidos = pedidos.filter(fecha_pedido__gte=datetime.strptime(fecha_inicio, '%Y-%m-%d'))
         except ValueError:
-            pass  # Handle invalid date format gracefully
+            pass
     if fecha_fin:
         try:
             pedidos = pedidos.filter(fecha_pedido__lte=datetime.strptime(fecha_fin, '%Y-%m-%d'))
         except ValueError:
-            pass  # Handle invalid date format gracefully
+            pass
 
     if not pedidos.exists():
         centered_style = ParagraphStyle(
@@ -1152,10 +1113,9 @@ def reporte_pedidos_pendientes_pdf_cde(request):
         no_results = Paragraph("No se encontraron pedidos pendientes.", centered_style)
         elements.append(no_results)
     else:
-        # Encabezado de la tabla
+        # Encabezado
         data_pedidos = [["ID Pedido", "Fecha", "Estado", "Registrado Por", "Productos", "Área"]]
 
-        # Filas de pedidos
         for pedido in pedidos:
             try:
                 productos = pedido.productos.all()
@@ -1189,7 +1149,6 @@ def reporte_pedidos_pendientes_pdf_cde(request):
                     wrap_text_p('Error al cargar área')
                 ])
 
-        # Crear la tabla de pedidos
         tabla_productos = Table(data_pedidos, colWidths=[60, 100, 100, 160, 200, 100])
         style_productos = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
@@ -1206,7 +1165,6 @@ def reporte_pedidos_pendientes_pdf_cde(request):
         tabla_productos.setStyle(style_productos)
         elements.append(tabla_productos)
 
-    # Construir el PDF
     doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
 
     buffer.seek(0)
@@ -1214,6 +1172,7 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     response['Content-Disposition'] = 'attachment; filename="Lista de pedidos pendientes Gestor CCD.pdf"'
     return response
 
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_excel_cde(request):
     pedidos = get_pedidos_filtrados_pendientes_cde(request).prefetch_related('productos__producto')
 
@@ -1315,14 +1274,14 @@ def reporte_pedidos_pendientes_excel_cde(request):
     response['Content-Disposition'] = 'attachment; filename="Reporte pedidos pendientes cde.xlsx"'
     wb.save(response)
     return response
-
+@login_required(login_url='/acceso_denegado/')
 def index_estadistica_cde(request):
     breadcrumbs = [
      {'name': 'Inicio CDE', 'url': '/index_cde'},
 ]
 
     return render(request, 'estadisticas_cde/index_estadistica_cde.html', {'breadcrumbs': breadcrumbs})
-
+@login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_cde(request):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
@@ -1370,6 +1329,7 @@ def grafica_pedidos_cde(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str,
     })
+@login_required(login_url='/acceso_denegado/')
 def grafica_estado_pedido_cde(request):
     breadcrumbs = [
         {'name': 'Inicio CDE', 'url': '/index_cde'},
@@ -1414,6 +1374,7 @@ def grafica_estado_pedido_cde(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+@login_required(login_url='/acceso_denegado/')
 def cambiar_contraseña_cde(request):
     breadcrumbs = [
         {'name': 'Inicio cafeteria', 'url': '/index_cde'},
@@ -1429,7 +1390,7 @@ def cambiar_contraseña_cde(request):
         form = CustomPasswordChangeForm(user=request.user)
     return render(request, 'usuario_cde/cambiar_contraseña_cde.html', {'form': form, 'breadcrumbs': breadcrumbs})
 
-@login_required
+@login_required(login_url='/acceso_denegado/')
 def crear_devolucion_cde(request, pedido_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_cde'},

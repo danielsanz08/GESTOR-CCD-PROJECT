@@ -1,0 +1,499 @@
+[
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$EldYPalor37H4MmhcZrtlw$my5nhgY2mXfZvM0nWV2p7Iji1oNeT0qBCGewq35YYDQ=",
+        "last_login": "2025-07-24T14:25:39.333Z",
+        "is_superuser": false,
+        "username": "Daniel Sanchez",
+        "email": "jonnathansz73@gmail.com",
+        "role": "Administrador",
+        "area": "Administrativa",
+        "cargo": "Aprendiz Sena",
+        "fecha_registro": "2025-07-22",
+        "is_active": true,
+        "is_staff": false,
+        "acceso_pap": true,
+        "acceso_caf": true,
+        "acceso_cde": true,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$4YgQ3Lf6fYTERn2ZKELcNi$ElmhO3DEzc6Bk8/BAk4EloY8ogOACZDu1ddMD9bJhh0=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "María fernanda guadalupe villanueva mart",
+        "email": "mariafernandagvillanueva.proyectosespeciales@ccduitama.org.co",
+        "role": "Empleado",
+        "area": "Administrativa",
+        "cargo": "Coordinadora general de estrategias y desarrollo organizacional sostenible",
+        "fecha_registro": "2025-07-22",
+        "is_active": true,
+        "is_staff": false,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$63HF4WDQCncJ3LitLm1AHc$N1IukbMLS18CgRE02WnHA6xGP4crvfW4eeKq8RJMoFE=",
+        "last_login": "2025-07-23T16:01:55.306Z",
+        "is_superuser": false,
+        "username": "Diego ortiz",
+        "email": "danielmolanoestudio@gmail.com",
+        "role": "Empleado",
+        "area": "Administrativa",
+        "cargo": "Aprendiz senaffdgfgdfgdfgfdgfdgdf",
+        "fecha_registro": "2025-07-22",
+        "is_active": false,
+        "is_staff": false,
+        "acceso_pap": true,
+        "acceso_caf": true,
+        "acceso_cde": true,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$BZvqwKvs4aQmxxiDs8kaF7$rIWIlRfYKOfUjoOui+W3sgXt77eQTyIZe5K1hR/g58c=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "Juan sebastián alejandro ramírez castañe",
+        "email": "juansebastian.ramirez.innovacionempresarial@ccduitama.org.co",
+        "role": "Empleado",
+        "area": "Administrativa",
+        "cargo": "Director ejecutivo de planeación estratégica e innovación corporativa",
+        "fecha_registro": "2025-07-22",
+        "is_active": true,
+        "is_staff": false,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$UdV9hHFnz77SQQuh0dedKT$Br0UbDs6zGwbaeUiAxqV6SuyDaNcjRzd6KX+8nBa0KI=",
+        "last_login": "2025-07-23T20:20:13.886Z",
+        "is_superuser": false,
+        "username": "Viviana rodriguez",
+        "email": "viviana@gmail.com",
+        "role": "Empleado",
+        "area": "Administrativa",
+        "cargo": "Asistente en gestion documental",
+        "fecha_registro": "2025-07-22",
+        "is_active": true,
+        "is_staff": false,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$fMd3xHRDfPnT4EE7qf8Bqq$/dYQAJwWCjvQVgeDzcFe5L+1WlP3xAXcoXGT+Y1io5U=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "Carlos Andres Orozco",
+        "email": "carlos@gmail.com",
+        "role": "Empleado",
+        "area": "Gestión empresarial",
+        "cargo": "Aprendiz Sena",
+        "fecha_registro": "2025-07-23",
+        "is_active": true,
+        "is_staff": false,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "papeleria.articulo",
+    "pk": 9,
+    "fields": {
+        "nombre": "Resma de papel",
+        "marca": "Norma",
+        "observacion": "No hay",
+        "tipo": "Carta",
+        "precio": 212121,
+        "cantidad": 4,
+        "proveedor": "Javeriana",
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_registro": "2025-07-22"
+    }
+},
+{
+    "model": "papeleria.articulo",
+    "pk": 10,
+    "fields": {
+        "nombre": "Resma de pápel",
+        "marca": "Norma",
+        "observacion": "No hay",
+        "tipo": "Oficio",
+        "precio": 36300,
+        "cantidad": 545,
+        "proveedor": "Javeriana",
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_registro": "2025-07-22"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 9,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-22T16:11:33.468Z",
+        "fecha_estado": "2025-07-22T16:11:33.468Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 10,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-22T20:42:24.442Z",
+        "fecha_estado": "2025-07-22T20:42:24.442Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 11,
+    "fields": {
+        "registrado_por": [
+            "danielmolanoestudio@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-23T14:42:27.493Z",
+        "fecha_estado": null,
+        "estado": "Cancelado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 12,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2022-01-01T20:47:00Z",
+        "fecha_estado": "2025-07-23T20:47:37.792Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 13,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-23T20:48:39.191Z",
+        "fecha_estado": "2025-07-23T20:48:39.191Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 14,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-23T21:08:58.337Z",
+        "fecha_estado": "2025-07-23T21:08:58.337Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 16,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-23T21:09:28.402Z",
+        "fecha_estado": "2025-07-23T21:09:28.402Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedidoarticulo",
+    "pk": 13,
+    "fields": {
+        "pedido": 10,
+        "articulo": 9,
+        "cantidad": 1,
+        "tipo": "Carta",
+        "area": "Gestión empresarial"
+    }
+},
+{
+    "model": "papeleria.pedidoarticulo",
+    "pk": 14,
+    "fields": {
+        "pedido": 11,
+        "articulo": 9,
+        "cantidad": 1,
+        "tipo": "Carta",
+        "area": "Administrativa"
+    }
+},
+{
+    "model": "papeleria.pedidoarticulo",
+    "pk": 15,
+    "fields": {
+        "pedido": 12,
+        "articulo": 10,
+        "cantidad": 1,
+        "tipo": "Oficio",
+        "area": "Gestión empresarial"
+    }
+},
+{
+    "model": "papeleria.pedidoarticulo",
+    "pk": 16,
+    "fields": {
+        "pedido": 13,
+        "articulo": 9,
+        "cantidad": 1,
+        "tipo": "Carta",
+        "area": "Gestión empresarial"
+    }
+},
+{
+    "model": "papeleria.pedidoarticulo",
+    "pk": 17,
+    "fields": {
+        "pedido": 13,
+        "articulo": 10,
+        "cantidad": 1,
+        "tipo": "Oficio",
+        "area": "Gestión empresarial"
+    }
+},
+{
+    "model": "papeleria.pedidoarticulo",
+    "pk": 18,
+    "fields": {
+        "pedido": 14,
+        "articulo": 10,
+        "cantidad": 545,
+        "tipo": "Oficio",
+        "area": "Gestión empresarial"
+    }
+},
+{
+    "model": "papeleria.devolucion",
+    "pk": 1,
+    "fields": {
+        "pedido": 10,
+        "articulo": 9,
+        "cantidad_devuelta": 1,
+        "razon": "fin de contrato",
+        "fecha": "2025-07-22T20:43:34.936Z"
+    }
+},
+{
+    "model": "papeleria.devolucion",
+    "pk": 2,
+    "fields": {
+        "pedido": 13,
+        "articulo": 9,
+        "cantidad_devuelta": 1,
+        "razon": "fghfgh",
+        "fecha": "2025-07-23T20:56:06.697Z"
+    }
+},
+{
+    "model": "papeleria.devolucion",
+    "pk": 3,
+    "fields": {
+        "pedido": 13,
+        "articulo": 10,
+        "cantidad_devuelta": 1,
+        "razon": "vcbvc",
+        "fecha": "2025-07-23T21:03:42.629Z"
+    }
+},
+{
+    "model": "papeleria.devolucion",
+    "pk": 4,
+    "fields": {
+        "pedido": 12,
+        "articulo": 10,
+        "cantidad_devuelta": 1,
+        "razon": "jkdfjgdjgjdfhjghdfjhghgjhfdjhgjhfgjhdfjh",
+        "fecha": "2025-07-23T21:05:40.359Z"
+    }
+},
+{
+    "model": "papeleria.devolucion",
+    "pk": 5,
+    "fields": {
+        "pedido": 14,
+        "articulo": 10,
+        "cantidad_devuelta": 500,
+        "razon": "fgf",
+        "fecha": "2025-07-23T21:10:56.718Z"
+    }
+},
+{
+    "model": "papeleria.devolucion",
+    "pk": 6,
+    "fields": {
+        "pedido": 14,
+        "articulo": 10,
+        "cantidad_devuelta": 45,
+        "razon": "vbvcbc",
+        "fecha": "2025-07-23T21:11:34.119Z"
+    }
+},
+{
+    "model": "cafeteria.productos",
+    "pk": 6,
+    "fields": {
+        "nombre": "Azucar",
+        "marca": "Rtytr",
+        "precio": 1556151,
+        "cantidad": 177,
+        "proveedor": "Fghfgh",
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_registro": "2025-07-23",
+        "unidad_medida": "Kilogramos",
+        "presentacion": "Gfhfghgf"
+    }
+},
+{
+    "model": "cafeteria.pedido",
+    "pk": 13,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_estado": "2025-07-22T20:53:51.132Z",
+        "fecha_pedido": "2025-07-22T20:53:51.131Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "cafeteria.pedido",
+    "pk": 14,
+    "fields": {
+        "registrado_por": [
+            "danielmolanoestudio@gmail.com"
+        ],
+        "fecha_estado": null,
+        "fecha_pedido": "2025-07-23T15:56:18.908Z",
+        "estado": "Pendiente"
+    }
+},
+{
+    "model": "cafeteria.pedidoproducto",
+    "pk": 22,
+    "fields": {
+        "pedido": 13,
+        "producto": 6,
+        "cantidad": 1,
+        "area": "Gestión empresarial",
+        "lugar": "cde"
+    }
+},
+{
+    "model": "cafeteria.pedidoproducto",
+    "pk": 23,
+    "fields": {
+        "pedido": 14,
+        "producto": 6,
+        "cantidad": 1,
+        "area": "Administrativa",
+        "lugar": "cde"
+    }
+},
+{
+    "model": "cde.pedidocde",
+    "pk": 1,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-22T21:19:08.075Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "cde.pedidocde",
+    "pk": 2,
+    "fields": {
+        "registrado_por": [
+            "danielmolanoestudio@gmail.com"
+        ],
+        "fecha_pedido": "2025-07-23T15:58:30.237Z",
+        "estado": "Pendiente"
+    }
+},
+{
+    "model": "cde.pedidoproductocde",
+    "pk": 1,
+    "fields": {
+        "pedido": 1,
+        "producto": 6,
+        "cantidad": 1,
+        "area": "Gestión empresarial",
+        "evento": "cde"
+    }
+},
+{
+    "model": "cde.pedidoproductocde",
+    "pk": 2,
+    "fields": {
+        "pedido": 2,
+        "producto": 6,
+        "cantidad": 1,
+        "area": "Administrativa",
+        "evento": "cde"
+    }
+},
+{
+    "model": "backup.backup",
+    "pk": 7,
+    "fields": {
+        "nombre": "cde",
+        "archivo": "backups/20250724_093646_backup_db_20250723_170317_wFuOUfK.json",
+        "tamano": "0.01 MB",
+        "modelos_incluidos": "Todos (backup completo con relaciones)",
+        "fecha_creacion": "2025-07-24",
+        "creado_por": [
+            "jonnathansz73@gmail.com"
+        ]
+    }
+}
+]

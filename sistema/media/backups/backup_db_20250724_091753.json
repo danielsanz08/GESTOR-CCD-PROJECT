@@ -3,7 +3,7 @@
     "model": "libreria.customuser",
     "fields": {
         "password": "pbkdf2_sha256$1000000$EldYPalor37H4MmhcZrtlw$my5nhgY2mXfZvM0nWV2p7Iji1oNeT0qBCGewq35YYDQ=",
-        "last_login": "2025-07-23T22:00:48.396Z",
+        "last_login": "2025-07-24T14:17:34.577Z",
         "is_superuser": false,
         "username": "Daniel Sanchez",
         "email": "jonnathansz73@gmail.com",
@@ -464,14 +464,14 @@
     "pk": 6,
     "fields": {
         "nombre": "Azucar",
-        "marca": "Rtytr",
+        "marca": "riopaila",
         "precio": 1556151,
         "cantidad": 177,
         "proveedor": "Fghfgh",
         "registrado_por": [
             "jonnathansz73@gmail.com"
         ],
-        "fecha_registro": "2025-07-23",
+        "fecha_registro": "2025-07-24",
         "unidad_medida": "Kilogramos",
         "presentacion": "Gfhfghgf"
     }
@@ -564,20 +564,6 @@
         "cantidad": 1,
         "area": "Administrativa",
         "evento": "cde"
-    }
-},
-{
-    "model": "backup.backup",
-    "pk": 1,
-    "fields": {
-        "nombre": "Ccd",
-        "archivo": "backups/backup_db_20250723_164645.json",
-        "tamano": "0.01 MB",
-        "modelos_incluidos": "libreria.CustomUser, papeleria.Articulo, papeleria.Pedido, papeleria.PedidoArticulo, cafeteria.Productos, cafeteria.Pedido, cafeteria.PedidoProducto, cde.PedidoCde, cde.PedidoProductoCde (con relaciones)",
-        "fecha_creacion": "2025-07-23",
-        "creado_por": [
-            "jonnathansz73@gmail.com"
-        ]
     }
 }
 ]

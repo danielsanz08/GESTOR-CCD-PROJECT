@@ -60,7 +60,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'libreria.middleware.SessionExpiryMiddleware',
+    'libreria.middlewares.single_session.SingleSessionMiddleware',
 ]
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # por defecto
+SESSION_SAVE_EVERY_REQUEST = True
 
 ROOT_URLCONF = 'sistema.urls'
 

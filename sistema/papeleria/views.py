@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
 from django.contrib import messages
 from django.urls import reverse
+import uuid
 import os
 from django.utils.timezone import localtime, make_aware
 from django.core.paginator import Paginator
@@ -82,7 +83,20 @@ def login_papeleria(request):
 
         if user is not None:
             if user.is_active and getattr(user, 'acceso_pap', False):
+                # Elimina sesión anterior si existe
+                if user.session_key:
+                    Session.objects.filter(session_key=user.session_key).delete()
+
                 login(request, user)
+
+                # Guarda nueva session_key y session_token
+                user.session_key = request.session.session_key
+                token = str(uuid.uuid4())
+                user.session_token = token
+                user.save()
+
+                request.session['session_token'] = token
+
                 messages.success(request, "¡Inicio de sesión exitoso!")
                 return redirect('papeleria:index_pap')
             else:

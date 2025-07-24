@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import localtime
 from django.contrib import messages
 from django.utils.timezone import make_aware
+
+
 from django.urls import reverse
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
@@ -99,6 +101,7 @@ def index_caf(request):
     return render(request, 'index_caf/index_caf.html', {'breadcrumbs': breadcrumbs, **context})
 
 # Create your views here.
+@login_required(login_url='/acceso_denegado/')
 def ver_usuario_caf(request, id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
@@ -131,6 +134,7 @@ def login_cafeteria(request):
             messages.error(request, "Credenciales inválidas.")
 
     return render(request, 'login_caf/login_caf.html')
+@login_required(login_url='/acceso_denegado/')
 def crear_producto(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -154,6 +158,7 @@ def crear_producto(request):
         'form': form,
         'breadcrumbs': breadcrumbs
     })
+@login_required(login_url='/acceso_denegado/')
 def listar_productos(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -217,6 +222,7 @@ def listar_productos(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
+@login_required(login_url='/acceso_denegado/')
 def eliminar_producto(request, id):
     producto = get_object_or_404(Productos, id=id)
     if request.method == 'POST':
@@ -226,7 +232,7 @@ def eliminar_producto(request, id):
     # En caso de que sea GET u otro método, redirige o muestra algo
     return redirect('cafeteria:listar_productos')
 # CERRAR SESIÓN
-
+@login_required(login_url='/acceso_denegado/')
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Productos, id=producto_id)
     
@@ -258,11 +264,19 @@ def logout_caf(request):
     return redirect(reverse('libreria:inicio'))
 
 User = get_user_model()
-def wrap_text(text, max_len=23):
+def wrap_text(text, max_len=20):
     parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
     for i in range(len(parts) - 1):
         parts[i] += '-'  # Agrega guion al final de todas menos la última
     return '\n'.join(parts)
+
+def wrap_text_p(text, max_len=20):
+    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+    for i in range(len(parts) - 1):
+        if not parts[i].endswith('-'):
+            parts[i] += '-'
+    return '\n'.join(parts)
+
 #PDF DE PRODUCTOS
 def obtener_productos(request):
     query = request.GET.get('q')
@@ -300,6 +314,7 @@ def draw_table_on_canvas(canvas, doc):
                          y=(doc.pagesize[1] - 600) / 2,
                          width=600, height=600, mask='auto')
         canvas.restoreState()
+@login_required(login_url='/acceso_denegado/')
 def reporte_productos_pdf(request):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
@@ -314,14 +329,14 @@ def reporte_productos_pdf(request):
     styles = getSampleStyleSheet()
 
     # Título
-    titulo = Paragraph("REPORTE DE CCAFETERIA CCD ", styles["Title"])
+    titulo = Paragraph("REPORTE DE CAFETERIA Y ASEO CCD ", styles["Title"])
     elements.append(titulo)
 
     # Encabezado empresa
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "contacto@gestorccd.com", "Teléfono: (123) 456-7890"],
+        ["GESTOR CCD", "Lista de artículos", "Correo", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -344,11 +359,11 @@ def reporte_productos_pdf(request):
 
     if usuario.is_authenticated:
         data_usuario.append([
-            usuario.username,
-            usuario.email,
-            getattr(usuario, 'role', 'No definido'),
-            getattr(usuario, 'cargo', 'No definido'),
-        ])
+        wrap_text(usuario.username),
+        wrap_text(usuario.email),
+        wrap_text(getattr(usuario, 'role', 'No definido')),
+        wrap_text(getattr(usuario, 'cargo', 'No definido')),
+])
     else:
         data_usuario.append(["Invitado", "-", "-", "-"])
 
@@ -380,7 +395,7 @@ def reporte_productos_pdf(request):
         elements.append(no_results)
     else:
         # Tabla artículos
-        data_productos = [["ID", "Nombre", "Marca", "Precio", "Cantidad", "Unidad de medida", "Proveedor", "Presentación"]]
+        data_productos = [["ID", "Nombre", "Marca", "Precio", "Cantidad", "U. de medida", "Proveedor", "Presentación"]]
         for producto in usuarios_filtrados:
             data_productos.append([
                 wrap_text(str(producto.id)),
@@ -393,7 +408,7 @@ def reporte_productos_pdf(request):
                 wrap_text(producto.presentacion),
             ])
 
-        tabla_productos = Table(data_productos, colWidths=[30, 100, 100, 70, 100, 110, 105])
+        tabla_productos = Table(data_productos, colWidths=[30, 100, 100, 110, 70, 100, 105])
         style_productos = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -414,8 +429,9 @@ def reporte_productos_pdf(request):
 
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Listado de cafeteria CCD.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="Listado de cafeteria y aseo CCD.pdf"'
     return response
+@login_required(login_url='/acceso_denegado/')
 def reporte_productos_excel(request):
     # Parámetros de búsqueda
     q = request.GET.get('q', '').strip()
@@ -445,7 +461,7 @@ def reporte_productos_excel(request):
     # Crear Excel
     wb = Workbook()
     ws = wb.active
-    ws.title = "Listado de cafeteria CCD"
+    ws.title = "Listado de cafeteria y aseo CCD"
 
     # Borde común
     border = Border(
@@ -537,7 +553,7 @@ def reporte_productos_excel(request):
     response['Content-Disposition'] = 'attachment; filename="Listado de cafeteria CCD.xlsx"'
     wb.save(response)
     return response
-
+@login_required(login_url='/acceso_denegado/')
 def lista_stock_bajo(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -607,6 +623,7 @@ def lista_stock_bajo(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
+@login_required(login_url='/acceso_denegado/')
 def crear_pedido_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -746,7 +763,7 @@ Este es un mensaje automático, por favor no respondas.
         'productos': productos,
         'breadcrumbs': breadcrumbs
     })
-@login_required
+@login_required(login_url='/acceso_denegado/')
 def mis_pedidos(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -816,6 +833,7 @@ def mis_pedidos(request):
         'current_fecha_fin': fecha_fin_str,
     })
 from django.utils.html import escape
+@login_required(login_url='/acceso_denegado/')
 @csrf_exempt
 @require_POST
 def cambiar_estado_pedido(request, pedido_id):
@@ -881,7 +899,7 @@ def cambiar_estado_pedido(request, pedido_id):
     <meta charset="UTF-8">
     <title>Estado de Pedido Actualizado</title>
     <style>
-        body {
+        body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333333;
@@ -889,71 +907,71 @@ def cambiar_estado_pedido(request, pedido_id):
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
-        }
-        .email-container {
+        }}
+        .email-container {{
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-        }
-        .header {
+        }}
+        .header {{
             color: white;
             padding: 20px;
             text-align: center;
-        }
-        .logo {
+        }}
+        .logo {{
             max-width: 180px;
             height: auto;
             margin-bottom: 15px;
-        }
-        .content {
+        }}
+        .content {{
             padding: 25px;
-        }
-        .status {
+        }}
+        .status {{
             font-size: 15px;
             font-weight: bold;
             margin: 15px 0;
             padding: 10px;
             border-radius: 5px;
             text-align: center;
-        }
-        .status.Confirmado {
+        }}
+        .status.Confirmado {{
             color: #155724;
-        }
-        .status.Cancelado {
+        }}
+        .status.Cancelado {{
             background-color: #f8d7da;
             color: #721c24;
-        }
-        .status.Pendiente {
+        }}
+        .status.Pendiente {{
             color: #856404;
-        }
-        .info-box {
+        }}
+        .info-box {{
             background-color: #f8f9fa;
             border-left: 4px solid #007bff;
             padding: 15px;
             margin: 20px 0;
-        }
-        .info-label {
+        }}
+        .info-label {{
             font-weight: bold;
             color: #495057;
             display: inline-block;
             min-width: 150px;
-        }
-        .articulos-list {
+        }}
+        .articulos-list {{
             margin: 15px 0;
             padding-left: 20px;
-        }
-        .articulo-item {
+        }}
+        .articulo-item {{
             margin-bottom: 8px;
-        }
-        .footer {
+        }}
+        .footer {{
             text-align: center;
             padding: 15px;
             font-size: 12px;
             color: #6c757d;
             border-top: 1px solid #e9ecef;
             background-color: #f8f9fa;
-        }
+        }}
     </style>
 </head>
 <body>
@@ -1022,7 +1040,7 @@ Gracias por usar nuestro sistema.
 
     messages.error(request, 'No se pudo actualizar el estado.')
     return redirect('cafeteria:pedidos_pendientes')
-
+@login_required(login_url='/acceso_denegado/')
 def pedidos_pendientes(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -1091,6 +1109,7 @@ def pedidos_pendientes(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
+@login_required(login_url='/acceso_denegado/')
 def listado_pedidos_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': reverse('cafeteria:index_caf')},
@@ -1102,7 +1121,8 @@ def listado_pedidos_caf(request):
     fecha_fin_str = request.GET.get('fecha_fin')
 
     # Obtener todos los pedidos ordenados por fecha descendente
-    pedidos = Pedido.objects.all().order_by('-fecha_pedido')
+    pedidos = Pedido.objects.filter(estado__in=["Confirmado", "Cancelado"]).order_by('-fecha_pedido')
+
 
     # Filtro de búsqueda de texto
     if query:
@@ -1161,59 +1181,37 @@ def listado_pedidos_caf(request):
     })
 
 def get_pedidos_filtrados_caf(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', '').strip()
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
     pedidos = Pedido.objects.all()
 
+    # Filtro por texto
     if query:
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
             Q(id__icontains=query) |
             Q(productos__area__icontains=query) |
-            Q(productos__lugar__icontains=query) |  # ✅ Campo añadido
+            Q(productos__lugar__icontains=query) |
             Q(productos__producto__nombre__icontains=query)
         ).distinct()
 
+    # Filtro por rango de fechas (inclusive)
     if fecha_inicio and fecha_fin:
-        pedidos = pedidos.filter(fecha_pedido__range=[fecha_inicio, fecha_fin])
+        try:
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+            fecha_fin_dt = datetime.strptime(fecha_fin, "%Y-%m-%d") + timedelta(days=1)
+            pedidos = pedidos.filter(fecha_pedido__gte=fecha_inicio_dt, fecha_pedido__lt=fecha_fin_dt)
+        except ValueError:
+            pedidos = pedidos.none()  # si las fechas no tienen formato válido
 
     return pedidos
 
-def wrap_text_p(text, max_len=20):
-    if not text:
-        return ""
-    
-    # Primero normalizar espacios y guiones existentes
-    text = text.replace("  ", " ").replace(" ", " ").replace(" ", " ")
-    
-    parts = []
-    current_part = ""
-    
-    for word in text.split():
-        if len(current_part + " " + word) <= max_len:
-            current_part += (" " + word) if current_part else word
-        else:
-            if current_part:
-                parts.append(current_part)
-            current_part = word
-    
-    if current_part:
-        parts.append(current_part)
-    
-    # Solo agregar guion si el texto continúa (no para el último segmento)
-    result = []
-    for i, part in enumerate(parts):
-        if i < len(parts) - 1 and not part.endswith("-"):
-            # Si la división ocurrió en medio de una palabra, agregar guion
-            if i+1 < len(parts) and parts[i+1] and not parts[i+1][0].isspace():
-                part += "-"
-        result.append(part)
-    
-    return '\n'.join(result)
 
+
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pdf_caf(request):
     buffer = BytesIO()
 
@@ -1241,8 +1239,8 @@ def reporte_pedidos_pdf_caf(request):
     # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de usuarios", "Correo: gestorccd@gmail.com", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "(Correo de la camara)", "Teléfono: (tel. camara)"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -1388,11 +1386,12 @@ def reporte_pedidos_pdf_caf(request):
 
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Lista_de_pedidos_Gestor_CCD.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'
     return response
-
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_excel_caf(request):
-    pedidos = Pedido.objects.prefetch_related('productos__producto', 'productos__devoluciones').all().order_by('-fecha_pedido')
+    pedidos = get_pedidos_filtrados_caf(request).prefetch_related('productos__producto', 'productos__devoluciones').order_by('-fecha_pedido')
+
 
     wb = Workbook()
     ws = wb.active
@@ -1504,6 +1503,7 @@ def reporte_pedidos_excel_caf(request):
     return response
 
 #ESTADISTICAS 
+@login_required(login_url='/acceso_denegado/')
 def index_estadistica_caf(request):
     breadcrumbs = [
     {'name': 'Inicio', 'url': '/index_caf'},
@@ -1512,6 +1512,7 @@ def index_estadistica_caf(request):
 
     return render(request, 'estadisticas_caf/index_estadistica_caf.html', {'breadcrumbs': breadcrumbs})
 #GRAFIC DE CANTIDAD DE PRODUCTOS
+@login_required(login_url='/acceso_denegado/')
 def graficas_productos(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
@@ -1544,7 +1545,7 @@ def graficas_productos(request):
         'fecha_fin': fecha_fin,
     })
 #grafica de usuario
-
+@login_required(login_url='/acceso_denegado/')
 def graficas_usuario_caf(request):
     breadcrumbs = [
          {'name': 'Inicio', 'url': '/index_caf'},
@@ -1559,7 +1560,7 @@ def graficas_usuario_caf(request):
     return render(request, 'estadisticas_caf/grafica_usuarios_caf.html', {'nombres':nombres,
                                                                   'cantidades': cantidades,
                                                                   'breadcrumbs': breadcrumbs})
-
+@login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
@@ -1592,6 +1593,7 @@ def grafica_pedidos_caf(request):
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
     })
+@login_required(login_url='/acceso_denegado/')
 def grafica_estado_pedido_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
@@ -1625,6 +1627,7 @@ def grafica_estado_pedido_caf(request):
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin
     })
+@login_required(login_url='/acceso_denegado/')
 def grafica_bajo_Stock_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
@@ -1641,6 +1644,7 @@ def grafica_bajo_Stock_caf(request):
     })
 
 #PDF
+@login_required(login_url='/acceso_denegado/')
 def get_pedidos_filtrados_pendientes_caf(request):
     query = request.GET.get('q')
     fecha_inicio = request.GET.get('fecha_inicio')
@@ -1665,6 +1669,7 @@ def get_pedidos_filtrados_pendientes_caf(request):
             pass  # opcional: puedes registrar/loggear el error si las fechas son inválidas
 
     return pedidos
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_pdf_caf(request):
     buffer = BytesIO()
 
@@ -1794,7 +1799,7 @@ def reporte_pedidos_pendientes_pdf_caf(request):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="Pedidos pendientes cafeteria y aseo CCD.pdf"'
     return response
-
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_excel_caf(request):
     pedidos = get_pedidos_filtrados_pendientes_caf(request).prefetch_related('productos__producto')
 
@@ -1892,7 +1897,7 @@ def reporte_pedidos_pendientes_excel_caf(request):
     response['Content-Disposition'] = 'attachment; filename="Reporte_pedidos_pendientes.xlsx"'
     wb.save(response)
     return response
-
+@login_required(login_url='/acceso_denegado/')
 def cambiar_contraseña_caf(request):
     breadcrumbs = [
         {'name': 'Inicio cafeteria', 'url': '/index_pap'},
@@ -1908,9 +1913,9 @@ def cambiar_contraseña_caf(request):
         form = CustomPasswordChangeForm(user=request.user)
     return render(request, 'usuario_caf/cambiar_contraseña_caf.html', {'form': form, 'breadcrumbs': breadcrumbs})
 
-
+@login_required(login_url='/acceso_denegado/')
 def obtener_producto_bajo_stock_caf(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', '').strip()
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
@@ -1930,10 +1935,17 @@ def obtener_producto_bajo_stock_caf(request):
         )
 
     if fecha_inicio and fecha_fin:
-        productos = productos.filter(fecha_registro__range=[fecha_inicio, fecha_fin])
+        try:
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+            fecha_fin_dt = datetime.strptime(fecha_fin, "%Y-%m-%d") + timedelta(days=1)
+            productos = productos.filter(fecha_registro__gte=fecha_inicio_dt, fecha_registro__lt=fecha_fin_dt)
+        except ValueError:
+            productos = productos.none()
 
     return productos
-
+from datetime import date
+print(date.today())
+@login_required(login_url='/acceso_denegado/')
 def reporte_producto_bajo_stock_pdf(request):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
@@ -1954,8 +1966,8 @@ def reporte_producto_bajo_stock_pdf(request):
     # Encabezado empresa
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha: {fecha_actual}"],
-        ["Cámara de comercio de Duitama", "Nit: 123456789", "contacto@gestorccd.com", "Teléfono: (123) 456-7890"],
+       ["GESTOR CCD", "Lista de artículos", "Correo", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     estilo_encabezado = TableStyle([
@@ -1976,11 +1988,11 @@ def reporte_producto_bajo_stock_pdf(request):
     usuario = request.user
     data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
     data_usuario.append([
-        usuario.username,
-        usuario.email,
-        getattr(usuario, 'role', 'No definido'),
-        getattr(usuario, 'cargo', 'No definido'),
-    ])
+        wrap_text(usuario.username),
+        wrap_text(usuario.email),
+        wrap_text(getattr(usuario, 'role', 'No definido')),
+        wrap_text(getattr(usuario, 'cargo', 'No definido')),
+])
     table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
     style_usuario = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
@@ -2010,21 +2022,21 @@ def reporte_producto_bajo_stock_pdf(request):
         elements.append(no_results)
     else:
         # Tabla artículos
-        data_productos = [["ID", "Nombre", "Marca", "Precio", "Cantidad", "Unidad de medida", "Proveedor", "Presentación"]]
+        data_productos = [["ID", "Nombre", "Marca", "Precio", "Cantidad", "U. de medida", "Proveedor", "Presentación"]]
         
         for producto in productos_filtrados:
             data_productos.append([
-                wrap_text(str(producto.id)),
-                wrap_text(producto.nombre),
-                wrap_text(producto.marca),
-                wrap_text("{:,}".format(producto.precio)),
-                wrap_text(str(producto.cantidad)),
-                wrap_text(str(producto.unidad_medida)),
-                wrap_text(producto.proveedor),
-                wrap_text(producto.presentacion),
+                wrap_text_p(str(producto.id)),
+                wrap_text_p(producto.nombre),
+                wrap_text_p(producto.marca),
+                wrap_text_p("{:,}".format(producto.precio)),
+                wrap_text_p(str(producto.cantidad)),
+                wrap_text_p(str(producto.unidad_medida)),
+                wrap_text_p(producto.proveedor),
+                wrap_text_p(producto.presentacion),
             ])
 
-        tabla_articulos = Table(data_productos, colWidths=[20, 140, 100, 110, 80, 70, 100])
+        tabla_articulos = Table(data_productos, colWidths=[30, 100, 100, 110, 70, 100, 105])
         style_articulos = TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -2049,7 +2061,7 @@ def reporte_producto_bajo_stock_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="Listado bajo stock CCD.pdf"'
     return response
 
-
+@login_required(login_url='/acceso_denegado/')
 def reporte_producto_bajo_stock_excel(request):
     # Parámetros de búsqueda
     q = request.GET.get('q', '').strip()
@@ -2165,7 +2177,7 @@ def reporte_producto_bajo_stock_excel(request):
     return response
 
 
-@login_required
+@login_required(login_url='/acceso_denegado/')
 def crear_devolucion_caf(request, pedido_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},

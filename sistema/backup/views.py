@@ -158,33 +158,35 @@ def restaurar_backup_view(request, id):
         
         # Cerrar conexiones existentes
         db.connections.close_all()
-        
+
+        # ✅ VERIFICACIÓN AGREGADA
         try:
-            # Obtener conexión a la base de datos
+            import json
+            with open(ruta_absoluta, 'r', encoding='utf-8') as f:
+                json.load(f)
+        except Exception as json_error:
+            logger.error(f"Archivo de backup inválido: {str(json_error)}", exc_info=True)
+            messages.error(request, "El archivo de backup es inválido o está corrupto. La base de datos no ha sido alterada.")
+            return redirect('backup:lista_backups')
+
+        try:
             connection = connections['default']
             
             with connection.cursor() as cursor:
-                # Configurar timeouts (usando parámetros seguros)
                 cursor.execute("SET SESSION wait_timeout = %s", [28800])
                 cursor.execute("SET SESSION interactive_timeout = %s", [28800])
-                
-                # Desactivar FKs de manera segura
                 cursor.execute("SET FOREIGN_KEY_CHECKS = %s", [0])
                 
-                # Limpiar la base de datos
                 management.call_command('flush', interactive=False, verbosity=0)
                 
-                # Restaurar el backup
                 restaurar_backup(ruta_absoluta)
                 
-                # Reactivar verificaciones con manejo de errores
                 try:
                     cursor.execute("SET FOREIGN_KEY_CHECKS = %s", [1])
                     cursor.execute("ANALYZE TABLE")
                 except Exception as analyze_error:
                     logger.warning(f"Error al ejecutar ANALYZE TABLE: {str(analyze_error)}")
                 
-                # Confirmar todos los cambios
                 connection.commit()
 
         except db.Error as e:
@@ -203,6 +205,7 @@ def restaurar_backup_view(request, id):
         logger.error(f"Error general al restaurar backup: {str(e)}", exc_info=True)
         messages.error(request, f'Error al restaurar copia de seguridad: {str(e)}')
         return redirect('libreria:inicio')
+    
 @login_required(login_url='/acceso_denegado/')
 def descargar_backup(request, id):
     try:

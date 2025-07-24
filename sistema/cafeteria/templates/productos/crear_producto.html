@@ -17,7 +17,7 @@
         {% csrf_token %}
         <div>
             <label for="id_nombre">Nombre del producto</label>
-            <input type="text" name="nombre" id="id_nombre" required autocomplete="off" placeholder="Digite el nombre del producto" maxlength="30">
+            <input type="text" name="nombre" id="id_nombre" required autocomplete="off" placeholder="Maximo 40 caracteres" maxlength="40">
             <div class="error-msg error-nombre"></div>
         </div>
 
@@ -37,7 +37,7 @@
 
         <div>
             <label for="id_marca">Marca del producto</label>
-            <input type="text" name="marca" id="id_marca" required autocomplete="off" placeholder="Digite la marca del producto" maxlength="30">
+            <input type="text" name="marca" id="id_marca" required autocomplete="off" placeholder="Maximo 30 caracteres" maxlength="30">
             <div class="error-msg error-marca"></div>
         </div>
 
@@ -55,13 +55,13 @@
 
         <div>
             <label for="id_proveedor">Proveedor</label>
-            <input type="text" id="id_proveedor" name="proveedor" placeholder="Digite el proveedor" maxlength="40">
+            <input type="text" id="id_proveedor" name="proveedor" placeholder="Maximo 40 caracteres" maxlength="40">
             <div class="error-msg error-proveedor"></div>
         </div>
 
         <div>
             <label for="id_presentacion">Presentación</label>
-            <input type="text" name="presentacion" id="id_presentacion" placeholder="Digite la presentación" maxlength="40">
+            <input type="text" name="presentacion" id="id_presentacion" placeholder="Maximo 30 caracteres" maxlength="30">
             <div class="error-msg error-presentacion"></div>
         </div> 
 
