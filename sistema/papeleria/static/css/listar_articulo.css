@@ -217,13 +217,13 @@ section {
 .crear {
   background-color: rgb(0, 60, 255);
   border: none;
-  width: 10vh;
+  width: 65px;
   height: 25px;
   border-radius: 10px;
-  margin-right: 1vh;
-  position: absolute;
-  top: 5vh;
-  right: 5vh;
+  
+  position: relative;
+  top: -0.2vh;
+  left: 85vh;
   color: rgb(0, 0, 0);
   transition: background-color 0.3s, transform 0.2s;
 
