@@ -119,7 +119,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function validarPresentacion(valor) {
         if (valor.length > 30) return "Máximo 30 caracteres";
-        return validarTexto(valor);
+        if (valor.trim().length > 0 && valor.length < 3) return "Mínimo 3 caracteres";
+        if (!/^[a-zA-Z0-9ñÑÁÉÍÓÚáéíóú\s.,;:¡!¿?\"'()\/\-]*$/.test(valor)) return "Solo caracteres válidos";
+        if (tieneTresOMasRepetidos(valor)) return "Máximo 2 caracteres repetidos";
+        return "";
     }
 
     function mostrarError(campo, mensaje) {
@@ -137,7 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ["nombre", "marca", "proveedor", "presentacion"].forEach(campo => {
         campos[campo].addEventListener("input", function () {
             this.value = this.value
-                .replace(/[0-9]/g, "")
                 .replace(/\s+/g, ' ')
                 .trimStart()
                 .replace(/([^\s]+)/g, palabra => {
@@ -148,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         : primera.toUpperCase() + resto;
                 });
 
-            const validador = campo === "presentacion" ? validarPresentacion : validarTexto;
+            let validador = campo === "presentacion" ? validarPresentacion : validarTexto;
             mostrarError(campo, validador(this.value));
         });
     });
@@ -222,7 +224,6 @@ document.addEventListener("DOMContentLoaded", function () {
             esValido = false;
         }
 
-        // Limpiar puntos y comas antes de enviar al servidor
         campos.precio.value = campos.precio.value.replace(/,/g, "");
         campos.cantidad.value = campos.cantidad.value.replace(/\./g, "");
 
