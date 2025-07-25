@@ -1,0 +1,94 @@
+[
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$SQAaPJcXswlFpCkHH8X9Iu$hFCf8ZxQW25uL9+KDRtJP5Zdv8ANUzgvQgGv4wTWhs8=",
+        "last_login": "2025-07-25T01:44:36.795Z",
+        "is_superuser": false,
+        "username": "Daniel Sanchez",
+        "email": "jonnathansz73@gmail.com",
+        "role": "Administrador",
+        "area": "Administrativa",
+        "cargo": "Aprendiz Sena",
+        "fecha_registro": "2025-07-24",
+        "is_active": true,
+        "is_staff": false,
+        "session_key": "wjddatiqfg0z1a502kohrjob190h6pyi",
+        "session_token": "359dd049-1d2b-43fc-b957-ee284383de99",
+        "acceso_pap": true,
+        "acceso_caf": true,
+        "acceso_cde": true,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$0GUEYK6tvbaFf95aFwNpOJ$jO+S7oMGNpyZMpnLLn7gvH6NvE4OMcorEMPn9d+eUUw=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "Diego Ortiz",
+        "email": "danielmolanoestudio@gmail.com",
+        "role": "Empleado",
+        "area": "Administrativa",
+        "cargo": "Aprendiz Sena",
+        "fecha_registro": "2025-07-24",
+        "is_active": true,
+        "is_staff": false,
+        "session_key": null,
+        "session_token": null,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$uRHGQw2DdDGQTv2C5ZZfnf$iHl00uapH0uEREvxA5PCQLSfIrmEK4eYvAHkq2nNh4Y=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "Viviana Orozco",
+        "email": "viviana@gmail.com",
+        "role": "Empleado",
+        "area": "Administrativa",
+        "cargo": "Asistente En Gestion Documental",
+        "fecha_registro": "2025-07-24",
+        "is_active": true,
+        "is_staff": false,
+        "session_key": null,
+        "session_token": null,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$DAZugFY67X43kE6zQFPUg6$Os4Sohp6WWV0dj8UgsWiLkymH5Mi9GaeYbyoFftmLMg=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "Carlos Orozco",
+        "email": "carlos@gmail.com",
+        "role": "Empleado",
+        "area": "Registros públicos",
+        "cargo": "Auxiliar En Gestion Documental",
+        "fecha_registro": "2025-07-24",
+        "is_active": true,
+        "is_staff": false,
+        "session_key": null,
+        "session_token": null,
+        "acceso_pap": false,
+        "acceso_caf": false,
+        "acceso_cde": false,
+        "groups": [],
+        "user_permissions": []
+    }
+}
+]

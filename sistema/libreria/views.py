@@ -125,146 +125,113 @@ def crear_usuario(request):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Usuario Registrado</title>
     <style>
-        body {
-             
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                line-height: 1.6;
-                color: #333333;
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #f5f5f5;
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+
+        .email-container {{
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }}
+
+        .header {{
+            background-color: white;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }}
+
+        .logo {{
+            max-width: 380px;
+            height: 200px;
+            margin-bottom: 15px;
+        }}
+
+        .content {{
+            padding: 25px;
+        }}
+
+        .role-badge {{
+            display: inline-block;
+            background-color: #007bff00;
+            color: black;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
             
-        }
+            margin: 10px 0;
+        }}
 
-        .email-container {
-                
-                background-color: #ffffff;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                overflow: hidden;
-            
-        }
+        .role-badge.admin {{
+            background-color: #dc3545;
+        }}
 
-        .header {
-                
-                background-color: white;
-                color: white;
-                padding: 20px;
-                text-align: center;
-            
-        }
+        .info-box {{
+            background-color: #f8f9fa;
+            border-left: 4px solid #00000000;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }}
 
-        .logo {
-                
-                max-width: 380px;
-                height: 200px;
-                margin-bottom: 15px;
-            
-        }
+        .info-label {{
+            font-weight: bold;
+            color: #495057;
+            display: inline-block;
+            min-width: 150px;
+        }}
 
-        .content {
-                
-                padding: 25px;
-            
-        }
+        .permisos-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }}
 
-        .role-badge {
-                
-                display: inline-block;
-                background-color: #007bff00;
-                color: white;
-                padding: 5px 15px;
-                border-radius: 20px;
-                font-size: 14px;
-                font-weight: bold;
-                margin: 10px 0;
-            
-        }
+        .permiso-item {{
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }}
 
-        .role-badge.admin {
-                
-                background-color: #dc3545;
-            
-        }
+        .permiso-si {{
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }}
 
-        .info-box {
-                
-                background-color: #f8f9fa;
-                border-left: 4px solid #00000000;
-                padding: 15px;
-                margin: 20px 0;
-                border-radius: 0 5px 5px 0;
-            
-        }
+        .permiso-no {{
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }}
 
-        .info-label {
-                
-                font-weight: bold;
-                color: #495057;
-                display: inline-block;
-                min-width: 150px;
-            
-        }
+        .alert-box {{
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }}
 
-        .permisos-grid {
-                
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 10px;
-                margin: 15px 0;
-            
-        }
-
-        .permiso-item {
-                
-                text-align: center;
-                padding: 10px;
-                border-radius: 5px;
-                font-size: 14px;
-            
-        }
-
-        .permiso-si {
-                
-                background-color: #d4edda;
-                color: #155724;
-                border: 1px solid #c3e6cb;
-            
-        }
-
-        .permiso-no 
-                {
-                background-color: #f8d7da;
-                color: #721c24;
-                border: 1px solid #f5c6cb;
-            
-        }
-
-        .alert-box 
-                {
-                background-color: #fff3cd;
-                border: 1px solid #ffeaa7;
-                color: #856404;
-                padding: 15px;
-                border-radius: 5px;
-                margin: 20px 0;
-            
-        }
-
-        .footer {
-                
-                text-align: center;
-                padding: 15px;
-                font-size: 12px;
-                color: #6c757d;
-                border-top: 1px solid #e9ecef;
-                background-color: #f8f9fa;
-            }
-        
-
-        
-        
+        .footer {{
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }}
     </style>
 </head>
 
@@ -282,7 +249,7 @@ def crear_usuario(request):
                 aprobación.</p>
 
             <div class="info-box">
-                <h3>📋 Información del Usuario</h3>
+                <h3>Información del Usuario</h3>
                 <p><span class="info-label">Nombre de usuario:</span> <strong>{user.username}</strong></p>
                 <p><span class="info-label">Rol:</span> <span
                         class="role-badge {'admin' if role == 'Administrador' else ''}">{role}</span></p>
@@ -314,46 +281,40 @@ def crear_usuario(request):
                 Este usuario necesita su aprobación para poder acceder completamente al sistema.
                 Por favor, revise la información y proceda según considere conveniente.
             </div>
-
-            
         </div>
 
         <div class="footer">
             <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
             <p>© {datetime.now().year} Gestor CCD - Todos los derechos reservados</p>
-            <p>Centro Cultural y de Convenciones de Duitama</p>
+            <p>Cámara de comercio de  Duitama</p>
         </div>
     </div>
 </body>
 
 </html>
                     """
-                    
-                    # Contenido de texto plano como respaldo
                     text_content = f"""
                     Nuevo usuario registrado en Gestor CCD
-                    
+
                     Detalles del nuevo usuario:
-                    
+
                     • Nombre de usuario: {user.username}
                     • Rol: {role}
                     • Cargo: {cargo}
                     • Email: {email_nuevo}
                     • Fecha de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
-                    
+
                     Permisos asignados:
                     • Papelería: {'Sí' if user.acceso_pap else 'No'}
                     • Cafetería: {'Sí' if user.acceso_caf else 'No'}
                     • Centro de Eventos: {'Sí' if user.acceso_cde else 'No'}
-                    
+
                     Este usuario requiere su aprobación para acceder al sistema.
-                    
+
                     Saludos cordiales,
                     Equipo de Gestor CCD
                     """
-                    
                     try:
-                        # Crear el email con HTML y texto plano
                         email = EmailMultiAlternatives(
                             subject,
                             text_content,
@@ -362,10 +323,9 @@ def crear_usuario(request):
                         )
                         email.attach_alternative(html_content, "text/html")
                         email.send(fail_silently=False)
-                        
                     except Exception as e:
                         messages.warning(request, "El usuario se creó correctamente, pero no se pudo enviar la notificación a los administradores.")
-                        print(f"Error enviando email: {str(e)}")  # Para debugging
+                        print(f"Error enviando email: {str(e)}")
 
                 messages.success(request, f"Usuario '{user.username}' registrado exitosamente.")
                 return redirect('libreria:inicio')
@@ -377,7 +337,6 @@ def crear_usuario(request):
             except Exception as e:
                 messages.error(request, f"Error inesperado al crear el usuario: {str(e)}")
         else:
-            # Mensajes de error específicos por campo
             for field, errors in form.errors.items():
                 field_label = form.fields[field].label if field in form.fields else field
 

@@ -206,8 +206,7 @@ def restaurar_backup_view(request, id):
         messages.error(request, f'Error al restaurar copia de seguridad: {str(e)}')
         return redirect('libreria:inicio')
     
-from backup.models import Backup
-print("Backups existentes:", Backup.objects.count())
+
 @login_required(login_url='/acceso_denegado/')
 def descargar_backup(request, id):
     try:

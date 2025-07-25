@@ -387,7 +387,7 @@ def cambiar_estado_pedido_cde(request, pedido_id):
             padding: 25px;
         }}
         .status {{
-            font-size: 18px;
+            font-size: 12px;
             font-weight: bold;
             margin: 15px 0;
             padding: 10px;
@@ -398,7 +398,6 @@ def cambiar_estado_pedido_cde(request, pedido_id):
             color: #155724;
         }}
         .status.Cancelado {{
-            background-color: #f8d7da;
             color: #721c24;
         }}
         .status.Pendiente {{

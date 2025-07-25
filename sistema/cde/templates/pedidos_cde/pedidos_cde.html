@@ -48,7 +48,8 @@ body.dark h1{
             </div>
             {% if request.user.role == 'Administrador' %}
             <div class="fecha-personalizada-container" style="margin-top: 20px;">
-                <input type="checkbox" id="activar_fecha_cde" onchange="toggleFechaPersonalizadaCDE()" />
+                <input type="checkbox" name="usar_fecha_personalizada" id="activar_fecha_cde" onchange="toggleFechaPersonalizadaCDE()" />
+
                 <label for="activar_fecha_cde">Usar fecha personalizada</label>
 
                 <div id="campo_fecha_personalizada_cde" style="margin-top: 10px; display: none;">

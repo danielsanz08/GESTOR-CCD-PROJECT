@@ -8,6 +8,7 @@
     --white: #ffffff;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+    background-color: #f8f9fa;
 }
 html, body{
       background-color: #1c96bb1c;
