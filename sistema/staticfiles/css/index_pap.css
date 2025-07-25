@@ -1,478 +1,229 @@
 /* Reset y estilos base */
-body {
-    background: #ffffff;
-    color: #ffffff;
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #1c96bb1c;
+    color: #333;
     font-family: 'Roboto', sans-serif;
     min-height: 100vh;
-    margin: 0;
     overflow-x: hidden;
 }
- html, body{
-      background-color: #1c96bb1c;
-    }
+
 /* Contenedor principal */
-.container {
-    max-width: 1400px;
+.main-container {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 3rem 1rem;
-    position: relative;
-    margin-top: 15vh;
+    padding: 2rem 1rem;
+    margin-top: 20vh;
+    overflow: hidden;
 }
 
-/* Título */
-.title {
+/* Título principal */
+.main-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2.5rem;
+    font-size: 2rem;
     text-align: center;
-    color: #00f7ff;
-    text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
-    margin-bottom: 3rem;
-    animation: glow 2s ease-in-out infinite alternate;
+    color: #2c5282;
+    margin-bottom: 2rem;
 }
 
-@keyframes glow {
-    from {
-        text-shadow: 0 0 10px rgba(0, 247, 255, 0.5), 0 0 20px rgba(0, 247, 255, 0.3);
-    }
-    to {
-        text-shadow: 0 0 15px rgba(0, 247, 255, 0.7), 0 0 30px rgba(0, 247, 255, 0.5);
-    }
-}
-
-/* Contenedor de opciones */
-.uno {
+/* Grid de tarjetas */
+.main-cards,
+.main-cards_empleado,
+.main-cards_admin {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
     justify-content: center;
-    padding: 2rem;
+    padding: 0 1rem;
+}
+
+.main-cards {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.main-cards_empleado {
+    grid-template-columns: repeat(3, 2fr);
+    gap: 5.5rem;
+    margin-top: 10vh;
+}
+
+.main-cards_admin {
+    grid-template-columns: repeat(2, 2fr);
+    gap: 5.5rem;
+    margin-top: 10vh;
 }
 
 /* Estilo de cada tarjeta */
-.opcion {
+.main-card {
+    background: linear-gradient(110deg, #c7def893, #ffffffe8);
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.233);
+    border: 2px solid rgba(2, 47, 90, 0.63);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 120px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    text-align: center;
-    background: linear-gradient(135deg, #f0f0f0, #cde0f7);
-    padding: 15px;
-    border: 1px solid white;
-    border-radius: 10px;
-    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.233);
-    width: 180px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
 }
 
-.opcion:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 40px rgba(17, 0, 255, 0.2);
-    border: 2px solid rgb(14, 79, 133);
-    background: linear-gradient(to bottom, #1cabd6, #1791b68e);
+.main-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    border-color: #4299e1;
 }
 
-.opcion::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 247, 255, 0.1), transparent);
+.main-card-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 0.75rem;
+    color: #2c5282;
+    transition: all 0.3s ease;
+}
+
+.main-card:hover .main-card-icon {
+    transform: scale(1.1);
+    color: #4299e1;
+}
+
+.main-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c5282;
+}
+
+/* Ventanas emergentes */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s ease;
-    z-index: 0;
 }
 
-.opcion:hover::before {
+.modal-overlay.active {
+    display: flex;
     opacity: 1;
 }
 
-/* Iconos */
-.icono {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 1rem;
-    color: #000000;
-    
-    transition: transform 0.3s ease;
-    z-index: 1;
-}
-
-.opcion:hover .icono {
-    transform: scale(1.2);
-    color: #cde0f7;
-}
-
-/* Texto en opciones */
-.opcion span {
-    font-size: 1.1rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    font-family: 'Roboto', sans-serif;
-    z-index: 1;
-}
-
-/* Enlaces */
-a {
-    text-decoration: none;
-    width: 100%;
-}
-
-/* Animación de entrada */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.uno .opcion {
-    animation: slideIn 0.5s ease-out forwards;
-    animation-delay: calc(0.1s * var(--i));
-}
-
-/* Estilo para tarjetas adicionales */
-.empleado-card {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    margin: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.card-uno {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
+.modal-container {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
     padding: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 100%;
-    max-width: 400px;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
 }
 
-.card-uno:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 40px rgba(0, 247, 255, 0.2);
-    border-color: #00f7ff;
+.modal-overlay.active .modal-container {
+    transform: translateY(0);
 }
 
-/* 📱 Teléfono pequeño (ej. 360x640) */
-@media (min-width: 360px) and (max-width: 374px) {
-    .container {
-        align-items: center;
-        /* Esta propiedad solo funciona si display: flex está activo */
-        height: 500px;
-        /* Altura fija */
-        width: 100%;
-        /* Opcional: ancho completo */
-        overflow: auto;
-        /* Agrega scroll si el contenido sobrepasa el tamaño */
-        display: flex;
-        /* Necesario para que align-items funcione */
-        flex-direction: column;
-        /* Ajuste para que los ítems se apilen verticalmente */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #ebf8ff;
+}
 
-    }
+.modal-title {
+    font-size: 1.5rem;
+    color: #2c5282;
+}
 
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+    color: #e53e3e;
+}
+
+.modal-content {
+    margin-bottom: 1.25rem;
+}
+
+.modal-options {
+    display: grid;
+    gap: 1rem;
+}
+
+.modal-option {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem;
+    border-radius: 6px;
+    background: #ebf8ff;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #4a5568;
+}
+
+.modal-option:hover {
+    background: #4299e1;
+    color: #ffffff;
+    transform: translateX(3px);
+}
+
+.modal-option-icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 0.85rem;
+}
+
+.modal-option-text {
+    font-size: 1rem;
+    font-weight: 500;
+}
+/* Móviles (hasta 767px) */
+@media (max-width: 767px) {
+    .main-cards,
+    .main-cards_empleado,
+    .main-cards_admin {
+        grid-template-columns: 1fr;
         gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
         position: relative;
-        right: 2vh;
-        z-index: -10000;
+        top: -5vh;
+        height: 75vh;
+        overflow: hidden;
+        overflow-y: scroll;
     }
+    #estadisticas{
+        display: none;
+    }
+     #lista_usuario{
+    display: none;
+  }
+
 }
-
-/* 📱 Teléfono mediano (ej. 375x667 - 414x896) */
-@media (min-width: 375px) and (max-width: 429px) {
-    .container {
-        align-items: center;
-        /* Esta propiedad solo funciona si display: flex está activo */
-        height: 600px;
-        /* Altura fija */
-        width: 100%;
-        /* Opcional: ancho completo */
-        overflow: auto;
-        /* Agrega scroll si el contenido sobrepasa el tamaño */
-        display: flex;
-        /* Necesario para que align-items funcione */
-        flex-direction: column;
-        /* Ajuste para que los ítems se apilen verticalmente */
-
-    }
-
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        right: 2vh;
-        z-index: -10000;
-    }
-}
-
-/* 📱 Teléfono grande (ej. 430x932 - 480x960) */
-@media (min-width: 430px) and (max-width: 539px) {
-    .container {
-        align-items: center;
-        /* Esta propiedad solo funciona si display: flex está activo */
-        height: 700px;
-        /* Altura fija */
-        width: 100%;
-        /* Opcional: ancho completo */
-        overflow: auto;
-        /* Agrega scroll si el contenido sobrepasa el tamaño */
-        display: flex;
-        /* Necesario para que align-items funcione */
-        flex-direction: column;
-        /* Ajuste para que los ítems se apilen verticalmente */
-
-    }
-
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        right: 2vh;
-        z-index: -10000;
-        width: 240px;
-    }
-}
-
-/* 📟 Phablet (600x960) */
-@media (min-width: 540px) and (max-width: 679px) {
-    .container {
-        align-items: center;
-        /* Esta propiedad solo funciona si display: flex está activo */
-        height: 700px;
-        /* Altura fija */
-        width: 100%;
-        /* Opcional: ancho completo */
-        overflow: auto;
-        /* Agrega scroll si el contenido sobrepasa el tamaño */
-        display: flex;
-        /* Necesario para que align-items funcione */
-        flex-direction: column;
-        /* Ajuste para que los ítems se apilen verticalmente */
-
-    }
-
-    .uno {
-        display: grid;
+/* Tablets (768px — 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .main-cards,
+    .main-cards_empleado,
+    .main-cards_admin {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
+        gap: 2rem;
     }
-
-    .opcion {
-        position: relative;
-        right: 2vh;
-        z-index: -10000;
-        width: 200px;
-    }
-}
-
-/* 📱 Tablet pequeña (ej. iPad Mini vertical 768x1024) */
-@media (min-width: 680px) and (max-width: 799px) {
-    .container {
-        align-items: center;
-        /* Esta propiedad solo funciona si display: flex está activo */
-        height: 700px;
-        /* Altura fija */
-        width: 100%;
-        /* Opcional: ancho completo */
-        overflow: auto;
-        /* Agrega scroll si el contenido sobrepasa el tamaño */
-        display: flex;
-        /* Necesario para que align-items funcione */
-        flex-direction: column;
-        /* Ajuste para que los ítems se apilen verticalmente */
-
-    }
-
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        right: 2vh;
-        z-index: -10000;
-        width: 280px;
-    }
-}
-/* 💻 Laptop 11" (1024x600) */
-@media (min-width: 992px) and (max-width: 1099px) {
-
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        top: -3vh;
-    }
-}
-/* 💻 Laptop 12" (1152x720) */
-@media (min-width: 1100px) and (max-width: 1199px) {
-
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        top: 1vh;
-    }
-}
-
-/* 💻 Laptop 15-16" (1440x900) */
-@media (min-width: 1440px) and (max-width: 1599px) {
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        top: 4vh;
-        height: 100px;
-    }
-}
-
-/* 🎯 Ajuste más fino para monitor de 19" (1600x900) */
-@media (min-width: 1600px) and (max-width: 1600px) and (min-height: 900px) and (max-height: 900px) {
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        top: 4vh;
-        height: 100px;
-        width: 210px;
-        margin-left: 20px;
-        margin-right: 20px;
-        
-        margin-top: 20px;
-    }
-
-}
-
-/* 🖥️ Monitor 22-24" (1920x1080) */
-@media (min-width: 1920px) and (max-width: 2559px) {
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        top: -1vh;
-        height: 160px;
-        width: 310px;
-        margin: 20px;
-        display: flex;
-        /* Habilita Flexbox */
-        justify-content: center;
-        /* Centra horizontalmente */
-        align-items: center;
-        /* Centra verticalmente */
-        text-align: center;
-        padding-top: 0;
-        /* Ya no necesitas padding para centrar */
-    }
-
-}
-
-/* 🖥️ Monitor 27-32" (2560x1440 y más) */
-@media (min-width: 2560px) {
-    .uno {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 70px;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .opcion {
-        position: relative;
-        top: -1vh;
-        height: 240px;
-        width: 410px;
-        margin: 20px;
-        display: flex;
-        /* Habilita Flexbox */
-        justify-content: center;
-        /* Centra horizontalmente */
-        align-items: center;
-        /* Centra verticalmente */
-        text-align: center;
-        padding-top: 0;
-        /* Ya no necesitas padding para centrar */
-    }
-
-    .icono {
-        width: 78px;
-        height: 78px;
-
-    }
-
-   
-
+     #lista_usuario{
+    display: none;
+  }
 }

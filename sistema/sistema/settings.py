@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 import smtplib
-
+import whitenoise
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -13,7 +13,7 @@ MEDIA_URL = '/media/'
 SECRET_KEY = 'django-insecure-w=vb@dyxyk30)xbk52m@kx1q9)aj5s685fma)a+zh9jc0!1jy2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['192.168.1.10', 'localhost', '127.0.0.1', '192.168.10.151']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -62,10 +62,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'libreria.middleware.SessionExpiryMiddleware',
     'libreria.middlewares.single_session.SingleSessionMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # por defecto
 SESSION_SAVE_EVERY_REQUEST = True
-
+# Agrega estas configuraciones al final del archivo
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MAX_AGE = 31536000  #
 ROOT_URLCONF = 'sistema.urls'
 
 TEMPLATES = [

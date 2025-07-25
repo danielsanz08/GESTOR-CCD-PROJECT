@@ -1,77 +1,176 @@
-.card{
-    max-width: 550px;
-    margin: 60px auto;
-    top: 10.5vh;
-    border: none;
-    border-radius: 15px;
-    background: linear-gradient(135deg, #f0f0f0f3, #cde0f7e8);
-    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.233);
-    position: relative;
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: #80808000;
 }
-.card-body {
-    
-    padding: 40px;
-    position: relative;
 
+html,
+body {
+    background-color: #86cfe61c;
 }
-/*informacion del perfil*/
-.nombre, .rol, .email, .cargo{
-    margin-bottom: 24px;
-    padding-bottom: 14px;
+
+.card {
+    width: 600px;
+    min-height: 400px;
+    margin: 60px auto;
+    border: 2px solid rgba(2, 47, 90, 0.63);
+    border-radius: 10px;
+    background: linear-gradient(110deg, #c7def893, #ffffffe8);
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.233);
     display: flex;
-    align-items: baseline;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    top: 5vh;
+    overflow: hidden;
 }
-.nombre{
-    padding-bottom: 20px;
-    margin-bottom: 28px;
-    border-bottom: 2px #eaeaea;
-}
-label{
-    
-    font-weight: 600;
-    color: #1a3a1a;
-    width: 180px;
-    font-size: 15px;
+
+.info {
     text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    width: 100%;
 }
-/* Botones */
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.labels-data-container {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    margin-left: 90px;
+    width: 80%;
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+.labels,
+.data {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.labels {
+    margin-right: 40px;
+    font-weight: bold;
+    color: #555;
+    min-width: 150px;
+}
+
+.data {
+    color: #333;
+    min-width: 150px;
+}
+
+/* Estilos para truncar texto largo */
+.labels label,
+.data span {
+    text-align: left;
+    margin-bottom: 10px;
+    max-width: 250px; /* Ancho máximo para los datos */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.labels label {
+    font-weight: bold;
+    white-space: nowrap; /* Evita que los labels se corten */
+}
+
 .botones {
     display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
+    justify-content: center;
+    gap: 60px;
+    width: 100%;
+    margin-top: 20px;
+    flex-wrap: wrap;
 }
-.botones button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    
-    font-size: 12px;
+
+.atras {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    border: 1px solid black;
+    height: 40px;
+    min-width: 150px;
+    border-radius: 10px;
+    font-size: max(0.9rem, 14px);
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    position: relative;
 }
-.atras{
-    background-color: rgb(253, 45, 45);
-    color: white;
-    font-weight: bold;
+
+.atras:hover {
+    background-color: rgb(255, 0, 0);
+    color: rgb(255, 255, 255);
 }
-.atras:hover{
-    background-color: rgb(252, 0, 0);
-    color: rgb(0, 0, 0);
-    font-weight: bold;
-}
-.editar{
-    background-color: rgb(51, 248, 51);
-    color: white;
-    font-weight: bold;
-}
-.editar:hover{
-    background-color: rgb(0, 253, 0);
-    color: rgb(0, 0, 0);
-    font-weight: bold;
+
+/* Estilos para móviles */
+@media (max-width: 767px) {
+    .card {
+        width: 95%;
+        max-width: none;
+        margin: 20px 0 70px;
+        padding: 20px 15px;
+        min-height: 300px;
+        border-radius: 12px;
+        box-shadow: 3px 3px 3px 3px rgba(0, 0, 0, 0.233);
+    }
+
+    .info {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .labels-data-container {
+        flex-direction: row;
+        width: 95%;
+        margin-left: 0;
+        margin-bottom: 20px;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .labels, .data {
+        width: 48%;
+        min-width: auto;
+        gap: 20px;
+        margin-top: 35px;
+    }
+
+    .labels {
+        margin-right: 10px;
+        gap: 25px;
+    }
+
+    .data {
+        margin-bottom: 20px;
+    }
+
+    .labels label, .data span {
+        text-align: left;
+        margin-bottom: 8px;
+        font-size: 14px;
+        max-width: 120px; /* Ajuste para móviles */
+    }
 }

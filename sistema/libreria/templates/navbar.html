@@ -5,8 +5,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block titulo %}GESTOR CCD{% endblock %}</title>
-  <link rel="icon" type="image/x-icon" href="{% static 'imagen/LOGO.png' %}">
+  <title>{% block titulo %} GESTOR CCD{% endblock %}</title>
+  <link rel="icon" type="image/png" href="https://ccduitama.org.co/wp-content/uploads/2021/05/LOGOCCD-TRANSPARENCIA.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=OpenDyslexic:ital,wght@0,400;0,700;1,400;1,700&display=swap"
@@ -97,7 +97,7 @@
       object-fit: cover;
       z-index: -1;
       opacity: 0.3;
-      
+
     }
   }
 
@@ -144,52 +144,60 @@
     background-color: #000;
     opacity: none;
   }
-  body.dark{
+
+  body.dark {
     background-color: rgb(61, 60, 60);
   }
-   body.dark h2,
-   body.dark p{
+
+  body.dark h2,
+  body.dark p {
     color: white;
   }
-  body.dark .breadcrumb-item a{
+
+  body.dark .breadcrumb-item a {
     background-color: #000;
     color: white;
   }
-  body.monocromo-activo  {
-  filter: grayscale(100%) !important;
-  -webkit-filter: grayscale(100%) !important;
-  -moz-filter: grayscale(100%) !important;
-  -ms-filter: grayscale(100%) !important;
-  -o-filter: grayscale(100%) !important;
-}
-/* ============= ALTA SATURACIÓN ============= */
-body.alta-saturacion  {
-  filter: saturate(200%) !important;
-  -webkit-filter: saturate(200%) !important;
-  -moz-filter: saturate(200%) !important;
-  -ms-filter: saturate(200%) !important;
-  -o-filter: saturate(200%) !important;
-}
-/* ============= BAJA SATURACIÓN ============= */
-body.bajo-contraste  {
-  filter: saturate(50%) contrast(75%) !important;
-  -webkit-filter: saturate(50%) contrast(75%) !important;
-  -moz-filter: saturate(50%) contrast(75%) !important;
-  -ms-filter: saturate(50%) contrast(75%) !important;
-  -o-filter: saturate(50%) contrast(75%) !important;
-}
-body.resaltar-titulos .gestor {
-  background-color: #bbb01c!important;
-  width: 150px;
-  display: inline;
-  
-}
-body.resaltar-enlaces .btn-logout,
-body.resaltar-enlaces .gestor {
-  background-color: #1c96bb !important;
-  width: 150px;
-  
-}
+
+  body.monocromo-activo {
+    filter: grayscale(100%) !important;
+    -webkit-filter: grayscale(100%) !important;
+    -moz-filter: grayscale(100%) !important;
+    -ms-filter: grayscale(100%) !important;
+    -o-filter: grayscale(100%) !important;
+  }
+
+  /* ============= ALTA SATURACIÓN ============= */
+  body.alta-saturacion {
+    filter: saturate(200%) !important;
+    -webkit-filter: saturate(200%) !important;
+    -moz-filter: saturate(200%) !important;
+    -ms-filter: saturate(200%) !important;
+    -o-filter: saturate(200%) !important;
+  }
+
+  /* ============= BAJA SATURACIÓN ============= */
+  body.bajo-contraste {
+    filter: saturate(50%) contrast(75%) !important;
+    -webkit-filter: saturate(50%) contrast(75%) !important;
+    -moz-filter: saturate(50%) contrast(75%) !important;
+    -ms-filter: saturate(50%) contrast(75%) !important;
+    -o-filter: saturate(50%) contrast(75%) !important;
+  }
+
+  body.resaltar-titulos .gestor {
+    background-color: #bbb01c !important;
+    width: 150px;
+    display: inline;
+
+  }
+
+  body.resaltar-enlaces .btn-logout,
+  body.resaltar-enlaces .gestor {
+    background-color: #1c96bb !important;
+    width: 150px;
+
+  }
 
   /* Móviles (hasta 767px) */
   @media (max-width: 767px) {
@@ -942,56 +950,56 @@ body.resaltar-enlaces .gestor {
 </div>
 <style>
   body.dark #accessibility-menu {
-  background-color: rgba(30, 30, 30, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-}
+    background-color: rgba(30, 30, 30, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+  }
 
-body.dark .accessibility-btn {
-  background: linear-gradient(135deg, #1a5f7a 0%, #2d4a5e 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
-}
+  body.dark .accessibility-btn {
+    background: linear-gradient(135deg, #1a5f7a 0%, #2d4a5e 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  }
 
-body.dark .accessibility-btn:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
-}
+  body.dark .accessibility-btn:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  }
 
-body.dark .zoom-btn {
-  background: linear-gradient(135deg, #1a5f7a 0%, #2d4a5e 100%) !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
-}
+  body.dark .zoom-btn {
+    background: linear-gradient(135deg, #1a5f7a 0%, #2d4a5e 100%) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  }
 
-body.dark .zoom-btn:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
-}
+  body.dark .zoom-btn:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  }
 
-body.dark .zoom-reset-btn {
-  background: linear-gradient(135deg, #1a5f7a 0%, #2d4a5e 100%) !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
-}
+  body.dark .zoom-reset-btn {
+    background: linear-gradient(135deg, #1a5f7a 0%, #2d4a5e 100%) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  }
 
-body.dark .zoom-reset-btn:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
-}
+  body.dark .zoom-reset-btn:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  }
 
-body.dark #zoom-percentage {
-  color: white !important;
-}
+  body.dark #zoom-percentage {
+    color: white !important;
+  }
 
-body.dark .zoom-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
+  body.dark .zoom-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
 
-/* ============= TOOLTIPS EN MODO OSCURO ============= */
-body.dark [data-tooltip]::after {
-  background-color: #555 !important;
-  color: white !important;
-}
-body.dark #fondo{
-  background-color: #000;
-}
-  
+  /* ============= TOOLTIPS EN MODO OSCURO ============= */
+  body.dark [data-tooltip]::after {
+    background-color: #555 !important;
+    color: white !important;
+  }
+
+  body.dark #fondo {
+    background-color: #000;
+  }
 </style>
 <style>
   /* Tablets (768px — 1024px) */
@@ -1281,7 +1289,7 @@ body.dark #fondo{
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(180, 204, 241, 0.4);
     }
-    
+
 
     .accessibility-btn:hover {
       transform: translateY(-2px);
@@ -1356,75 +1364,75 @@ body.dark #fondo{
 </style>
 <!-- ============= SCRIPTS PARA FUNCIONALIDADES DE ACCESIBILIDAD ============= -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     // === BOTÓN Y MENÚ DE ACCESIBILIDAD ===
     const toggleButton = document.getElementById("toggle-accessibility-menu");
     const menu = document.getElementById("accessibility-menu");
 
     toggleButton.addEventListener("click", function (event) {
-        event.stopPropagation();
-        menu.classList.toggle("visible");
+      event.stopPropagation();
+      menu.classList.toggle("visible");
     });
 
     menu.addEventListener("click", function (event) {
-        event.stopPropagation();
+      event.stopPropagation();
     });
 
     document.addEventListener("click", function () {
-        menu.classList.remove("visible");
+      menu.classList.remove("visible");
     });
 
     // === FUNCIONES DE MODO VISUAL ===
     function resetAllModes() {
-        document.body.classList.remove(
-            'dark',
-            'monocromo-activo',
-            'alta-saturacion',
-            'bajo-contraste'
-        );
-        localStorage.removeItem('activeMode');
+      document.body.classList.remove(
+        'dark',
+        'monocromo-activo',
+        'alta-saturacion',
+        'bajo-contraste'
+      );
+      localStorage.removeItem('activeMode');
     }
 
     function toggleMode(modeClass, storageValue) {
-        const isActive = document.body.classList.contains(modeClass);
-        resetAllModes();
+      const isActive = document.body.classList.contains(modeClass);
+      resetAllModes();
 
-        if (!isActive) {
-            document.body.classList.add(modeClass);
-            localStorage.setItem('activeMode', storageValue);
-        }
+      if (!isActive) {
+        document.body.classList.add(modeClass);
+        localStorage.setItem('activeMode', storageValue);
+      }
     }
 
     function toggleDarkMode() {
-        toggleMode('dark', 'dark');
+      toggleMode('dark', 'dark');
     }
 
     function toggleMonocromo() {
-        toggleMode('monocromo-activo', 'monocromo-activo');
+      toggleMode('monocromo-activo', 'monocromo-activo');
     }
 
     function toggleAltaSaturacion() {
-        toggleMode('alta-saturacion', 'alta-saturacion');
+      toggleMode('alta-saturacion', 'alta-saturacion');
     }
 
     function toggleBajoContraste() {
-        toggleMode('bajo-contraste', 'bajo-contraste');
+      toggleMode('bajo-contraste', 'bajo-contraste');
     }
 
     function toggleResaltarTitulos() {
-        document.body.classList.toggle('resaltar-titulos');
-        localStorage.setItem(
-            'resaltarTitulos',
-            document.body.classList.contains('resaltar-titulos') ? 'enabled' : 'disabled'
-        );
+      document.body.classList.toggle('resaltar-titulos');
+      localStorage.setItem(
+        'resaltarTitulos',
+        document.body.classList.contains('resaltar-titulos') ? 'enabled' : 'disabled'
+      );
     }
 
     function toggleResaltarEnlaces() {
-        document.body.classList.toggle('resaltar-enlaces');
-        localStorage.setItem(
-            'resaltarEnlaces',
-            document.body.classList.contains('resaltar-enlaces') ? 'enabled' : 'disabled'
-        );
+      document.body.classList.toggle('resaltar-enlaces');
+      localStorage.setItem(
+        'resaltarEnlaces',
+        document.body.classList.contains('resaltar-enlaces') ? 'enabled' : 'disabled'
+      );
     }
 
     // === EVENTOS DE BOTONES ===
@@ -1443,58 +1451,58 @@ document.addEventListener("DOMContentLoaded", function () {
     const zoomDisplay = document.getElementById("zoom-percentage");
 
     function setZoom(percentage) {
-        percentage = Math.max(minZoom, Math.min(maxZoom, percentage));
-        root.style.fontSize = percentage + "%";
-        zoomDisplay.textContent = percentage + "%";
-        localStorage.setItem("zoomLevel", percentage);
+      percentage = Math.max(minZoom, Math.min(maxZoom, percentage));
+      root.style.fontSize = percentage + "%";
+      zoomDisplay.textContent = percentage + "%";
+      localStorage.setItem("zoomLevel", percentage);
     }
 
     document.getElementById("zoom-in").addEventListener("click", () => {
-        const current = parseInt(localStorage.getItem("zoomLevel")) || 100;
-        setZoom(current + zoomStep);
+      const current = parseInt(localStorage.getItem("zoomLevel")) || 100;
+      setZoom(current + zoomStep);
     });
 
     document.getElementById("zoom-out").addEventListener("click", () => {
-        const current = parseInt(localStorage.getItem("zoomLevel")) || 100;
-        setZoom(current - zoomStep);
+      const current = parseInt(localStorage.getItem("zoomLevel")) || 100;
+      setZoom(current - zoomStep);
     });
 
     document.getElementById("zoom-reset").addEventListener("click", () => {
-        setZoom(100);
+      setZoom(100);
     });
 
     // === CARGA INICIAL DE CONFIGURACIÓN ===
     function applyInitialSettings() {
-        const activeMode = localStorage.getItem('activeMode');
-        if (activeMode) {
-            document.body.classList.add(activeMode);
-        }
+      const activeMode = localStorage.getItem('activeMode');
+      if (activeMode) {
+        document.body.classList.add(activeMode);
+      }
 
-        if (localStorage.getItem('resaltarTitulos') === 'enabled') {
-            document.body.classList.add('resaltar-titulos');
-        }
+      if (localStorage.getItem('resaltarTitulos') === 'enabled') {
+        document.body.classList.add('resaltar-titulos');
+      }
 
-        if (localStorage.getItem('resaltarEnlaces') === 'enabled') {
-            document.body.classList.add('resaltar-enlaces');
-        }
+      if (localStorage.getItem('resaltarEnlaces') === 'enabled') {
+        document.body.classList.add('resaltar-enlaces');
+      }
 
-        const savedZoom = parseInt(localStorage.getItem("zoomLevel")) || 100;
-        setZoom(savedZoom);
+      const savedZoom = parseInt(localStorage.getItem("zoomLevel")) || 100;
+      setZoom(savedZoom);
     }
 
     applyInitialSettings();
-});
-// En tu template base
-window.addEventListener('beforeunload', function(e) {
+  });
+  // En tu template base
+  window.addEventListener('beforeunload', function (e) {
     // Solo si es el cierre de ventana (no refresh)
     fetch('/logout/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-        keepalive: true
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      keepalive: true
     });
-});
+  });
 </script>
 
 {% block contenido %}

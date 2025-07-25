@@ -1,80 +1,81 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib.sessions.models import Session
-from django.contrib import messages
-from django.urls import reverse
-import uuid
-import os
-from django.utils.timezone import localtime, make_aware
-from django.core.paginator import Paginator
-from django.utils.timezone import localtime
-from datetime import datetime, timedelta
-from django.utils.dateparse import parse_date
-from django.db.models import Q, Sum, Count
 from django.http import JsonResponse, HttpResponse
-from django.template.loader import get_template
-from django.db import transaction
-from django.utils.timezone import now
+from django.urls import reverse
+from django.contrib import messages
+from django.conf import settings
+from django.utils import timezone
+from django.utils.timezone import localtime, make_aware, now
+from django.utils.dateparse import parse_date
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
-from django.core.mail import send_mail
+from django.db import transaction
+from django.db.models import Q, Sum, Count
+from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.sessions.models import Session
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string, get_template
 from papeleria.models import Articulo, PedidoArticulo, Pedido, Devolucion
-from papeleria.forms import LoginForm, ArticuloForm, ArticuloEditForm, PedidoArticuloForm,DevolucionForm
+from papeleria.forms import LoginForm, ArticuloForm, ArticuloEditForm, PedidoArticuloForm, DevolucionForm
 from libreria.models import CustomUser
+import uuid
+from django.contrib.staticfiles import finders
+import os
 from io import BytesIO
+from datetime import datetime, timedelta
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib import colors
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from openpyxl.drawing.image import Image
-from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.lib.pagesizes import landscape, letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
-from django.contrib.staticfiles import finders
+from openpyxl.drawing.image import Image as XLImage
 from xhtml2pdf import pisa
 User = get_user_model()
-#ACCESO DENEGADO
-#INDEX DE PAPELERIA
-def error_404_view(request, exception):
-    return render(request, 'acceso_denegado.html', status=404)
-def timeouterror(request):
-    try:
-        # Simulación de una operación que puede causar un TimeoutError
-        # Aquí va tu lógica real, como una conexión a red, base de datos externa, etc.
-        raise TimeoutError("Error de tiempo de espera")  # Simulación
+def wrap_text(text, max_len=19):
+    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+    for i in range(len(parts) - 1):
+        parts[i] += '-'  
+    return '\n'.join(parts)
 
-        # Si no ocurre error, puedes devolver otro template si lo deseas
-        return render(request, 'exito.html')
 
-    except TimeoutError:
-        # Solo captura TimeoutError y redirige a lan_error.html
-        return render(request, 'lan_error.html')
+def wrap_text_p(text, max_len=26
+                ):
+    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+    for i in range(len(parts) - 1):
+        parts[i] += '-' 
+    return '\n'.join(parts)
+
+def draw_table_on_canvas(canvas, doc):
+    watermark_path = finders.find('imagen/LOGO.png')
+    if watermark_path:
+        canvas.saveState()
+        canvas.setFillColor(colors.Color(1, 1, 1, alpha=0.3))
+        canvas.setStrokeColor(colors.Color(1, 1, 1, alpha=0.3))
+        canvas.drawImage(watermark_path,
+                         x=(doc.pagesize[0] - 600) / 2,
+                         y=(doc.pagesize[1] - 600) / 2,
+                         width=600, height=600, mask='auto')
+        canvas.restoreState()
+
+#VALIDAR CORREO
+def validar_datos(request):
+    email = request.GET.get('email', None)
     
-@never_cache
-@login_required(login_url='/acceso_denegado/')
-def index_pap(request):
-    breadcrumbs = [{'name': 'Inicio', 'url': '/index_pap'}]
+    errores = {}
 
-    # Aquí defines las condiciones para mostrar la alerta
-    mostrar_alerta = True  # o alguna lógica
-    bajo_stock = True      # o algún cálculo real
-    es_papeleria = True    # esta variable ayuda a limitarlo al módulo
+   
+    if email and CustomUser.objects. filter(email=email).exists():
+        errores['email'] = 'El email ya está en uso.'
 
-    context = {
-        'breadcrumbs': breadcrumbs,
-        'es_papeleria': es_papeleria,
-    }
+    
+    return JsonResponse(errores if errores else {'valid': True})
 
-    return render(request, 'index_pap/index_pap.html', context)
-
-
-#LOGIN  Y LOGOUT DE PAPELERIA
-# Ejemplo para el login de papelería
-
+#LOGIN Y LOGOUT
 def login_papeleria(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -83,13 +84,11 @@ def login_papeleria(request):
 
         if user is not None:
             if user.is_active and getattr(user, 'acceso_pap', False):
-                # Elimina sesión anterior si existe
                 if user.session_key:
                     Session.objects.filter(session_key=user.session_key).delete()
 
                 login(request, user)
 
-                # Guarda nueva session_key y session_token
                 user.session_key = request.session.session_key
                 token = str(uuid.uuid4())
                 user.session_token = token
@@ -109,11 +108,27 @@ def login_papeleria(request):
 @never_cache
 @login_required(login_url='/acceso_denegado/')
 def logout_view(request):
-    request.session.flush()  # borra toda la sesión y regenera session_key
+    request.session.flush() 
     messages.success(request, "Has cerrado sesión correctamente.")
     response = redirect('libreria:inicio')
     response.delete_cookie('sessionid')
     return response
+
+#INDEX DE PAPELERIA
+@never_cache
+@login_required(login_url='/acceso_denegado/')
+def index_pap(request):
+    breadcrumbs = [{'name': 'Inicio', 'url': '/index_pap'}]
+    mostrar_alerta = True 
+    bajo_stock = True      
+    es_papeleria = True   
+    context = {
+        'breadcrumbs': breadcrumbs,
+        'es_papeleria': es_papeleria,
+    }
+
+    return render(request, 'index_pap/index_pap.html', context)
+
 #VIEWS DE ARTICULOS
 @login_required(login_url='/acceso_denegado/')
 def crear_articulo(request):
@@ -134,7 +149,6 @@ def crear_articulo(request):
             except Exception as e:
                 messages.error(request, f'Error al crear el artículo: {str(e)}')
         else:
-            # Mostrar errores específicos del formulario
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'Error en {field}: {error}')
@@ -145,6 +159,7 @@ def crear_articulo(request):
         'form': form,
         'breadcrumbs': breadcrumbs
     })
+
 @login_required(login_url='/acceso_denegado/')
 def editar_articulo(request, articulo_id):
     breadcrumbs = [
@@ -159,7 +174,6 @@ def editar_articulo(request, articulo_id):
         form = ArticuloEditForm(request.POST, instance=articulo)
         if form.is_valid():
             try:
-                # Guardar el artículo y registrar quién lo editó
                 articulo_editado = form.save(commit=False)
                 articulo_editado.registrado_por = request.user
                 articulo_editado.save()
@@ -169,7 +183,6 @@ def editar_articulo(request, articulo_id):
             except Exception as e:
                 messages.error(request, f'Error al guardar los cambios: {str(e)}')
         else:
-            # Mostrar errores específicos del formulario
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'Error en {field}: {error}')
@@ -181,6 +194,7 @@ def editar_articulo(request, articulo_id):
         'articulo': articulo,
         'breadcrumbs': breadcrumbs
     })
+
 @login_required(login_url='/acceso_denegado/')
 def listar_articulo(request):
     breadcrumbs = [
@@ -194,7 +208,6 @@ def listar_articulo(request):
 
     articulos = Articulo.objects.select_related('registrado_por').order_by('nombre')
 
-    # Búsqueda por texto
     if query:
         articulos = articulos.filter(
             Q(id__icontains=query) |
@@ -208,7 +221,6 @@ def listar_articulo(request):
             Q(registrado_por__username__icontains=query)
         )
 
-    # Filtrado por rango de fechas
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
@@ -223,19 +235,17 @@ def listar_articulo(request):
         except ValueError:
             articulos = Articulo.objects.none()
 
-    # Paginación
     paginator = Paginator(articulos, 4)
     page_number = request.GET.get('page')
     articulos_page = paginator.get_page(page_number)
 
-    # Crear string con parámetros de búsqueda para la paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
     if fecha_inicio_str:
         query_params += f'&fecha_inicio={fecha_inicio_str}'
     if fecha_fin_str:
-        query_params += f'&fecha_fin={fecha_fin_str}'  # Mostrar la fecha original (sin timedelta)
+        query_params += f'&fecha_fin={fecha_fin_str}' 
 
     return render(request, 'articulo/listar_articulo.html', {
         'articulos': articulos_page,
@@ -255,12 +265,14 @@ def buscar_articulo(request):
         return JsonResponse(list(articulos), safe=False)
     return JsonResponse([], safe=False)
 
+@login_required(login_url='/acceso_denegado/')
 def eliminar_articulo(request, id):
     articulo = Articulo.objects.get(id=id)
     if request.method == 'POST':
         articulo.delete()
         messages.success(request, "Artículo eliminado correctamente.")
     return redirect('papeleria:listar_articulo')
+
 @login_required(login_url='/acceso_denegado/')
 def lista_stock_bajo(request):
     breadcrumbs = [
@@ -272,20 +284,21 @@ def lista_stock_bajo(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    # Filtrar solo artículos con cantidad menor a 10
     articulos_bajo_stock = Articulo.objects.filter(cantidad__lt=10)
 
-    # Filtro por búsqueda de texto
     if query:
         articulos_bajo_stock = articulos_bajo_stock.filter(
+            Q(id__icontains=query) |
             Q(nombre__icontains=query) |
             Q(marca__icontains=query) |
+            Q(observacion__icontains=query) |
             Q(tipo__icontains=query) |
-            Q(id__icontains=query) |
-            Q(proveedor__icontains=query)
+            Q(precio__icontains=query) |
+            Q(proveedor__icontains=query) |
+            Q(cantidad__icontains=query) |
+            Q(registrado_por__username__icontains=query)
         )
 
-    # Filtro por rango de fechas en fecha_registro
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
@@ -303,19 +316,18 @@ def lista_stock_bajo(request):
     bajo_stock = articulos_bajo_stock.exists()
     nombres_bajo_stock = [art.nombre for art in articulos_bajo_stock]
 
-    # Paginación
+    
     paginator = Paginator(articulos_bajo_stock, 4)
     page_number = request.GET.get('page')
     articulos_page = paginator.get_page(page_number)
 
-    # Crear string con parámetros de búsqueda para la paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
     if fecha_inicio_str:
         query_params += f'&fecha_inicio={fecha_inicio_str}'
     if fecha_fin_str:
-        query_params += f'&fecha_fin={fecha_fin_str}'  # Mostrar la fecha original (sin timedelta)
+        query_params += f'&fecha_fin={fecha_fin_str}'  
 
     return render(request, 'articulo/bajo_stock.html', {
         'articulos': articulos_page,
@@ -327,24 +339,504 @@ def lista_stock_bajo(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
-#VIEWS DE PEDIDOS
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.mail import send_mail
-from django.urls import reverse
-from django.conf import settings
-from .models import Pedido, PedidoArticulo, Articulo
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.contrib import messages
-from django.conf import settings
-from django.shortcuts import redirect, render
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.urls import reverse
-from libreria.models import CustomUser
-User = get_user_model()
+def verificar_nombre_articulo(request):
+    nombre = request.GET.get('nombre', '')
+    existe = Articulo.objects.filter(nombre=nombre).exists()
+    return JsonResponse({'existe': existe})
+
+@login_required(login_url='/acceso_denegado/')
+def estadisticas_articulos(request):
+    articulos = Articulo.objects.all().order_by('-cantidad') 
+    total_cantidad = articulos.aggregate(total=Sum('cantidad'))['total'] or 0
+    return render(request, 'estadisticas/estadisticas_articulos.html', {
+        'articulos': articulos,
+        'total_cantidad': total_cantidad,
+    })
+
+
+@login_required(login_url='/acceso_denegado/')
+def graficas_articulos(request):
+    breadcrumbs = [
+        {'name': 'Inicio', 'url': '/index_pap'},
+        {'name': 'Estadisticas', 'url': reverse('papeleria:index_estadistica')}, 
+        {'name': 'Grafico de articulos', 'url': reverse('papeleria:graficas_articulos')}, 
+    ]
+    articulos = Articulo.objects.all()
+    
+    nombres = [f"{art.nombre} {art.tipo}" for art in articulos]
+    cantidades = [art.cantidad for art in articulos]
+
+    return render(request, 'estadisticas/grafica_articulos.html', {
+        'nombres': nombres,
+        'cantidades': cantidades,
+        'breadcrumbs': breadcrumbs
+    })
+
+@login_required(login_url='/acceso_denegado/')
+def grafica_bajo_Stock(request):
+    breadcrumbs = [
+        {'name': 'Inicio', 'url': '/index_pap'},
+        {'name': 'Estadisticas', 'url': reverse('papeleria:index_estadistica')}, 
+        {'name': 'Grafico de bajo stock', 'url': reverse('papeleria:grafica_bajoStock')}, 
+    ]
+    articulos = Articulo.objects.filter(cantidad__lt=10)
+    nombres = [f"{art.nombre} {art.tipo}" for art in articulos]
+    cantidades = [art.cantidad for art in articulos]
+    return render(request, 'estadisticas/grafica_bajoStock.html', {
+        'nombres': nombres,
+        'cantidades': cantidades,
+        'breadcrumbs': breadcrumbs
+    })
+
+def get_articulos_filtrados(request):
+    query = request.GET.get('q')
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+    articulos = Articulo.objects.select_related('registrado_por').order_by('nombre')
+
+
+    if query:
+        articulos = articulos.filter(
+            Q(nombre__icontains=query) |
+            Q(marca__icontains=query) |
+            Q(observacion__icontains=query) |
+            Q(tipo__icontains=query) |
+            Q(precio__icontains=query) |
+            Q(proveedor__icontains=query) |
+            Q(cantidad__icontains=query) |
+            Q(registrado_por__username__icontains=query)
+        )
+
+    if fecha_inicio and fecha_fin:
+        articulos = articulos.filter(fecha_registro__range=[fecha_inicio, fecha_fin])
+
+    return articulos
+
+@login_required(login_url='/acceso_denegado/')
+def reporte_articulo_pdf(request):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
+                            leftMargin=40, rightMargin=40, topMargin=40, bottomMargin=40)
+
+    doc.title = "Listado de Artículos CCD"
+    doc.author = "CCD"
+    doc.subject = "Listado de artículos"
+    doc.creator = "Sistema de Gestión CCD"
+
+    elements = []
+    styles = getSampleStyleSheet()
+
+    titulo = Paragraph("REPORTE DE ARTÍCULOS", styles["Title"])
+    elements.append(titulo)
+
+ 
+    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+    encabezado_data = [
+       ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
+    ]
+    tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
+    estilo_encabezado = TableStyle([
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+    tabla_encabezado.setStyle(estilo_encabezado)
+    elements.append(tabla_encabezado)
+
+    usuario = request.user
+    data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
+    data_usuario.append([
+        wrap_text(usuario.username),
+        wrap_text(usuario.email),
+        wrap_text(getattr(usuario, 'role', 'No definido')),
+        wrap_text(getattr(usuario, 'cargo', 'No definido')),
+])
+
+    table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
+    style_usuario = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+    table_usuario.setStyle(style_usuario)
+    elements.append(table_usuario)
+
+    
+    articulos_filtrados = get_articulos_filtrados(request)
+
+    if not articulos_filtrados.exists():
+        centered_style = ParagraphStyle(
+            name="CenteredNormal",
+            parent=styles["Normal"],
+            alignment=TA_CENTER,
+        )
+        no_results = Paragraph("No se encontraron artículos.", centered_style)
+        elements.append(no_results)
+    else:
+
+        data_articulos = [["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]]
+
+        for articulo in articulos_filtrados:
+            data_articulos.append([
+                wrap_text(str(articulo.id)),
+                wrap_text(articulo.nombre),
+                wrap_text(articulo.marca),
+                wrap_text(articulo.tipo),
+                wrap_text("{:,}".format(articulo.precio)),
+                wrap_text(str(articulo.cantidad)),
+                wrap_text(articulo.observacion),
+            ])
+
+        tabla_articulos = Table(data_articulos, colWidths=[20, 140, 120, 110, 100, 80, 150])
+        style_articulos = TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ])
+        tabla_articulos.setStyle(style_articulos)
+        elements.append(tabla_articulos)
+
+    
+    doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Listado de articulos CCD.pdf"'
+    return response
+
+@login_required(login_url='/acceso_denegado/')
+def reporte_articulo_excel(request):
+    articulos = get_articulos_filtrados(request)
+
+    
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Listado de Artículos CCD"
+
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    ws.column_dimensions['A'].width = 10
+    ws.column_dimensions['B'].width = 40
+    ws.column_dimensions['C'].width = 20
+    ws.column_dimensions['D'].width = 30
+    ws.column_dimensions['E'].width = 20
+    ws.column_dimensions['F'].width = 15
+    ws.column_dimensions['G'].width = 33
+
+    ws.row_dimensions[1].height = 60
+    ws.row_dimensions[2].height = 30
+
+    ws.merge_cells('A1:G1')
+    ws['A1'] = "GESTOR CCD"
+    ws['A1'].font = Font(size=24, bold=True)
+    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+
+    ws.merge_cells('A2:G2')
+    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+    ws['A2'] = f"Listado de Artículos {fecha_actual}"
+    ws['A2'].font = Font(size=18)
+    ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
+
+    for row in [1, 2]:
+        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+            ws[f"{col}{row}"].border = border
+            ws[f"{col}{row}"].alignment = Alignment(horizontal='center', vertical='center')
+
+    headers = ["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]
+    ws.append(headers)
+    
+    header_fill = PatternFill(start_color="FF0056B3", end_color="FF0056B3", fill_type="solid")
+    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+        cell = ws[f"{col}3"]
+        cell.fill = header_fill
+        cell.font = Font(color="FFFFFF", bold=True)
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
+
+    if not articulos.exists():
+        ws.merge_cells('A4:G4')
+        ws['A4'] = "No se encontraron artículos."
+        ws['A4'].font = Font(size=14)
+        ws['A4'].alignment = Alignment(horizontal='center', vertical='center')
+        ws['A4'].border = border
+    else:
+        
+        for articulo in articulos:
+            ws.append([
+                wrap_text(str(articulo.id)),
+                wrap_text(articulo.nombre),
+                wrap_text(articulo.marca),
+                wrap_text(articulo.tipo),
+                wrap_text("{:,}".format(articulo.precio)),
+                wrap_text(str(articulo.cantidad)),
+                str((articulo.observacion)),
+            ])
+
+        for row in ws.iter_rows(min_row=4, max_row=ws.max_row, min_col=1, max_col=7):
+            for cell in row:
+                cell.border = border
+                cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+    ws.auto_filter.ref = "A3:G3"
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="Listado de articulos CCD.xlsx"'
+    wb.save(response)
+    return response
+
+def obtener_articulos_bajo_stock(request):
+    query = request.GET.get('q')
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+    articulos = Articulo.objects.filter(cantidad__lt=10)
+
+    if query:
+        articulos = articulos.filter(
+            Q(id__icontains=query) |
+            Q(nombre__icontains=query) |
+            Q(marca__icontains=query) |
+            Q(observacion__icontains=query) |
+            Q(tipo__icontains=query) |
+            Q(precio__icontains=query) |
+            Q(proveedor__icontains=query) |
+            Q(cantidad__icontains=query) |
+            Q(registrado_por__username__icontains=query)
+        )
+
+    if fecha_inicio and fecha_fin:
+        articulos = articulos.filter(fecha_registro__range=[fecha_inicio, fecha_fin])
+
+    return articulos
+
+@login_required(login_url='/acceso_denegado/')
+def reporte_articulo_bajo_stock_pdf(request):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
+                            leftMargin=40, rightMargin=40, topMargin=40, bottomMargin=40)
+
+    doc.title = "Listado de BAJO STOCK CCD"
+    doc.author = "CCD"
+    doc.subject = "Listado de bajo stock"
+    doc.creator = "Sistema de Gestión CCD"
+
+    elements = []
+    styles = getSampleStyleSheet()
+
+    
+    titulo = Paragraph("REPORTE DE BAJO STOCK", styles["Title"])
+    elements.append(titulo)
+
+    
+    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+    encabezado_data = [
+        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
+    ]
+    tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
+    estilo_encabezado = TableStyle([
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+    tabla_encabezado.setStyle(estilo_encabezado)
+    elements.append(tabla_encabezado)
+
+    usuario = request.user
+    data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
+    data_usuario.append([
+        wrap_text(usuario.username),
+        wrap_text(usuario.email),
+        wrap_text(getattr(usuario, 'role', 'No definido')),
+        wrap_text(getattr(usuario, 'cargo', 'No definido')),
+])
+    table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
+    style_usuario = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+    table_usuario.setStyle(style_usuario)
+    elements.append(table_usuario)
+
+    articulos_filtrados = obtener_articulos_bajo_stock(request)
+
+    if not articulos_filtrados.exists():
+        centered_style = ParagraphStyle(
+            name="CenteredNormal",
+            parent=styles["Normal"],
+            alignment=TA_CENTER
+        )
+        no_results = Paragraph("No se encontraron artículos con bajo stock.", centered_style)
+        elements.append(Spacer(1, 20))
+        elements.append(no_results)
+    else:
+        data_articulos = [["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]]
+        
+        for articulo in articulos_filtrados:
+            data_articulos.append([
+                wrap_text_p(str(articulo.id)),
+                wrap_text_p(articulo.nombre),
+                wrap_text_p(articulo.marca),
+                wrap_text_p(articulo.tipo),
+                wrap_text_p("{:,}".format(articulo.precio)),
+                wrap_text_p(str(articulo.cantidad)),
+                wrap_text_p(articulo.observacion),
+            ])
+
+        tabla_articulos = Table(data_articulos, colWidths=[20, 140, 135, 130, 90, 55, 150])
+        style_articulos = TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ])
+        tabla_articulos.setStyle(style_articulos)
+        elements.append(tabla_articulos)
+
+    doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Listado bajo stock CCD.pdf"'
+    return response
+
+@login_required(login_url='/acceso_denegado/')
+def reporte_articulo_bajo_stock_excel(request):
+    
+    articulos = obtener_articulos_bajo_stock(request)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Listado de Artículos CCD"
+
+    column_widths = [10, 40, 20, 30, 20, 15, 33]
+    for i, width in enumerate(column_widths, start=1):
+        ws.column_dimensions[chr(64 + i)].width = width
+
+    ws.row_dimensions[1].height = 60
+    ws.row_dimensions[2].height = 30
+
+    ws.merge_cells('A1:G1')
+    ws['A1'] = "GESTOR CCD"
+    ws['A1'].font = Font(size=24, bold=True)
+    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
+
+    ws.merge_cells('A2:G2')
+    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+    ws['A2'] = f"Listado de Artículos - {fecha_actual}"
+    ws['A2'].font = Font(size=18)
+    ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
+
+    headers = ["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]
+    ws.append(headers)
+
+    header_fill = PatternFill(start_color="FF0056B3", end_color="FF0056B3", fill_type="solid")
+    for col in range(1, 8):
+        cell = ws.cell(row=3, column=col)
+        cell.fill = header_fill
+        cell.font = Font(color="FFFFFF", bold=True)
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    if not articulos.exists():
+        ws.merge_cells('A4:G4')
+        cell = ws['A4']
+        cell.value = "No se encontraron artículos en bajo stock."
+        cell.font = Font(bold=False)
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
+    else:
+        for articulo in articulos:
+            precio_formateado = f"${articulo.precio:,.2f}" if articulo.precio else "-"
+            ws.append([
+                articulo.id,
+                str(articulo.nombre),
+                str(articulo.marca),
+                str(articulo.tipo),
+                precio_formateado,
+                articulo.cantidad,
+                str(articulo.observacion or ""),
+            ])
+
+    for row in ws.iter_rows(min_row=1, max_row=2, min_col=1, max_col=7):
+        for cell in row:
+            cell.border = border
+            cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=7):
+        for i, cell in enumerate(row, start=1):
+            cell.border = border
+            if i < 7:
+                cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            else:
+                cell.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
+
+    ws.auto_filter.ref = "A3:G3"
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="Listado_articulos_bajo_stock.xlsx"'
+    wb.save(response)
+    return response
+
+#PEDIDOS
 @login_required(login_url='/acceso_denegado/')
 def crear_pedido(request):
     breadcrumbs = [
@@ -355,7 +847,6 @@ def crear_pedido(request):
     if request.method == 'POST':
         estado = 'Confirmado' if request.user.role == 'Administrador' else 'Pendiente'
 
-        # ✅ OBTENER FECHA PERSONALIZADA SI SE ACTIVA EL CHECKBOX
         fecha_personalizada_str = request.POST.get('fecha_personalizada')
         if fecha_personalizada_str:
             try:
@@ -371,15 +862,14 @@ def crear_pedido(request):
             registrado_por=request.user,
             estado=estado,
             fecha_estado=timezone.now() if estado == 'Confirmado' else None,
-            fecha_pedido=fecha_personalizada  # ✅ APLICAMOS FECHA PERSONALIZADA O AUTOMÁTICA
+            fecha_pedido=fecha_personalizada  
         )
 
         articulos_ids = request.POST.getlist('articulo')
         tipos = request.POST.getlist('tipo_articulo')
         cantidades = request.POST.getlist('cantidad')
 
-        area_usuario = request.user.area  # Usamos directamente el campo area del CustomUser
-
+        area_usuario = request.user.area  
         for articulo_id, tipo, cantidad in zip(articulos_ids, tipos, cantidades):
             if articulo_id and tipo and cantidad:
                 cantidad = int(cantidad)
@@ -417,7 +907,6 @@ def crear_pedido(request):
 
             html_message = render_to_string('pedidos/email_notificacion_pedido.html', context)
             
-            # Usamos username en lugar de get_full_name()
             text_message = f"""
 Hola Administrador,
 
@@ -463,6 +952,7 @@ Este es un mensaje automático, por favor no respondas a este correo.
         'articulos': articulos,
         'breadcrumbs': breadcrumbs,
     })
+
 @login_required(login_url='/acceso_denegado/')
 def mis_pedidos(request):
     breadcrumbs = [
@@ -474,7 +964,7 @@ def mis_pedidos(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    # Obtiene pedidos del usuario actual ordenados por fecha_pedido descendente
+    
     pedidos = Pedido.objects.filter(registrado_por=request.user).order_by('-fecha_pedido')
 
     if query:
@@ -488,7 +978,6 @@ def mis_pedidos(request):
             Q(id__icontains=query)
         ).distinct()
 
-    # Manejo de fechas con timedelta
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
@@ -507,7 +996,6 @@ def mis_pedidos(request):
     page_number = request.GET.get('page')
     pedidos_page = paginator.get_page(page_number)
 
-    # Construir parámetros de búsqueda para paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
@@ -524,7 +1012,6 @@ def mis_pedidos(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
-from django.utils import timezone
 
 @csrf_exempt
 @require_POST
@@ -727,7 +1214,6 @@ def listado_pedidos(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    # Filtrar pedidos confirmados o cancelados
     pedidos = Pedido.objects.filter(estado__in=['Confirmado', 'Cancelado']).order_by('-id')
 
     
@@ -742,7 +1228,6 @@ def listado_pedidos(request):
             Q(id__icontains=query)
         ).distinct()
 
-    # Manejo de fechas con timedelta
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
@@ -761,7 +1246,6 @@ def listado_pedidos(request):
     page_number = request.GET.get('page')
     pedidos_page = paginator.get_page(page_number)
 
-    # Construir parámetros de búsqueda para paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
@@ -778,6 +1262,7 @@ def listado_pedidos(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
+
 @login_required(login_url='/acceso_denegado/')
 def pedidos_pendientes(request):
     breadcrumbs = [
@@ -789,10 +1274,9 @@ def pedidos_pendientes(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    # Filtrar solo pedidos pendientes
     pedidos = Pedido.objects.filter(estado='Pendiente').order_by('-fecha_pedido')
     
-    # Filtrado por búsqueda de texto
+    
     if query:
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
@@ -804,7 +1288,6 @@ def pedidos_pendientes(request):
             Q(id__icontains=query)
         ).distinct()
 
-    # Filtrado por fechas con manejo de errores
     try:
         if fecha_inicio_str:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
@@ -814,14 +1297,14 @@ def pedidos_pendientes(request):
             fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d').date() + timedelta(days=1)
             pedidos = pedidos.filter(fecha_pedido__lt=fecha_fin)
     except ValueError:
-        pass  # Mantener el queryset original si hay error en fechas
+        pass  
 
-    # Paginación
+    
     paginator = Paginator(pedidos, 4)
     page_number = request.GET.get('page')
     pedidos_page = paginator.get_page(page_number)
 
-    # Construir parámetros de búsqueda para paginación
+    
     query_params = ''
     if query:
         query_params += f'&q={query}'
@@ -838,77 +1321,7 @@ def pedidos_pendientes(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
-#VALIDAR DATOS
-def validar_datos(request):
-    email = request.GET.get('email', None)
-    
-    errores = {}
 
-    # Validar correo electrónico
-    if email and CustomUser.objects. filter(email=email).exists():
-        errores['email'] = 'El email ya está en uso.'
-
-    # Retornar los errores (si los hay) o una respuesta de validación exitosa
-    return JsonResponse(errores if errores else {'valid': True})
-
-def verificar_nombre_articulo(request):
-    nombre = request.GET.get('nombre', '')
-    existe = Articulo.objects.filter(nombre=nombre).exists()
-    return JsonResponse({'existe': existe})
-
-#ESTADISTICAS 
-@login_required(login_url='/acceso_denegado/')
-def index_estadistica(request):
-    breadcrumbs = [
-    {'name': 'Inicio', 'url': '/index_pap'},
-    {'name': 'Estadisticas', 'url': '/index_estadistica/'},  # URL fija
-]
-
-    return render(request, 'estadisticas/index_estadistica.html', {'breadcrumbs': breadcrumbs})
-@login_required(login_url='/acceso_denegado/')
-def estadisticas_articulos(request):
-    articulos = Articulo.objects.all().order_by('-cantidad')  # Puedes ordenar por cantidad, nombre, etc.
-    total_cantidad = articulos.aggregate(total=Sum('cantidad'))['total'] or 0
-    return render(request, 'estadisticas/estadisticas_articulos.html', {
-        'articulos': articulos,
-        'total_cantidad': total_cantidad,
-    })
-#GRAFIC DE CANTIDAD DE ARTICULOS
-@login_required(login_url='/acceso_denegado/')
-def graficas_articulos(request):
-    breadcrumbs = [
-        {'name': 'Inicio', 'url': '/index_pap'},
-        {'name': 'Estadisticas', 'url': reverse('papeleria:index_estadistica')}, 
-        {'name': 'Grafico de articulos', 'url': reverse('papeleria:graficas_articulos')}, 
-    ]
-    articulos = Articulo.objects.all()
-    
-    # Mostrar "nombre (tipo)" para cada artículo
-    nombres = [f"{art.nombre} {art.tipo}" for art in articulos]
-    cantidades = [art.cantidad for art in articulos]
-
-    return render(request, 'estadisticas/grafica_articulos.html', {
-        'nombres': nombres,
-        'cantidades': cantidades,
-        'breadcrumbs': breadcrumbs
-    })
-
-#grafica de usuario
-@login_required(login_url='/acceso_denegado/')
-def graficas_usuario(request):
-    breadcrumbs = [
-        {'name': 'Inicio', 'url': '/index_pap'},
-        {'name': 'Estadisticas', 'url': reverse('papeleria:index_estadistica')}, 
-        {'name': 'Grafico de usuarios activos e inactivos', 'url': reverse('papeleria:graficas_usuarios')}, 
-    ]
-    activos = CustomUser.objects.filter(is_active=True).count()
-    inactivos = CustomUser.objects.filter(is_active=False).count()
-
-    nombres = ['Activos', 'Inactivos']
-    cantidades = [activos, inactivos] 
-    return render(request, 'estadisticas/grafica_usuarios.html', {'nombres':nombres,
-                                                                  'cantidades': cantidades,
-                                                                  'breadcrumbs': breadcrumbs})
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos(request):
     breadcrumbs = [
@@ -927,8 +1340,7 @@ def grafica_pedidos(request):
             fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d')
             pedidos = pedidos.filter(fecha_pedido__gte=fecha_inicio_dt)
         except ValueError:
-            pass  # o maneja el error si prefieres
-
+            pass  
     if fecha_fin:
         try:
             fecha_fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d') + timedelta(days=1)
@@ -951,10 +1363,6 @@ def grafica_pedidos(request):
         'fecha_fin': fecha_fin
     })
 
-from django.shortcuts import render
-from django.db.models import Sum
-from django.urls import reverse
-from .models import PedidoArticulo
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_administrativa(request):
     breadcrumbs = [
@@ -968,13 +1376,12 @@ def grafica_pedidos_administrativa(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Administrativa')
 
-    # Filtrado por fecha (con validación)
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
         except ValueError:
-            fecha_inicio = None  # Opcional: podrías registrar un error
+            fecha_inicio = None  
 
     if fecha_fin_str:
         try:
@@ -983,7 +1390,6 @@ def grafica_pedidos_administrativa(request):
         except ValueError:
             fecha_fin = None
 
-    # Agrupación por artículo
     pedidos_por_area_articulo = pedidos.values(
         'articulo__nombre'
     ).annotate(
@@ -1000,6 +1406,7 @@ def grafica_pedidos_administrativa(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_rues(request):
     breadcrumbs = [
@@ -1013,7 +1420,6 @@ def grafica_pedidos_rues(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Registros públicos')
 
-    # Filtro por fechas
     try:
         if fecha_inicio_str:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
@@ -1028,7 +1434,6 @@ def grafica_pedidos_rues(request):
     except ValueError:
         fecha_fin = None
 
-    # Agrupación de pedidos por nombre de artículo
     pedidos_por_area_articulo = pedidos.values(
         'area',
         'articulo__nombre'
@@ -1046,6 +1451,7 @@ def grafica_pedidos_rues(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_presidencia(request):
     breadcrumbs = [
@@ -1059,7 +1465,6 @@ def grafica_pedidos_presidencia(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Presidencia')
 
-    # Filtrado por fecha de forma segura
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
@@ -1091,6 +1496,7 @@ def grafica_pedidos_presidencia(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+
 @login_required(login_url='/acceso_denegado/')
 @never_cache
 def grafica_pedidos_financiera(request):
@@ -1135,6 +1541,7 @@ def grafica_pedidos_financiera(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_gestion_empresarial(request):
     breadcrumbs = [
@@ -1185,6 +1592,7 @@ def grafica_pedidos_gestion_empresarial(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_competitividad(request):
     breadcrumbs = [
@@ -1230,283 +1638,6 @@ def grafica_pedidos_competitividad(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
-@login_required(login_url='/acceso_denegado/')
-def grafica_bajo_Stock(request):
-    breadcrumbs = [
-        {'name': 'Inicio', 'url': '/index_pap'},
-        {'name': 'Estadisticas', 'url': reverse('papeleria:index_estadistica')}, 
-        {'name': 'Grafico de bajo stock', 'url': reverse('papeleria:grafica_bajoStock')}, 
-    ]
-    articulos = Articulo.objects.filter(cantidad__lt=10)
-    nombres = [f"{art.nombre} {art.tipo}" for art in articulos]
-    cantidades = [art.cantidad for art in articulos]
-    return render(request, 'estadisticas/grafica_bajoStock.html', {
-        'nombres': nombres,
-        'cantidades': cantidades,
-        'breadcrumbs': breadcrumbs
-    })
-
-#PDF Y XSLS ARTICULOS
-def wrap_text(text, max_len=19):
-    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
-    for i in range(len(parts) - 1):
-        parts[i] += '-'  # Agrega guion al final de todas menos la última
-    return '\n'.join(parts)
-#EXCLUSIVAMENTE PARA PEDIDOS 
-def wrap_text_p(text, max_len=26
-                ):
-    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
-    for i in range(len(parts) - 1):
-        parts[i] += '-'  # Agrega guion al final de todas menos la última
-    return '\n'.join(parts)
-def draw_table_on_canvas(canvas, doc):
-    # Marca de agua
-    watermark_path = finders.find('imagen/LOGO.png')
-    if watermark_path:
-        canvas.saveState()
-        canvas.setFillColor(colors.Color(1, 1, 1, alpha=0.3))
-        canvas.setStrokeColor(colors.Color(1, 1, 1, alpha=0.3))
-        canvas.drawImage(watermark_path,
-                         x=(doc.pagesize[0] - 600) / 2,
-                         y=(doc.pagesize[1] - 600) / 2,
-                         width=600, height=600, mask='auto')
-        canvas.restoreState()
-from reportlab.lib.enums import TA_CENTER
-from reportlab.lib.styles import ParagraphStyle
-def get_articulos_filtrados(request):
-    query = request.GET.get('q')
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
-
-    articulos = Articulo.objects.select_related('registrado_por').order_by('nombre')
-
-
-    if query:
-        articulos = articulos.filter(
-            Q(nombre__icontains=query) |
-            Q(marca__icontains=query) |
-            Q(observacion__icontains=query) |
-            Q(tipo__icontains=query) |
-            Q(precio__icontains=query) |
-            Q(proveedor__icontains=query) |
-            Q(cantidad__icontains=query) |
-            Q(registrado_por__username__icontains=query)
-        )
-
-    if fecha_inicio and fecha_fin:
-        articulos = articulos.filter(fecha_registro__range=[fecha_inicio, fecha_fin])
-
-    return articulos
-
-
-def reporte_articulo_pdf(request):
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
-                            leftMargin=40, rightMargin=40, topMargin=40, bottomMargin=40)
-
-    doc.title = "Listado de Artículos CCD"
-    doc.author = "CCD"
-    doc.subject = "Listado de artículos"
-    doc.creator = "Sistema de Gestión CCD"
-
-    elements = []
-    styles = getSampleStyleSheet()
-
-    # Título
-    titulo = Paragraph("REPORTE DE ARTÍCULOS", styles["Title"])
-    elements.append(titulo)
-
-    # Encabezado empresa
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
-    encabezado_data = [
-       ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
-        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
-    ]
-    tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
-    estilo_encabezado = TableStyle([
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    tabla_encabezado.setStyle(estilo_encabezado)
-    elements.append(tabla_encabezado)
-
-    # Tabla usuario
-    usuario = request.user
-    data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
-    data_usuario.append([
-        wrap_text(usuario.username),
-        wrap_text(usuario.email),
-        wrap_text(getattr(usuario, 'role', 'No definido')),
-        wrap_text(getattr(usuario, 'cargo', 'No definido')),
-])
-
-    table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
-    style_usuario = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    table_usuario.setStyle(style_usuario)
-    elements.append(table_usuario)
-
-    # Obtener artículos filtrados
-    articulos_filtrados = get_articulos_filtrados(request)
-
-    if not articulos_filtrados.exists():
-        centered_style = ParagraphStyle(
-            name="CenteredNormal",
-            parent=styles["Normal"],
-            alignment=TA_CENTER,
-        )
-        no_results = Paragraph("No se encontraron artículos.", centered_style)
-        elements.append(no_results)
-    else:
-        # Tabla artículos
-        data_articulos = [["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]]
-
-        for articulo in articulos_filtrados:
-            data_articulos.append([
-                wrap_text(str(articulo.id)),
-                wrap_text(articulo.nombre),
-                wrap_text(articulo.marca),
-                wrap_text(articulo.tipo),
-                wrap_text("{:,}".format(articulo.precio)),
-                wrap_text(str(articulo.cantidad)),
-                wrap_text(articulo.observacion),
-            ])
-
-        tabla_articulos = Table(data_articulos, colWidths=[20, 140, 120, 110, 100, 80, 150])
-        style_articulos = TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 10),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ])
-        tabla_articulos.setStyle(style_articulos)
-        elements.append(tabla_articulos)
-
-    # Marca de agua u otros elementos
-    doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
-
-    buffer.seek(0)
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Listado de articulos CCD.pdf"'
-    return response
-def reporte_articulo_excel(request):
-    articulos = get_articulos_filtrados(request)
-
-    # Crear Excel
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Listado de Artículos CCD"
-
-    border = Border(
-        left=Side(style='thin'),
-        right=Side(style='thin'),
-        top=Side(style='thin'),
-        bottom=Side(style='thin')
-    )
-
-    ws.column_dimensions['A'].width = 10
-    ws.column_dimensions['B'].width = 40
-    ws.column_dimensions['C'].width = 20
-    ws.column_dimensions['D'].width = 30
-    ws.column_dimensions['E'].width = 20
-    ws.column_dimensions['F'].width = 15
-    ws.column_dimensions['G'].width = 33
-
-    ws.row_dimensions[1].height = 60
-    ws.row_dimensions[2].height = 30
-
-    # Título (siempre visible)
-    ws.merge_cells('A1:G1')
-    ws['A1'] = "GESTOR CCD"
-    ws['A1'].font = Font(size=24, bold=True)
-    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
-
-    # Subtítulo con fecha (siempre visible)
-    ws.merge_cells('A2:G2')
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
-    ws['A2'] = f"Listado de Artículos {fecha_actual}"
-    ws['A2'].font = Font(size=18)
-    ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
-
-    # Bordes para título y subtítulo
-    for row in [1, 2]:
-        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-            ws[f"{col}{row}"].border = border
-            ws[f"{col}{row}"].alignment = Alignment(horizontal='center', vertical='center')
-
-    # Encabezados de tabla (siempre visible)
-    headers = ["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]
-    ws.append(headers)
-    
-    # Estilo encabezado de tabla (siempre visible)
-    header_fill = PatternFill(start_color="FF0056B3", end_color="FF0056B3", fill_type="solid")
-    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-        cell = ws[f"{col}3"]
-        cell.fill = header_fill
-        cell.font = Font(color="FFFFFF", bold=True)
-        cell.alignment = Alignment(horizontal='center', vertical='center')
-        cell.border = border
-
-    if not articulos.exists():
-        # Mensaje cuando no hay artículos (debajo de los encabezados)
-        ws.merge_cells('A4:G4')
-        ws['A4'] = "No se encontraron artículos."
-        ws['A4'].font = Font(size=14)
-        ws['A4'].alignment = Alignment(horizontal='center', vertical='center')
-        ws['A4'].border = border
-    else:
-        # Datos cuando sí hay artículos
-        for articulo in articulos:
-            ws.append([
-                wrap_text(str(articulo.id)),
-                wrap_text(articulo.nombre),
-                wrap_text(articulo.marca),
-                wrap_text(articulo.tipo),
-                wrap_text("{:,}".format(articulo.precio)),
-                wrap_text(str(articulo.cantidad)),
-                str((articulo.observacion)),
-            ])
-
-        # Estilo de celdas con datos
-        for row in ws.iter_rows(min_row=4, max_row=ws.max_row, min_col=1, max_col=7):
-            for cell in row:
-                cell.border = border
-                cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-    # Agregar autofiltro (siempre visible)
-    ws.auto_filter.ref = "A3:G3"
-
-    # Respuesta HTTP
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = 'attachment; filename="Listado de articulos CCD.xlsx"'
-    wb.save(response)
-    return response
-
 
 def get_pedidos_filtrados(request):
     query = request.GET.get('q')
@@ -1536,7 +1667,7 @@ def get_pedidos_filtrados(request):
 
     return pedidos
 
-
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pdf(request):
     buffer = BytesIO()
 
@@ -1557,11 +1688,9 @@ def reporte_pedidos_pdf(request):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título
     titulo = Paragraph("REPORTE DE PEDIDOS CONFIRMADOS Y CANCELADOS", styles["Title"])
     elements.append(titulo)
 
-    # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
         ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
@@ -1582,7 +1711,6 @@ def reporte_pedidos_pdf(request):
     tabla_encabezado.setStyle(estilo_encabezado)
     elements.append(tabla_encabezado)
 
-    # Datos del usuario
     usuario = request.user
     data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
     data_usuario.append([
@@ -1608,7 +1736,6 @@ def reporte_pedidos_pdf(request):
     table_usuario.setStyle(style_usuario)
     elements.append(table_usuario)
 
-    # Obtener pedidos filtrados
     pedidos = get_pedidos_filtrados(request).prefetch_related('articulos__articulo')
 
     if not pedidos.exists():
@@ -1671,6 +1798,7 @@ def reporte_pedidos_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'
     return response
 
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_excel(request):
     pedidos = get_pedidos_filtrados(request).prefetch_related('articulos__articulo')
 
@@ -1679,13 +1807,13 @@ def reporte_pedidos_excel(request):
     ws.title = "Pedidos CCD"
 
     columnas_anchos = {
-        'A': 10,   # ID
-        'B': 15,   # Fecha
-        'C': 15,   # Estado
-        'D': 25,   # Registrado por
-        'E': 50,   # Artículos
-        'F': 30,   # Áreas
-        'G': 40    # Devoluciones
+        'A': 10,   
+        'B': 15,   
+        'C': 15,   
+        'D': 25,   
+        'E': 50,   
+        'F': 30,   
+        'G': 40 
     }
     for col, width in columnas_anchos.items():
         ws.column_dimensions[col].width = width
@@ -1713,7 +1841,7 @@ def reporte_pedidos_excel(request):
         for cell in row:
             cell.border = thin_border
 
-    # Encabezados
+    
     headers = ['ID', 'Fecha', 'Estado', 'Registrado Por', 'Artículos', 'Áreas', 'Devoluciones']
     ws.append(headers)
 
@@ -1802,9 +1930,11 @@ def get_pedidos_filtrados_pendientes(request):
             fecha_fin_dt = datetime.strptime(fecha_fin, "%Y-%m-%d") + timedelta(days=1)
             pedidos = pedidos.filter(fecha_pedido__gte=fecha_inicio_dt, fecha_pedido__lt=fecha_fin_dt)
         except ValueError:
-            pass  # opcional: puedes registrar/loggear el error si las fechas son inválidas
+            pass  
 
     return pedidos
+
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_pdf(request):
     buffer = BytesIO()
 
@@ -1825,11 +1955,9 @@ def reporte_pedidos_pendientes_pdf(request):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título principal
     titulo = Paragraph("Reporte de pedidos pendientes", styles["Title"])
     elements.append(titulo)
 
-    # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
@@ -1850,7 +1978,6 @@ def reporte_pedidos_pendientes_pdf(request):
     tabla_encabezado.setStyle(estilo_encabezado)
     elements.append(tabla_encabezado)
 
-    # Datos del usuario
     usuario = request.user
     data_usuario = [["Usuario:", "Email:", "Rol:", "Cargo:"]]
     data_usuario.append([
@@ -1874,7 +2001,6 @@ def reporte_pedidos_pendientes_pdf(request):
     table_usuario.setStyle(style_usuario)
     elements.append(table_usuario)
 
-    # Obtener pedidos filtrados
     pedidos = get_pedidos_filtrados_pendientes(request).prefetch_related('articulos__articulo')
 
     if not pedidos.exists():
@@ -1887,10 +2013,8 @@ def reporte_pedidos_pendientes_pdf(request):
         elements.append(Spacer(1, 20))
         elements.append(no_results)
     else:
-        # Encabezado de la tabla
         data_pedidos = [["ID Pedido", "Fecha", "Estado", "Registrado Por", "Artículos", "Área"]]
 
-        # Filas de pedidos
         for pedido in pedidos:
             articulos_raw = ", ".join([
                 f"{pa.cantidad} {pa.articulo.nombre} {pa.tipo}"
@@ -1910,7 +2034,6 @@ def reporte_pedidos_pendientes_pdf(request):
                 wrap_text_p(area_raw)
             ])
 
-        # Crear tabla de pedidos
         tabla_articulos = Table(data_pedidos, colWidths=[60, 100, 100, 160, 200, 100])
         style_articulos = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
@@ -1927,7 +2050,6 @@ def reporte_pedidos_pendientes_pdf(request):
         tabla_articulos.setStyle(style_articulos)
         elements.append(tabla_articulos)
 
-    # Construir el PDF
     doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
 
     buffer.seek(0)
@@ -1935,37 +2057,31 @@ def reporte_pedidos_pendientes_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="Reporte pedidos pendientes CCD.pdf"'
     return response
 
-
+@login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_excel(request):
     pedidos = get_pedidos_filtrados_pendientes(request).prefetch_related('articulos__articulo')
-
     wb = Workbook()
     ws = wb.active
     ws.title = "Pedidos CCD"
 
-    # Configurar anchos de columna
     columnas_anchos = {'A': 10, 'B': 15, 'C': 15, 'D': 25, 'E': 50, 'F': 30}
     for col, width in columnas_anchos.items():
         ws.column_dimensions[col].width = width
 
-    # Alturas para título y subtítulo
     ws.row_dimensions[1].height = 60
     ws.row_dimensions[2].height = 30
 
-    # Título principal
     ws.merge_cells('A1:F1')
     ws['A1'] = "GESTOR CCD"
     ws['A1'].font = Font(size=24, bold=True)
     ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
 
-    # Subtítulo con fecha
     ws.merge_cells('A2:F2')
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     ws['A2'] = f"Listado de Pedidos Pendientes - {fecha_actual}"
     ws['A2'].font = Font(size=18)
     ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
 
-    # Borde del título y subtítulo
     borde = Border(
         left=Side(style='thin'), right=Side(style='thin'),
         top=Side(style='thin'), bottom=Side(style='thin')
@@ -1975,7 +2091,6 @@ def reporte_pedidos_pendientes_excel(request):
             cell.border = borde
             cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-    # Encabezados
     headers = ['ID', 'Fecha', 'Estado', 'Registrado Por', 'Artículos', 'Áreas']
     ws.append(headers)
     header_fill = PatternFill(start_color="FF0056B3", end_color="FF0056B3", fill_type="solid")
@@ -1984,10 +2099,8 @@ def reporte_pedidos_pendientes_excel(request):
         cell.font = Font(color="FFFFFF", bold=True)
         cell.alignment = Alignment(horizontal='center', vertical='center')
 
-    # Filtro automático
     ws.auto_filter.ref = "A3:F3"
 
-    # Agregar datos
     if not pedidos.exists():
         ws.merge_cells('A4:F4')
         cell = ws['A4']
@@ -2012,7 +2125,6 @@ def reporte_pedidos_pendientes_excel(request):
                 areas_raw or 'Sin área',
             ])
 
-    # Estilos de celdas: bordes y alineación
     for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=6):
         for i, cell in enumerate(row, start=1):
             cell.border = borde
@@ -2022,253 +2134,43 @@ def reporte_pedidos_pendientes_excel(request):
                 wrap_text=True if i in [4, 5, 6] else False
             )
 
-    # Altura dinámica para filas de contenido
     for i in range(4, ws.max_row + 1):
         ws.row_dimensions[i].height = 60
 
-    # Preparar respuesta HTTP
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename="Reporte pedidos pendientes papeleria.xlsx"'
     wb.save(response)
     return response
-#PDF Y XSLS DE BAJO STOCK
-def obtener_articulos_bajo_stock(request):
-    query = request.GET.get('q')
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
 
-    articulos = Articulo.objects.filter(cantidad__lt=10)
+#ESTADISTICAS 
+@login_required(login_url='/acceso_denegado/')
+def index_estadistica(request):
+    breadcrumbs = [
+    {'name': 'Inicio', 'url': '/index_pap'},
+    {'name': 'Estadisticas', 'url': '/index_estadistica/'},  
+]
 
-    if query:
-        articulos = articulos.filter(
-            Q(id__icontains=query) |
-            Q(nombre__icontains=query) |
-            Q(marca__icontains=query) |
-            Q(observacion__icontains=query) |
-            Q(tipo__icontains=query) |
-            Q(precio__icontains=query) |
-            Q(proveedor__icontains=query) |
-            Q(cantidad__icontains=query) |
-            Q(registrado_por__username__icontains=query)
-        )
+    return render(request, 'estadisticas/index_estadistica.html', {'breadcrumbs': breadcrumbs})
 
-    if fecha_inicio and fecha_fin:
-        articulos = articulos.filter(fecha_registro__range=[fecha_inicio, fecha_fin])
-
-    return articulos
-def reporte_articulo_bajo_stock_pdf(request):
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
-                            leftMargin=40, rightMargin=40, topMargin=40, bottomMargin=40)
-
-    doc.title = "Listado de BAJO STOCK CCD"
-    doc.author = "CCD"
-    doc.subject = "Listado de bajo stock"
-    doc.creator = "Sistema de Gestión CCD"
-
-    elements = []
-    styles = getSampleStyleSheet()
-
-    # Título
-    titulo = Paragraph("REPORTE DE BAJO STOCK", styles["Title"])
-    elements.append(titulo)
-
-    # Encabezado empresa
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
-    encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
-        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
+@login_required(login_url='/acceso_denegado/')
+def graficas_usuario(request):
+    breadcrumbs = [
+        {'name': 'Inicio', 'url': '/index_pap'},
+        {'name': 'Estadisticas', 'url': reverse('papeleria:index_estadistica')}, 
+        {'name': 'Grafico de usuarios activos e inactivos', 'url': reverse('papeleria:graficas_usuarios')}, 
     ]
-    tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
-    estilo_encabezado = TableStyle([
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    tabla_encabezado.setStyle(estilo_encabezado)
-    elements.append(tabla_encabezado)
+    activos = CustomUser.objects.filter(is_active=True).count()
+    inactivos = CustomUser.objects.filter(is_active=False).count()
 
-    # Tabla usuario
-    usuario = request.user
-    data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
-    data_usuario.append([
-        wrap_text(usuario.username),
-        wrap_text(usuario.email),
-        wrap_text(getattr(usuario, 'role', 'No definido')),
-        wrap_text(getattr(usuario, 'cargo', 'No definido')),
-])
-    table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
-    style_usuario = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    table_usuario.setStyle(style_usuario)
-    elements.append(table_usuario)
+    nombres = ['Activos', 'Inactivos']
+    cantidades = [activos, inactivos] 
+    return render(request, 'estadisticas/grafica_usuarios.html', {'nombres':nombres,
+                                                                  'cantidades': cantidades,
+                                                                  'breadcrumbs': breadcrumbs})
 
-    # Obtener artículos filtrados
-    articulos_filtrados = obtener_articulos_bajo_stock(request)
-
-    if not articulos_filtrados.exists():
-        centered_style = ParagraphStyle(
-            name="CenteredNormal",
-            parent=styles["Normal"],
-            alignment=TA_CENTER
-        )
-        no_results = Paragraph("No se encontraron artículos con bajo stock.", centered_style)
-        elements.append(Spacer(1, 20))
-        elements.append(no_results)
-    else:
-        # Tabla artículos
-        data_articulos = [["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]]
-        
-        for articulo in articulos_filtrados:
-            data_articulos.append([
-                wrap_text_p(str(articulo.id)),
-                wrap_text_p(articulo.nombre),
-                wrap_text_p(articulo.marca),
-                wrap_text_p(articulo.tipo),
-                wrap_text_p("{:,}".format(articulo.precio)),
-                wrap_text_p(str(articulo.cantidad)),
-                wrap_text_p(articulo.observacion),
-            ])
-
-        tabla_articulos = Table(data_articulos, colWidths=[20, 140, 135, 130, 90, 55, 150])
-        style_articulos = TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 10),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ])
-        tabla_articulos.setStyle(style_articulos)
-        elements.append(tabla_articulos)
-
-    # Marca de agua
-    doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
-
-    buffer.seek(0)
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Listado bajo stock CCD.pdf"'
-    return response
-def reporte_articulo_bajo_stock_excel(request):
-    # Obtener artículos filtrados usando la función reutilizable
-    articulos = obtener_articulos_bajo_stock(request)
-
-    # Crear archivo Excel
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Listado de Artículos CCD"
-
-    # Configurar columnas
-    column_widths = [10, 40, 20, 30, 20, 15, 33]
-    for i, width in enumerate(column_widths, start=1):
-        ws.column_dimensions[chr(64 + i)].width = width
-
-    # Altura de filas
-    ws.row_dimensions[1].height = 60
-    ws.row_dimensions[2].height = 30
-
-    # Título principal
-    ws.merge_cells('A1:G1')
-    ws['A1'] = "GESTOR CCD"
-    ws['A1'].font = Font(size=24, bold=True)
-    ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
-
-    # Subtítulo con fecha actual
-    ws.merge_cells('A2:G2')
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
-    ws['A2'] = f"Listado de Artículos - {fecha_actual}"
-    ws['A2'].font = Font(size=18)
-    ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
-
-    # Encabezados
-    headers = ["ID", "Nombre", "Marca", "Tipo", "Precio", "Cantidad", "Observación"]
-    ws.append(headers)
-
-    header_fill = PatternFill(start_color="FF0056B3", end_color="FF0056B3", fill_type="solid")
-    for col in range(1, 8):
-        cell = ws.cell(row=3, column=col)
-        cell.fill = header_fill
-        cell.font = Font(color="FFFFFF", bold=True)
-        cell.alignment = Alignment(horizontal='center', vertical='center')
-
-    # Bordes
-    border = Border(
-        left=Side(style='thin'),
-        right=Side(style='thin'),
-        top=Side(style='thin'),
-        bottom=Side(style='thin')
-    )
-
-    # Agregar datos o mensaje
-    if not articulos.exists():
-        ws.merge_cells('A4:G4')
-        cell = ws['A4']
-        cell.value = "No se encontraron artículos en bajo stock."
-        cell.font = Font(bold=False)
-        cell.alignment = Alignment(horizontal='center', vertical='center')
-        cell.border = border
-    else:
-        for articulo in articulos:
-            precio_formateado = f"${articulo.precio:,.2f}" if articulo.precio else "-"
-            ws.append([
-                articulo.id,
-                str(articulo.nombre),
-                str(articulo.marca),
-                str(articulo.tipo),
-                precio_formateado,
-                articulo.cantidad,
-                str(articulo.observacion or ""),
-            ])
-
-    # Estilo a título y subtítulo
-    for row in ws.iter_rows(min_row=1, max_row=2, min_col=1, max_col=7):
-        for cell in row:
-            cell.border = border
-            cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-    # Estilo a encabezados y datos
-    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=7):
-        for i, cell in enumerate(row, start=1):
-            cell.border = border
-            if i < 7:
-                cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-            else:
-                cell.alignment = Alignment(horizontal='left', vertical='top', wrap_text=True)
-
-    # Filtro automático
-    ws.auto_filter.ref = "A3:G3"
-
-    # Preparar respuesta
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = 'attachment; filename="Listado_articulos_bajo_stock.xlsx"'
-    wb.save(response)
-    return response
-
-@login_required
+@login_required(login_url='/acceso_denegado/')
 def crear_devolucion(request, pedido_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
@@ -2290,7 +2192,6 @@ def crear_devolucion(request, pedido_id):
                 messages.error(request, "El artículo no pertenece a este pedido.")
                 return render(request, 'pedidos/devolver_articulo.html', {'form': form, 'pedido': pedido})
 
-            # Cantidad ya devuelta
             total_devuelto = Devolucion.objects.filter(
                 pedido=pedido, articulo=articulo
             ).aggregate(total=Sum('cantidad_devuelta'))['total'] or 0

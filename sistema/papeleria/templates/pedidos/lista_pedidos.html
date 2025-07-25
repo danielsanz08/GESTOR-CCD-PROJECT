@@ -142,7 +142,7 @@ body.dark .paginacion a,
                 <td>{{ pedido.estado }}</td>
                 <td>
                     <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')">
-                        <i class="bi bi-eye"></i>
+                        <i class="fas fa-eye text-white"></i>
 
                     </button>
                     <a href="{% url 'papeleria:crear_devolucion' pedido.id %}" class="devolver"><button class="devolver"><i class="fas fa-undo-alt text-white" title="Devolver"></i></button></a>

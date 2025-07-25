@@ -47,7 +47,6 @@ urlpatterns = [
     path('reporte_pedidos_pendientes_excel/', views.reporte_pedidos_pendientes_excel, name='reporte_pedidos_pendientes_excel'),
     path('reporte_bajo_stock_pdf/', views.reporte_articulo_bajo_stock_pdf, name='reporte_articulo_bajo_stock_pdf'),
     path('reporte_articulo_bajo_stock_excel/', views.reporte_articulo_bajo_stock_excel, name='reporte_articulo_bajo_stock_excel'),
-    path('timeout/', views.timeouterror, name='timeouterror'),
      path('devolucion/<int:pedido_id>/', views.crear_devolucion, name='crear_devolucion'),
 ]
 
