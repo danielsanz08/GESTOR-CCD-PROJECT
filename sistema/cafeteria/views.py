@@ -537,7 +537,7 @@ def reporte_productos_excel(request):
                 str(producto.cantidad),
                 str(producto.unidad_medida),
                 producto.proveedor,
-                producto.presentacion,
+                producto.presentacion or "No establecido"
             ])
 
         # Estilo de celdas de datos
@@ -1220,7 +1220,7 @@ def reporte_pedidos_pdf_caf(request):
         bottomMargin=40
     )
 
-    doc.title = "Listado de pedidos de cafeteria y aseo CCD"
+    doc.title = "Listado de pedidos de cafetería y aseo CCD"
     doc.author = "CCD"
     doc.subject = "Listado de pedidos"
     doc.creator = "Sistema de Gestión CCD"
@@ -1229,17 +1229,16 @@ def reporte_pedidos_pdf_caf(request):
     styles = getSampleStyleSheet()
 
     # Título principal
-    titulo = Paragraph("REPORTE DE PEDIDOS DE CAFETERIA Y ASEO", styles["Title"])
-    elements.append(titulo)
+    elements.append(Paragraph("REPORTE DE PEDIDOS DE CAFETERIA Y ASEO", styles["Title"]))
 
     # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
-        ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
-        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
+        ["GESTOR CCD", "Lista de artículos", "Correo:", "Fecha"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", fecha_actual],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
-    estilo_encabezado = TableStyle([
+    tabla_encabezado.setStyle(TableStyle([
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -1249,21 +1248,20 @@ def reporte_pedidos_pdf_caf(request):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-    tabla_encabezado.setStyle(estilo_encabezado)
+    ]))
     elements.append(tabla_encabezado)
 
-   # Datos del usuario
+    # Datos del usuario
     usuario = request.user
     data_usuario = [["Usuario:", "Email:", "Rol:", "Cargo:"]]
     data_usuario.append([
-        (usuario.username),
+        usuario.username,
         wrap_text_p(usuario.email),
         wrap_text_p(getattr(usuario, 'role', 'No definido')),
         wrap_text_p(getattr(usuario, 'cargo', 'No definido')),
-])
+    ])
     table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
-    style_usuario = TableStyle([
+    table_usuario.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
@@ -1273,62 +1271,24 @@ def reporte_pedidos_pdf_caf(request):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    table_usuario.setStyle(style_usuario)
+    ]))
     elements.append(table_usuario)
 
-    # Obtener filtros
-    q = request.GET.get('q', '')
-    fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin = request.GET.get('fecha_fin')
-
-    # Fetch pedidos with prefetch for productos and producto
-    pedidos = Pedido.objects.prefetch_related('productos__producto', 'productos__devoluciones').all()
-
-    if q:
-        pedidos = pedidos.filter(
-            Q(id__icontains=q) |
-            Q(productos__producto__nombre__icontains=q) |
-            Q(registrado_por__username__icontains=q) |
-            Q(estado__icontains=q)
-        ).distinct()
-
-    if fecha_inicio:
-        try:
-            pedidos = pedidos.filter(fecha_pedido__gte=datetime.strptime(fecha_inicio, '%Y-%m-%d'))
-        except ValueError:
-            pass  # Handle invalid date format gracefully
-    if fecha_fin:
-        try:
-            pedidos = pedidos.filter(fecha_pedido__lte=datetime.strptime(fecha_fin, '%Y-%m-%d'))
-        except ValueError:
-            pass  # Handle invalid date format gracefully
+    # Obtener pedidos filtrados
+    pedidos = get_pedidos_filtrados_caf(request).prefetch_related('productos__producto', 'productos__devoluciones').order_by('-fecha_pedido')
 
     if not pedidos.exists():
-        centered_style = ParagraphStyle(
-            name="CenteredNormal",
-            parent=styles["Normal"],
-            alignment=TA_CENTER,
-        )
-        no_results = Paragraph("No se encontraron pedidos.", centered_style)
-        elements.append(no_results)
+        centered_style = ParagraphStyle(name="CenteredNormal", parent=styles["Normal"], alignment=TA_CENTER)
+        elements.append(Paragraph("No se encontraron pedidos.", centered_style))
     else:
-        # Encabezado de la tabla
         data_pedidos = [["ID", "Fecha", "Estado", "Registrado Por", "Productos", "Área", "Devoluciones"]]
-
-        # Filas de pedidos
         for pedido in pedidos:
             try:
                 productos = pedido.productos.all()
                 if productos.exists():
-                    productos_raw = ",".join([
-                        f"{pa.cantidad} {pa.producto.nombre}"
-                        for pa in productos
-                    ])
+                    productos_raw = ",".join([f"{pa.cantidad} {pa.producto.nombre}" for pa in productos])
                     areas = set(pa.area for pa in productos if pa.area and pa.area != 'No establecido')
                     area_raw = ", ".join(areas) if areas else 'No establecido'
-                    
-                    # Obtener información de devoluciones
                     devoluciones_info = []
                     for producto in productos:
                         for dev in producto.devoluciones.all():
@@ -1360,9 +1320,8 @@ def reporte_pedidos_pdf_caf(request):
                     wrap_text_p('Error al cargar devoluciones')
                 ])
 
-        # Crear la tabla de pedidos
         tabla_productos = Table(data_pedidos, colWidths=[20, 80, 80, 150, 140, 100, 150])
-        style_productos = TableStyle([
+        tabla_productos.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -1373,11 +1332,9 @@ def reporte_pedidos_pdf_caf(request):
             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ])
-        tabla_productos.setStyle(style_productos)
+        ]))
         elements.append(tabla_productos)
 
-    # Construir el PDF
     doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
 
     buffer.seek(0)

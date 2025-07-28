@@ -192,7 +192,7 @@ body.dark .paginacion a,
                             <p><strong>Artículos:</strong></p>
                             <ul>
                                 {% for producto in pedido.productos.all %}
-                                <li>{{ producto.producto.nombre }} × {{ producto.cantidad }}</li>
+                                <li>{{ producto.cantidad }} {{ producto.presentacion }}{{ producto.producto.nombre }}  </li>
                                 {% endfor %}
                             </ul>
                             <p><strong>Lugar:</strong></p>

@@ -191,11 +191,12 @@ body.dark .paginacion a,
                                 <li>{{ articulo.cantidad }} {{ articulo.articulo.nombre }} {{ articulo.articulo.tipo }}</li>
                                 {% endfor %}
                             </ul>
-                            
+                            <p><strong>Devoluciones:</strong></p>
                             {% for articulo in pedido.articulos.all %}
                             {% with devoluciones=articulo.articulo.devolucion_set.all|dictsort:"fecha" %}
+                            
                             {% if devoluciones %}
-                            <p><strong>Devoluciones:</strong></p>
+                            
                             <ul>
                                 {% for devolucion in devoluciones %}
                                 {% if devolucion.pedido.id == pedido.id %}

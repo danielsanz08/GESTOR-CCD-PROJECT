@@ -644,37 +644,12 @@ def draw_table_on_canvas(canvas, doc):
                          width=600, height=600, mask='auto')
         canvas.restoreState()
 
-def wrap_text_p(text, max_len=20):
-    if not text:
-        return ""
-    
-    # Primero normalizar espacios y guiones existentes
-    text = text.replace("  ", " ").replace(" ", " ").replace(" ", " ")
-    
-    parts = []
-    current_part = ""
-    
-    for word in text.split():
-        if len(current_part + " " + word) <= max_len:
-            current_part += (" " + word) if current_part else word
-        else:
-            if current_part:
-                parts.append(current_part)
-            current_part = word
-    
-    if current_part:
-        parts.append(current_part)
-    
-    # Solo agregar guion si el texto continúa (no para el último segmento)
-    result = []
-    for i, part in enumerate(parts):
-        if i < len(parts) - 1 and not part.endswith("-"):
-            # Si la división ocurrió en medio de una palabra, agregar guion
-            if i+1 < len(parts) and parts[i+1] and not parts[i+1][0].isspace():
-                part += "-"
-        result.append(part)
-    
-    return '\n'.join(result)
+def wrap_text_p(text, max_len=26
+                ):
+    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+    for i in range(len(parts) - 1):
+        parts[i] += '-' 
+    return '\n'.join(parts)
 
 def wrap_text(text, max_len=23):
     parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
@@ -717,16 +692,12 @@ def get_pedidos_filtrados_cde(request):
 @login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pdf_cde(request):
     buffer = BytesIO()
-
     doc = SimpleDocTemplate(
         buffer,
         pagesize=landscape(letter),
-        leftMargin=40,
-        rightMargin=40,
-        topMargin=40,
-        bottomMargin=40
+        leftMargin=40, rightMargin=40,
+        topMargin=40, bottomMargin=40
     )
-
     doc.title = "Listado de pedidos centro de eventos"
     doc.author = "CCD"
     doc.subject = "Listado de pedidos cde"
@@ -743,7 +714,7 @@ def reporte_pedidos_pdf_cde(request):
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
         ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
-        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", f"{fecha_actual}"],
+        ["Cámara de comercio de Duitama", "Nit: 891855025", "gestiondocumental@ccduitama.org.co", fecha_actual],
     ]
     tabla_encabezado = Table(encabezado_data, colWidths=[180, 180, 180, 180])
     tabla_encabezado.setStyle(TableStyle([
@@ -767,7 +738,7 @@ def reporte_pedidos_pdf_cde(request):
         wrap_text(usuario.email),
         wrap_text(getattr(usuario, 'role', 'No definido')),
         wrap_text(getattr(usuario, 'cargo', 'No definido')),
-])
+    ])
     table_usuario = Table(data_usuario, colWidths=[180, 180, 180, 180])
     table_usuario.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#5564eb")),
@@ -783,16 +754,14 @@ def reporte_pedidos_pdf_cde(request):
     elements.append(table_usuario)
 
     # Pedidos filtrados
-    pedidos = get_pedidos_filtrados_cde(request).prefetch_related(
-        'productos__producto',
-        'productos__devoluciones'
-    )
+    pedidos = get_pedidos_filtrados_cde(request).prefetch_related('productos__producto', 'productos__devoluciones')
 
     if not pedidos.exists():
         centered_style = ParagraphStyle(name="CenteredNormal", parent=styles["Normal"], alignment=TA_CENTER)
         elements.append(Paragraph("No se encontraron pedidos.", centered_style))
     else:
         data_pedidos = [["ID", "Fecha", "Estado", "Registrado Por", "Productos", "Área", "Devoluciones"]]
+
         for pedido in pedidos:
             try:
                 productos = pedido.productos.all()
@@ -805,6 +774,7 @@ def reporte_pedidos_pdf_cde(request):
                     areas = set(p.area for p in productos if p.area and p.area != 'No establecido')
                     area_raw = ", ".join(areas) if areas else 'No establecido'
 
+                    # Devoluciones ya con wrap_text_p
                     devoluciones_list = []
                     for p in productos:
                         for d in p.devoluciones.all():
@@ -813,11 +783,11 @@ def reporte_pedidos_pdf_cde(request):
                             devoluciones_list.append(
                                 f"{d.cantidad_devuelta} {presentacion if presentacion else ''} de {nombre}"
                             )
-                    devoluciones_raw = ", ".join(devoluciones_list) if devoluciones_list else "Sin devoluciones"
+                    devoluciones_raw = wrap_text(", ".join(devoluciones_list)) if devoluciones_list else wrap_text("Sin devoluciones")
                 else:
                     productos_raw = 'Sin productos'
                     area_raw = 'Sin área'
-                    devoluciones_raw = 'Sin devoluciones'
+                    devoluciones_raw = wrap_text_p("Sin devoluciones")
 
                 data_pedidos.append([
                     wrap_text_p(str(pedido.id)),
@@ -826,18 +796,18 @@ def reporte_pedidos_pdf_cde(request):
                     wrap_text_p(pedido.registrado_por.username if pedido.registrado_por else 'No definido'),
                     wrap_text_p(productos_raw),
                     wrap_text_p(area_raw),
-                    wrap_text_p(devoluciones_raw),
+                    devoluciones_raw,
                 ])
             except Exception as e:
                 print(f"Error processing pedido {pedido.id}: {str(e)}")
                 data_pedidos.append([
                     wrap_text_p(str(pedido.id)),
-                    wrap_text_p(pedido.fecha_pedido.strftime('%d-%m-%Y')),
+                    wrap_text(pedido.fecha_pedido.strftime('%d-%m-%Y')),
                     wrap_text_p(pedido.get_estado_display()),
                     wrap_text_p(pedido.registrado_por.username if pedido.registrado_por else 'No definido'),
                     wrap_text_p('Error al cargar productos'),
                     wrap_text_p('Error al cargar área'),
-                    wrap_text_p('Error al cargar devoluciones')
+                    wrap_text_p('Error al cargar devoluciones'),
                 ])
 
         tabla_productos = Table(data_pedidos, colWidths=[20, 90, 80, 160, 150, 100, 120])
@@ -858,9 +828,11 @@ def reporte_pedidos_pdf_cde(request):
     doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
 
     buffer.seek(0)
-    return HttpResponse(buffer, content_type='application/pdf', headers={
-        'Content-Disposition': 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'
-    })
+    return HttpResponse(
+        buffer,
+        content_type='application/pdf',
+        headers={'Content-Disposition': 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'}
+    )
 @login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_excel_cde(request):
     pedidos = get_pedidos_filtrados_cde(request).prefetch_related(
@@ -1120,7 +1092,7 @@ def reporte_pedidos_pendientes_pdf_cde(request):
                 productos = pedido.productos.all()
                 if productos.exists():
                     productos_raw = ", ".join([
-                        f"{pa.producto.nombre} x {pa.cantidad}"
+                        f"{pa.cantidad} {pa.producto.nombre}"
                         for pa in productos
                     ])
                     areas = set(pa.area for pa in productos if pa.area and pa.area != 'No establecido')
