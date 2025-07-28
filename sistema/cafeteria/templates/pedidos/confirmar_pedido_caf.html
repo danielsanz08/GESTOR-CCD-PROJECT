@@ -195,7 +195,7 @@ body.dark .paginacion a,
         <span class="page-link disabled" aria-disabled="true">Anterior</span>
     {% endif %}
 
-    <span class="page-link active">{{ pedidos.number }}</span>
+    <span class="page-link active">Página {{ pedidos.number }} de {{ pedidos.paginator.num_pages }}</span>
 
     {% if pedidos.has_next %}
         <a href="?page={{ pedidos.next_page_number }}{{ query_params }}" class="page-link">Siguiente</a>
@@ -203,6 +203,7 @@ body.dark .paginacion a,
         <span class="page-link disabled" aria-disabled="true">Siguiente</span>
     {% endif %}
 </div>
+
 
 
 

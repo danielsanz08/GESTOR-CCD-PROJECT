@@ -137,7 +137,7 @@
         <span class="page-link disabled" aria-disabled="true">Anterior</span>
     {% endif %}
 
-    <span class="page-link active">{{ productos.number }}</span>
+    <span class="page-link active">Página {{ productos.number }} de {{ productos.paginator.num_pages }}</span>
 
     {% if productos.has_next %}
         <a href="?page={{ productos.next_page_number }}{{ query_params }}" class="page-link">Siguiente</a>
@@ -145,6 +145,7 @@
         <span class="page-link disabled" aria-disabled="true">Siguiente</span>
     {% endif %}
 </div>
+
 
 
 

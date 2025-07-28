@@ -328,6 +328,7 @@ def crear_usuario(request):
                         print(f"Error enviando email: {str(e)}")
 
                 messages.success(request, f"Usuario '{user.username}' registrado exitosamente.")
+                logout(request)
                 return redirect('libreria:inicio')
 
             except IntegrityError:

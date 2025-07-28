@@ -842,32 +842,32 @@ def cambiar_estado_pedido(request, pedido_id):
 
     if not nuevo_estado:
         messages.error(request, 'No se especificó un nuevo estado.')
-        return redirect('cafeteria:pedidos_pendientes')
+        return redirect('papeleria:pedidos_pendientes')
 
     if nuevo_estado == 'Confirmado':
         try:
             with transaction.atomic():
-                productos_pedido = pedido.productos.select_related('producto').all()
-                productos_sin_stock = []
+                articulos_pedido = pedido.articulos.select_related('articulo').all()
+                articulos_sin_stock = []
 
-                for item in productos_pedido:
-                    producto = item.producto
-                    if producto.cantidad < item.cantidad:
-                        productos_sin_stock.append(
-                            f"{producto.nombre} (Solicitados: {item.cantidad}, Disponibles: {producto.cantidad})"
+                for item in articulos_pedido:
+                    articulo = item.articulo
+                    if articulo.cantidad < item.cantidad:
+                        articulos_sin_stock.append(
+                            f"{articulo.nombre} (Solicitados: {item.cantidad}, Disponibles: {articulo.cantidad})"
                         )
 
-                if productos_sin_stock:
+                if articulos_sin_stock:
                     pedido.estado = 'Cancelado'
                     pedido.fecha_estado = timezone.now()
                     pedido.save()
-                    messages.error(request, f"Pedido cancelado. Stock insuficiente: {', '.join(productos_sin_stock)}")
-                    return redirect('cafeteria:pedidos_pendientes')
+                    messages.error(request, f"Pedido cancelado. Stock insuficiente: {', '.join(articulos_sin_stock)}")
+                    return redirect('papeleria:pedidos_pendientes')
 
-                for item in productos_pedido:
-                    producto = item.producto
-                    producto.cantidad -= item.cantidad
-                    producto.save()
+                for item in articulos_pedido:
+                    articulo = item.articulo
+                    articulo.cantidad -= item.cantidad
+                    articulo.save()
 
                 pedido.estado = 'Confirmado'
                 pedido.fecha_estado = timezone.now()
@@ -877,7 +877,7 @@ def cambiar_estado_pedido(request, pedido_id):
 
         except Exception as e:
             messages.error(request, f'Error al confirmar el pedido: {str(e)}')
-            return redirect('cafeteria:pedidos_pendientes')
+            return redirect('papeleria:pedidos_pendientes')
 
     else:
         pedido.estado = nuevo_estado
@@ -887,9 +887,9 @@ def cambiar_estado_pedido(request, pedido_id):
 
     usuario = pedido.registrado_por
     if usuario and usuario.email:
-        productos_lista = "\n".join(
-            f"<li class='articulo-item'>{escape(item.cantidad)} {escape(item.producto.nombre)}</li>"
-            for item in pedido.productos.all()
+        articulos_lista = "\n".join(
+            f"<li class='articulo-item'>{escape(item.cantidad)} {escape(item.articulo.nombre)}</li>"
+            for item in pedido.articulos.all()
         )
 
         html_content = f"""
@@ -983,7 +983,7 @@ def cambiar_estado_pedido(request, pedido_id):
         
         <div class="content">
             <p>Hola <strong>{escape(usuario.username)}</strong>,</p>
-            <p>Te informamos que el estado de tu pedido del módulo de cafeteria ha sido actualizado:</p>
+            <p>Te informamos que el estado de tu pedido del módulo de papelería ha sido actualizado:</p>
             
             <div class="info-box">
                 <p><span class="info-label">Número de Pedido:</span> #{pedido.id}</p>
@@ -992,7 +992,7 @@ def cambiar_estado_pedido(request, pedido_id):
 
                 <h3>Detalle del Pedido:</h3>
                 <ul class="articulos-list">
-                    {productos_lista}
+                    {articulos_lista}
                 </ul>
             </div>
             
@@ -1001,12 +1001,11 @@ def cambiar_estado_pedido(request, pedido_id):
         
         <div class="footer">
             <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
-            <p>© {timezone.now().year} Gestor Cafetería - Todos los derechos reservados</p>
+            <p>© {timezone.now().year} Gestor Papelería - Todos los derechos reservados</p>
         </div>
     </div>
 </body>
 </html>
-       
         """
 
         text_content = f"""
@@ -1019,10 +1018,10 @@ Tu pedido #{pedido.id} ha sido actualizado a {pedido.estado.upper()}.
 Fecha de actualización: {pedido.fecha_estado.strftime('%d/%m/%Y %H:%M')}
 
 Detalle del Pedido:
-{"".join([f"- {item.cantidad} x {item.producto.nombre}\n" for item in pedido.productos.all()])}
+{"".join([f"- {item.cantidad} x {item.articulo.nombre}\n" for item in pedido.articulos.all()])}
 
 Gracias por usar nuestro sistema.
-© {timezone.now().year} Gestor Cafetería
+© {timezone.now().year} Gestor Papelería
         """
 
         try:
@@ -1036,10 +1035,7 @@ Gracias por usar nuestro sistema.
         except Exception as e:
             print(f"Error enviando email: {str(e)}")
 
-    return redirect('cafeteria:pedidos_pendientes')
-
-    messages.error(request, 'No se pudo actualizar el estado.')
-    return redirect('cafeteria:pedidos_pendientes')
+    return redirect('papeleria:pedidos_pendientes')
 @login_required(login_url='/acceso_denegado/')
 def pedidos_pendientes(request):
     breadcrumbs = [

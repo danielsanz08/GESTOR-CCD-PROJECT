@@ -1015,43 +1015,69 @@ def mis_pedidos(request):
 
 @csrf_exempt
 @require_POST
+@csrf_exempt
+@require_POST
 def cambiar_estado_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
+    nuevo_estado = request.POST.get('estado')
 
-    if request.method == 'POST':
-        nuevo_estado = request.POST.get('estado')
-        
-        if nuevo_estado:
-            if nuevo_estado == 'confirmado':
-                articulos_del_pedido = pedido.articulos.all()
-                for articulo_pedido in articulos_del_pedido:
-                    articulo = articulo_pedido.articulo
-                    cantidad_pedida = articulo_pedido.cantidad
+    if not nuevo_estado:
+        messages.error(request, 'No se especificó un nuevo estado.')
+        return redirect('papeleria:pedidos_pendientes')
 
-                    if articulo.cantidad >= cantidad_pedida:
-                        articulo.cantidad -= cantidad_pedida
-                        articulo.save()
-                    else:
-                        messages.error(request, f"No hay suficiente stock de {articulo.nombre}.")
-                        return redirect('papeleria:pedidos_pendientes')
+    if nuevo_estado == 'Confirmado':
+        try:
+            with transaction.atomic():
+                articulos_pedido = pedido.articulos.select_related('articulo').all()
+                articulos_sin_stock = []
 
-            pedido.estado = nuevo_estado
-            pedido.fecha_actualizacion = datetime.now()
-            pedido.save()
+                for item in articulos_pedido:
+                    articulo = item.articulo
+                    if articulo.cantidad < item.cantidad:
+                        articulos_sin_stock.append(
+                            f"{articulo.nombre} (Solicitados: {item.cantidad}, Disponibles: {articulo.cantidad})"
+                        )
 
-            usuario = pedido.registrado_por
-            if usuario and usuario.email:
-                articulos_lista = "\n".join(
-                    f"<li class='articulo-item'>{articulo.cantidad} {articulo.articulo.nombre}</li>"
-                    for articulo in pedido.articulos.all()
-                )
+                if articulos_sin_stock:
+                    pedido.estado = 'Cancelado'
+                    pedido.fecha_estado = timezone.now()
+                    pedido.save()
+                    messages.error(request, f"Pedido cancelado. Stock insuficiente: {', '.join(articulos_sin_stock)}")
+                    return redirect('papeleria:pedidos_pendientes')
 
-                html_content = f"""
+                for item in articulos_pedido:
+                    articulo = item.articulo
+                    articulo.cantidad -= item.cantidad
+                    articulo.save()
+
+                pedido.estado = 'Confirmado'
+                pedido.fecha_estado = timezone.now()
+                pedido.save()
+
+                messages.success(request, 'Pedido confirmado correctamente.')
+
+        except Exception as e:
+            messages.error(request, f'Error al confirmar el pedido: {str(e)}')
+            return redirect('papeleria:pedidos_pendientes')
+
+    else:
+        pedido.estado = nuevo_estado
+        pedido.fecha_estado = timezone.now()
+        pedido.save()
+        messages.success(request, f'Estado actualizado a {nuevo_estado}.')
+
+    usuario = pedido.registrado_por
+    if usuario and usuario.email:
+        articulos_lista = "\n".join(
+            f"<li class='articulo-item'>{escape(item.cantidad)} {escape(item.articulo.nombre)}</li>"
+            for item in pedido.articulos.all()
+        )
+
+        html_content = f"""
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estado de Pedido Actualizado</title>
     <style>
         body {{
@@ -1075,8 +1101,8 @@ def cambiar_estado_pedido(request, pedido_id):
             text-align: center;
         }}
         .logo {{
-            max-width: 380px;
-            height: 200px;
+            max-width: 180px;
+            height: auto;
             margin-bottom: 15px;
         }}
         .content {{
@@ -1090,14 +1116,14 @@ def cambiar_estado_pedido(request, pedido_id):
             border-radius: 5px;
             text-align: center;
         }}
-        .status.confirmado {{
+        .status.Confirmado {{
             color: #155724;
         }}
-        .status.cancelado {{
+        .status.Cancelado {{
             
             color: #721c24;
         }}
-        .status.pendiente {{
+        .status.Pendiente {{
             color: #856404;
         }}
         .info-box {{
@@ -1137,18 +1163,18 @@ def cambiar_estado_pedido(request, pedido_id):
         </div>
         
         <div class="content">
-            <p>Hola <strong>{usuario.username}</strong>,</p>
-            <p>Te informamos que el estado de tu pedido en el módulo de papeleria ha sido actualizado:</p>
+            <p>Hola <strong>{escape(usuario.username)}</strong>,</p>
+            <p>Te informamos que el estado de tu pedido del módulo de papelería ha sido actualizado:</p>
             
             <div class="info-box">
                 <p><span class="info-label">Número de Pedido:</span> #{pedido.id}</p>
-                <p><span class="info-label">Fecha de Actualización:</span> {pedido.fecha_actualizacion.strftime('%d/%m/%Y %H:%M')}</p>
-                <p><span class="info-label">Nuevo Estado:</span> <span class="status {pedido.estado.lower()}">{pedido.estado.upper()}</span></p>
+                <p><span class="info-label">Fecha de Actualización:</span> {pedido.fecha_estado.strftime('%d/%m/%Y %H:%M')}</p>
+                <p><span class="info-label">Nuevo Estado:</span> <span class="status {pedido.estado}">{pedido.estado.upper()}</span></p>
 
                 <h3>Detalle del Pedido:</h3>
-            <ul class="articulos-list">
-                {articulos_lista}
-            </ul>
+                <ul class="articulos-list">
+                    {articulos_lista}
+                </ul>
             </div>
             
             <p>Para más información, puedes acceder al sistema de gestión de pedidos.</p>
@@ -1156,51 +1182,40 @@ def cambiar_estado_pedido(request, pedido_id):
         
         <div class="footer">
             <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
-            <p>© {datetime.now().year} Gestor CCD - Todos los derechos reservados</p>
+            <p>© {timezone.now().year} Gestor Papelería - Todos los derechos reservados</p>
         </div>
     </div>
 </body>
 </html>
-                """
+        """
 
-                text_content = f"""
+        text_content = f"""
 Actualización de Estado de Pedido
 
 Hola {usuario.username},
 
-Te informamos que el estado de tu pedido ha sido actualizado:
+Tu pedido #{pedido.id} ha sido actualizado a {pedido.estado.upper()}.
 
-Número de Pedido: #{pedido.id}
-Fecha de Actualización: {pedido.fecha_actualizacion.strftime('%d/%m/%Y %H:%M')}
-Nuevo Estado: {pedido.estado.upper()}
+Fecha de actualización: {pedido.fecha_estado.strftime('%d/%m/%Y %H:%M')}
 
 Detalle del Pedido:
-{"".join([f"- {articulo.cantidad} x {articulo.articulo.nombre}\n" for articulo in pedido.articulos.all()])}
+{"".join([f"- {item.cantidad} x {item.articulo.nombre}\n" for item in pedido.articulos.all()])}
 
-Para más información, puedes acceder al sistema de gestión de pedidos.
+Gracias por usar nuestro sistema.
+© {timezone.now().year} Gestor Papelería
+        """
 
-© {datetime.now().year} Gestor CCD - Todos los derechos reservados
-                """
+        try:
+            send_mail(
+                subject=f'Pedido #{pedido.id} - Estado actualizado a {pedido.estado.upper()}',
+                message=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[usuario.email],
+                html_message=html_content
+            )
+        except Exception as e:
+            print(f"Error enviando email: {str(e)}")
 
-                try:
-                    send_mail(
-                        subject=f'[Pedido #{pedido.id}] Estado actualizado a {pedido.estado.upper()}',
-                        message=text_content,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[usuario.email],
-                        fail_silently=False,
-                        html_message=html_content
-                    )
-                    messages.success(request, 'Estado del pedido actualizado y notificación enviada.')
-                except TimeoutError:
-                    messages.error(request, 'Estado actualizado, pero hubo un error al enviar el correo electrónico.')
-
-            else:
-                messages.success(request, 'Estado del pedido actualizado.')
-
-            return redirect('papeleria:pedidos_pendientes')
-
-    messages.error(request, 'No se pudo actualizar el estado del pedido.')
     return redirect('papeleria:pedidos_pendientes')
 
 @login_required(login_url='/acceso_denegado/')

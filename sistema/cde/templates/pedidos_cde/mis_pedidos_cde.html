@@ -201,10 +201,12 @@ body.dark .paginacion a,
                                 <li>{{ producto.cantidad }} {{ producto.producto.nombre }}</li>
                                 {% endfor %}
                             </ul>
-                            <p><strong>Devoluciones:</strong></p>
+                            
                             {% for articulo in pedido.productos.all %}
+                            
                             {% with devoluciones=articulo.devoluciones.all|dictsort:"fecha_devolucion" %}
                             {% if devoluciones %}
+                            <p><strong>Devoluciones:</strong></p>
                             <ul>
                                 {% for devolucion in devoluciones %}
                                 <li>
@@ -215,7 +217,7 @@ body.dark .paginacion a,
                                 {% endfor %}
                             </ul>
                             {% else %}
-                            <p>No hay devoluciones registradas</p>
+                            <p></p>
                             {% endif %}
                             {% endwith %}
                             {% endfor %}
