@@ -21,7 +21,6 @@ class CustomUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CustomUserForm, self).__init__(*args, **kwargs)
         
-        # Agregar clases CSS a los campos
         self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nombre de usuario'})
         self.fields['email'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Correo electrónico'})
         self.fields['role'].widget.attrs.update({'class': 'form-select'})
@@ -32,7 +31,6 @@ class CustomUserForm(forms.ModelForm):
         """Validación para CREACIÓN: máximo 1 administrador"""
         new_role = self.cleaned_data.get('role')
         
-        # Solo validamos si se intenta crear un 'Administrador'
         if new_role == 'Administrador':
             admin_count = CustomUser.objects.filter(
                 role='Administrador',
@@ -48,7 +46,6 @@ class CustomUserForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        # Hashea la contraseña antes de guardar
         password = self.cleaned_data.get('password')
         if password:
             user.set_password(password)
@@ -88,13 +85,12 @@ class CustomUserEditForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        return email or self.instance.email  # Mantiene el valor anterior si no se cambia
+        return email or self.instance.email 
 
     def clean_role(self):
         """Validación para EDICIÓN: máximo 2 administradores"""
         new_role = self.cleaned_data.get('role')
 
-        # Solo validamos si se intenta cambiar a 'Administrador'
         if new_role == 'Administrador':
             admin_count = CustomUser.objects.filter(
                 role='Administrador',

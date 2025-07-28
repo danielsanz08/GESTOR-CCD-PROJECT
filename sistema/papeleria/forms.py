@@ -22,12 +22,11 @@ class ArticuloForm(forms.ModelForm):
         fields = ['nombre', 'marca', 'observacion', 'precio', 'cantidad', 'tipo', 'proveedor']
 
     def clean_precio(self):
-        # Limpiar las comas solo si 'precio' es una cadena
         precio = self.cleaned_data['precio']
-        if isinstance(precio, str):  # Asegurarse de que es una cadena
-            precio = precio.replace(',', '')  # Eliminar las comas
+        if isinstance(precio, str):  
+            precio = precio.replace(',', '')  
             try:
-                return int(precio)  # Asegurarse de que sea un número entero
+                return int(precio)  
             except ValueError:
                 raise forms.ValidationError('El precio debe ser un número válido.')
         return precio
@@ -57,7 +56,6 @@ class ArticuloEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Configuración de widgets y atributos
         self.fields['nombre'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Ej: Cuaderno cuadriculado',
@@ -107,7 +105,7 @@ class ArticuloEditForm(forms.ModelForm):
         if len(nombre) < 3:
             raise forms.ValidationError("El nombre debe tener al menos 3 caracteres.")
         
-        # Expresión regular mejorada para aceptar más caracteres especiales
+
         if not re.match(r'^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,;:¡!¿?\"\'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$', nombre):
             raise forms.ValidationError("Contiene caracteres inválidos.")
             
@@ -121,7 +119,7 @@ class ArticuloEditForm(forms.ModelForm):
         if len(marca) < 2:
             raise forms.ValidationError("La marca debe tener al menos 2 caracteres.")
             
-        # Expresión regular más permisiva para marcas
+        
         if not re.match(r'^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.\-\/°²³]+$', marca):
             raise forms.ValidationError("Contiene caracteres inválidos en la marca.")
             
@@ -133,7 +131,6 @@ class ArticuloEditForm(forms.ModelForm):
         if cantidad is None:
             raise forms.ValidationError("Este campo es requerido.")
             
-        # Manejar tanto string como números
         if isinstance(cantidad, str):
             cantidad_str = cantidad.strip().replace('.', '').replace(',', '')
         else:
@@ -147,7 +144,7 @@ class ArticuloEditForm(forms.ModelForm):
         if cantidad_int < 0:
             raise forms.ValidationError("La cantidad no puede ser negativa.")
             
-        if cantidad_int > 9999999999:  # Límite de 10 dígitos
+        if cantidad_int > 9999999999:  
             raise forms.ValidationError("Máximo permitido: 9,999,999,999")
             
         return cantidad_int
@@ -158,7 +155,6 @@ class ArticuloEditForm(forms.ModelForm):
         if precio is None:
             raise forms.ValidationError("Este campo es requerido.")
             
-        # Manejar diferentes formatos de entrada
         if isinstance(precio, str):
             precio_str = precio.strip().replace(',', '')
         else:
@@ -173,10 +169,10 @@ class ArticuloEditForm(forms.ModelForm):
         if precio_float < 0:
             raise forms.ValidationError("El precio no puede ser negativo.")
             
-        if precio_int > 99999999999999:  # Límite de 14 dígitos
+        if precio_int > 99999999999999:  
             raise forms.ValidationError("Máximo permitido: 99,999,999,999,999")
             
-        return precio_float  # Devolver como float para mantener decimales
+        return precio_float  
 
     def clean_observacion(self):
         observacion = self.cleaned_data.get('observacion', '').strip()
@@ -186,7 +182,6 @@ class ArticuloEditForm(forms.ModelForm):
         if len(observacion) < 3:
             raise forms.ValidationError("Mínimo 3 caracteres si desea agregar una observación.")
             
-        # Misma expresión regular mejorada que para nombre
         if not re.match(r'^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,;:¡!¿?\"\'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$', observacion):
             raise forms.ValidationError("Contiene caracteres inválidos.")
             
@@ -200,7 +195,6 @@ class ArticuloEditForm(forms.ModelForm):
         if len(tipo) < 3:
             raise forms.ValidationError("Mínimo 3 caracteres si especifica el tipo.")
             
-        # Expresión regular similar a marca
         if not re.match(r'^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.\-\/°²³]+$', tipo):
             raise forms.ValidationError("Contiene caracteres inválidos en el tipo.")
             
@@ -211,7 +205,7 @@ class ArticuloEditForm(forms.ModelForm):
         if len(proveedor) < 3:
             raise forms.ValidationError("El proveedor debe tener al menos 3 caracteres.")
             
-        # Expresión regular similar a nombre pero un poco más restrictiva
+        
         if not re.match(r'^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,\-&]+$', proveedor):
             raise forms.ValidationError("Contiene caracteres inválidos en el proveedor.")
             
@@ -220,16 +214,15 @@ class ArticuloEditForm(forms.ModelForm):
 class PedidoArticuloForm(forms.ModelForm):
     class Meta:
         model = PedidoArticulo
-        fields = ['articulo', 'cantidad', 'area']  # incluye area
+        fields = ['articulo', 'cantidad', 'area']  
         widgets = {
             'articulo': forms.Select(),
             'cantidad': forms.NumberInput(attrs={'min': 1, 'step': '1'}),
-            'area': forms.TextInput(attrs={'readonly': 'readonly'}),  # área es solo lectura porque se asigna desde usuario
+            'area': forms.TextInput(attrs={'readonly': 'readonly'}), 
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Aquí no es necesario configurar dinámicamente el campo 'tipo' ya que no lo estamos usando
 
 class DevolucionForm(forms.ModelForm):
     class Meta:

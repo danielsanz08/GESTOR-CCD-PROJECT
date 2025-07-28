@@ -9,18 +9,18 @@
         top: 20vh;
         left: 40vh;
         height: 55vh;
-        z-index: 1; /* Asegura que la gráfica esté encima del cuadrado */
+        z-index: 1; 
     }
 
     #cuadradoFondo {
         width: 80%;
         max-width: 800px;
-        background-color: rgb(255, 255, 255); /* Color de fondo, ajustable */
+        background-color: rgb(255, 255, 255); 
         position: absolute;
-        top: 29vh; /* Ajustado para centrar detrás de la gráfica */
+        top: 29vh; 
         left: 35vh;
         height: 58vh;
-        z-index: 0; /* Asegura que esté detrás de la gráfica */
+        z-index: 0; 
     }
 </style>
 <div class="estadisticas-container">
@@ -31,23 +31,23 @@
     </div>
 </div>
 
-<!-- JSON OCULTO-->
+
  {{ nombres|json_script:"labels-data" }}
 {{ cantidades|json_script:"cantidades-data" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    //obtener datos desde json
+    
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent)
-    // definir maximo 
+    
     const maxCantidad = 100;
-    //Calcular el porcentaje basada en maxCantidad
+    
     const cantidadesPorcentaje = cantidades.map(c =>{
         let porcentaje = (c / maxCantidad) * 100;
         return porcentaje > 100 ? 100 : porcentaje.toFixed(2);
 
     });
-    //configuracion de la grafica
+    
     const ctx = document.getElementById('graficaBajoStock').getContext('2d');
     new Chart(ctx,{
         type:'bar',
@@ -77,7 +77,7 @@
                     },
                     ticks: {
                         callback : function(value){
-                            return value + '%';// Agrega el símbolo de porcentaje en los ticks
+                            return value + '%';
                         }
                     }
                 }
@@ -86,7 +86,7 @@
                 tooltip:{
                     callbacks:{
                         label: function (context){
-                            return context.parsed.y + '%';// Muestra porcentaje en el tooltip
+                            return context.parsed.y + '%';
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-/* Reset y estilos base */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -9,7 +9,6 @@ html, body {
     overflow-x: hidden;
 }
 
-/* Contenedor principal */
 .main-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -18,7 +17,6 @@ html, body {
     overflow: hidden;
 }
 
-/* Título principal */
 .main-title {
     font-family: 'Orbitron', sans-serif;
     font-size: 2rem;
@@ -27,7 +25,6 @@ html, body {
     margin-bottom: 2rem;
 }
 
-/* Grid de tarjetas */
 .main-cards,
 .main-cards_empleado,
 .main-cards_admin {
@@ -53,7 +50,6 @@ html, body {
     margin-top: 10vh;
 }
 
-/* Estilo de cada tarjeta */
 .main-card {
     background: linear-gradient(110deg, #c7def893, #ffffffe8);
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.233);
@@ -95,7 +91,6 @@ html, body {
     color: #2c5282;
 }
 
-/* Ventanas emergentes */
 .modal-overlay {
     position: fixed;
     inset: 0;

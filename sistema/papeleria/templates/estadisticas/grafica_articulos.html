@@ -60,17 +60,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Obtener datos desde JSON
+   
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidadesAbsolutas = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    // Calcular el valor máximo dinámicamente
+    
     const maxCantidad = Math.max(...cantidadesAbsolutas);
 
-    // Calcular porcentajes con base en el valor máximo
+   
     const cantidadesPorcentaje = cantidadesAbsolutas.map(c => ((c / maxCantidad) * 100).toFixed(2));
 
-    // Configurar la gráfica
+    
     const ctx = document.getElementById('graficaArticulos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',

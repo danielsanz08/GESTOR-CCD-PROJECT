@@ -26,7 +26,6 @@
         border: 1px solid black;
     }
 
-    /* Estilos para el modal de fechas */
     .btn-fecha {
         position: absolute;
         background-color: transparent;
@@ -152,26 +151,24 @@
     </div>
 </div>
 
-<!-- Datos ocultos en JSON -->
 {{ nombres|json_script:"labels-data" }}
 {{ cantidades|json_script:"cantidades-data" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Obtener datos desde los scripts ocultos
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidadesAbsolutas = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    // Calcular el valor máximo real entre las cantidades
+    
     const maxCantidad = Math.max(...cantidadesAbsolutas);
 
-    // Calcular porcentaje relativo al máximo
+    
     const cantidadesPorcentaje = cantidadesAbsolutas.map(c => {
         let porcentaje = maxCantidad > 0 ? (c / maxCantidad) * 100 : 0;
         return parseFloat(porcentaje.toFixed(2));
     });
 
-    // Crear la gráfica
+    
     const ctx = document.getElementById('graficaProductos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -221,7 +218,6 @@
         }
     });
 
-    // Funciones para el modal de fechas
     function mostrarModal() {
         document.getElementById('modalFechas').style.display = 'flex';
     }

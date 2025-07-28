@@ -11,7 +11,10 @@
         color: #fff;
         border: 2px solid rgba(0, 16, 31, 0.63);
     }
-
+    body.dark td{
+    background-color: rgb(63, 62, 62);
+    color: white;
+ }
     body.dark #modal-detalles {
         background-color: black;
     }
@@ -100,11 +103,10 @@
                         </button>
                     </td>
                 </tr>
-                <!-- Bloque oculto para detalles del artículo -->
+                
                 <style>
                     .detalle-header {
                         border-bottom: 2px solid #ccc;
-                        /* línea inferior */
                         padding-bottom: 5px;
                         margin-bottom: 15px;
                         text-align: center;
@@ -144,7 +146,6 @@
         <span class="disabled">Anterior</span>
         {% endif %}
 
-        <!-- Número de página actual -->
         <span class="current-page">Página {{ articulos.number }} de {{ articulos.paginator.num_pages }}</span>
 
         {% if articulos.has_next %}
@@ -154,8 +155,6 @@
         {% endif %}
     </div>
 
-
-    <!-- Modal para eliminar -->
     <div id="modoEliminar" class="modal" style="display: none;">
         <div class="modal-contenido" id="eliminar_modal">
             <h4>¿Estás seguro de eliminar este artículo?</h4>
@@ -167,7 +166,6 @@
         </div>
     </div>
 
-    <!-- Modal para detalles -->
     <div id="modal-detalles">
         <span class="cerrar" onclick="cerrarModalDetalles()">&times;</span>
         <div id="modal-detalles-content"></div>

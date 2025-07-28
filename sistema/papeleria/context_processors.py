@@ -10,12 +10,12 @@ def bajo_stock_alert(request):
 
     user = request.user
     if user.is_authenticated and user.role == 'Administrador' and getattr(user, 'acceso_pap', False):
-        # Verificar si ya se mostró la alerta en esta sesión
+    
         if 'alerta_stock_mostrada' not in request.session:
             mostrar_alerta = True
-            request.session['alerta_stock_mostrada'] = True  # Marcar como mostrada
+            request.session['alerta_stock_mostrada'] = True 
 
     return {
         'bajo_stock': bajo_stock,
-        'mostrar_alerta': mostrar_alerta  # Nombre simplificado para el template
+        'mostrar_alerta': mostrar_alerta  
     }

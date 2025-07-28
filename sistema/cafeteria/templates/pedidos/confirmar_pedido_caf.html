@@ -7,7 +7,10 @@
 <link rel="stylesheet" href="{% static 'css/listar_pedido_pendiente.css' %}?v={% now 'U' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* Modal */
+    body.dark td{
+    background-color: rgb(63, 62, 62);
+    color: white;
+ }
     body.dark section{
     background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
     color: white;
@@ -29,7 +32,7 @@ body.dark .paginacion a,
     }
 </style>
 <style>
-    /* Modal */
+    
 </style>
 <section>
     <h1>Pedidos Pendientes de cafeteria y aseo</h1>
@@ -89,7 +92,7 @@ body.dark .paginacion a,
                             <i data-feather="eye" class="icono"></i>
                         </button>
 
-                        <!-- Contenido oculto para el modal -->
+                        
                         <div id="detalles-{{ pedido.id }}" class="detalles-ocultos" style="display:none;">
                             <div class="modal-header">
                                 <h3 class="modal-title">Detalles del Pedido</h3>
@@ -204,12 +207,8 @@ body.dark .paginacion a,
     {% endif %}
 </div>
 
-
-
-
 </section>
 
-<!-- Contenedor del Modal -->
 <div id="modal-backdrop" onclick="cerrarModal()"></div>
 <div id="modal">
     <div id="modal-content"></div>

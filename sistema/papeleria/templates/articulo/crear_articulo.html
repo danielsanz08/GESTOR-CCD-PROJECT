@@ -185,7 +185,7 @@
         });
 
         document.getElementById("form_articulo").addEventListener("submit", function (e) {
-            // Limpieza final
+            
             campos.precio.value = campos.precio.value.replace(/,/g, "");
             campos.cantidad.value = campos.cantidad.value.replace(/\./g, "");
             ["nombre", "tipo", "marca", "proveedor", "observacion"].forEach(campo => {
@@ -194,7 +194,7 @@
 
             let hayErrores = false;
 
-            // Verifica si algún campo tiene mensaje de error
+            
             for (const clave in errores) {
                 if (errores[clave].textContent.trim() !== "") {
                     hayErrores = true;
@@ -202,7 +202,7 @@
                 }
             }
 
-            // Verifica si los campos obligatorios están vacíos
+          
             const camposRequeridos = ["nombre", "marca", "precio", "cantidad"];
             for (const campo of camposRequeridos) {
                 if (campos[campo].value.trim() === "") {

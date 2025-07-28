@@ -45,29 +45,24 @@ body.dark .main-card-icon{
     color: white;
 }
 </style>
-<!-- Contenido para Administrador -->
+
 {% if request.user.role == 'Administrador' %}
 <div class="main-container">
     <div class="main-cards">
-        <!-- Card Usuarios -->
+        
         <div class="main-card" onclick="openModal('usuarios-modal')">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
-
-        <!-- Card Pedidos -->
         <div class="main-card" onclick="openModal('pedidos-modal')">
             <i data-feather="shopping-cart" class="main-card-icon"></i>
             <h2 class="main-card-title">Pedidos</h2>
         </div>
-
-        <!-- Card Estadísticas -->
         <div class="main-card" onclick="openModal('estadisticas-modal')" id="estadisticas">
             <i data-feather="bar-chart" class="main-card-icon"></i>
             <h2 class="main-card-title">Estadísticas</h2>
         </div>
 
-        <!-- Card Manual -->
         <div class="main-card" onclick="openModal('manual-modal')">
             <i data-feather="book-open" class="main-card-icon"></i>
             <h2 class="main-card-title">Manual</h2>
@@ -76,23 +71,20 @@ body.dark .main-card-icon{
 </div>
 {% endif %}
 
-<!-- Contenido para Empleado -->
 {% if request.user.role == 'Empleado' %}
 <div class="main-container">
     <div class="main-cards_empleado">
-        <!-- Card Usuarios -->
+ 
         <div class="main-card" onclick="openModal('usuarios-modal')">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
 
-        <!-- Card Pedidos -->
         <div class="main-card" onclick="openModal('pedidos-modal')">
             <i data-feather="shopping-cart" class="main-card-icon"></i>
             <h2 class="main-card-title">Pedidos</h2>
         </div>
 
-        <!-- Card Manual -->
         <div class="main-card" onclick="openModal('manual-modal')">
             <i data-feather="book-open" class="main-card-icon"></i>
             <h2 class="main-card-title">Manual</h2>
@@ -101,9 +93,6 @@ body.dark .main-card-icon{
 </div>
 {% endif %}
 
-<!-- Modales (compartidos por ambos roles) -->
-
-<!-- Modal Usuarios -->
 <div class="modal-overlay" id="usuarios-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -125,7 +114,6 @@ body.dark .main-card-icon{
     </div>
 </div>
 
-<!-- Modal Pedidos -->
 <div class="modal-overlay" id="pedidos-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -159,7 +147,6 @@ body.dark .main-card-icon{
     </div>
 </div>
 
-<!-- Modal Estadísticas -->
 <div class="modal-overlay" id="estadisticas-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -177,7 +164,6 @@ body.dark .main-card-icon{
     </div>
 </div>
 
-<!-- Modal Manual -->
 <div class="modal-overlay" id="manual-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -201,7 +187,7 @@ body.dark .main-card-icon{
     });
 
     function openModal(modalId) {
-        console.log("Abriendo modal:", modalId); // Para depuración
+        console.log("Abriendo modal:", modalId); 
         document.getElementById(modalId).classList.add('active');
     }
 
@@ -209,7 +195,7 @@ body.dark .main-card-icon{
         document.getElementById(modalId).classList.remove('active');
     }
 
-    // Cerrar modal al hacer clic fuera del contenido
+
     document.querySelectorAll('.modal-overlay').forEach(function (modal) {
         modal.addEventListener('click', function (e) {
             if (e.target === this) {
@@ -256,7 +242,6 @@ body.dark .main-card-icon{
         cursor: pointer;
     }
 
-    /* Asegúrate que los iconos de feather se muestren */
     [data-feather] {
         width: 24px;
         height: 24px;

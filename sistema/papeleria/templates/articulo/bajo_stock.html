@@ -12,6 +12,10 @@
     color: #fff;
     border: 2px solid rgba(0, 16, 31, 0.63);
 }
+body.dark td{
+    background-color: rgb(63, 62, 62);
+    color: white;
+ }
 body.dark #modal-detalles{
     background-color: black;
 }
@@ -47,7 +51,7 @@ body.dark .paginacion .disabled{
     </div>
     <form method="GET" action="{% url 'papeleria:lista_bajo_stock'  %}">
         <div>
-            <!-- Input de búsqueda general -->
+            
             <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador"
                 value="{{ request.GET.q }}">
             <button type="submit" class="btn-search" title="Buscar texto">
@@ -55,9 +59,6 @@ body.dark .paginacion .disabled{
 
             </button>
 
-
-
-            <!-- Inputs de fecha (inicialmente ocultos) -->
             <div id="filtro-fechas">
                 <label for="fecha_inicio">Desde:</label>
                 <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
@@ -70,7 +71,6 @@ body.dark .paginacion .disabled{
 
                 </button>
             </div>
-            <!-- Botón para limpiar filtros -->
             <a href="{% url 'papeleria:lista_bajo_stock' %}">
                 <button type="button" class="clean" title="Limpiar búsqueda"><i class="fas fa-trash text-white"
                         title="Eliminar"></i>
@@ -106,7 +106,7 @@ body.dark .paginacion .disabled{
                         </button>
                     </td>
                 </tr>
-                <!-- Bloque oculto para detalles del artículo -->
+                
                 <tr style="display: none;">
                     <td colspan="6">
                         <div id="detalles-{{ articulo.id }}">
@@ -140,7 +140,6 @@ body.dark .paginacion .disabled{
         <span class="disabled">Anterior</span>
         {% endif %}
 
-        <!-- Número de página actual -->
         <span class="current-page">Página {{ articulos.number }} de {{ articulos.paginator.num_pages }}</span>
 
         {% if articulos.has_next %}
@@ -151,7 +150,6 @@ body.dark .paginacion .disabled{
     </div>
 
 
-    <!-- Modal para eliminar -->
     <div id="modoEliminar" class="modal" style="display: none;">
         <div class="modal-contenido">
             <h4>¿Estás seguro de eliminar este artículo?</h4>
@@ -163,7 +161,7 @@ body.dark .paginacion .disabled{
         </div>
     </div>
 
-    <!-- Modal para detalles -->
+   
     <div id="modal-detalles">
         <span class="cerrar" onclick="cerrarModalDetalles()">&times;</span>
         <div id="modal-detalles-content"></div>

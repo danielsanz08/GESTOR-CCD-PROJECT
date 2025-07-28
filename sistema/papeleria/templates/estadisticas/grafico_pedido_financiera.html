@@ -127,10 +127,10 @@
 </style>
 
 <div class="estadisticas-container">
-    <!-- Botón para mostrar modal -->
+    
     <button class="btn-fecha" onclick="mostrarModal()">Buscar por fecha</button>
 
-    <!-- Modal -->
+    
     <div id="modalFechas" class="modal-fechas">
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarModal()">&times;</span>
@@ -151,7 +151,7 @@
         </div>
     </div>
 
-    <!-- Gráfica -->
+    
     <div class="cuadradoFondo">
         <div id="grafica">
             <h2>Pedidos de financiera</h2>
@@ -160,11 +160,10 @@
     </div>
 </div>
 
-<!-- Datos desde Django -->
+
 {{ nombres|json_script:"labels-data" }}
 {{ cantidades|json_script:"cantidades-data" }}
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);

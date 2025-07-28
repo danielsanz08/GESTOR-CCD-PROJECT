@@ -308,7 +308,6 @@ td {
 
 }
 
-/* MODAL DE ELIMINAR ARTICULO*/
 .modal {
   position: fixed;
   top: 0;
@@ -316,7 +315,6 @@ td {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.6);
-  /* Fondo negro semi-transparente */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -401,7 +399,6 @@ td {
   cursor: pointer;
 }
 
-/* Estilos para el modal de detalles */
 #modal-detalles {
   display: none;
   position: fixed;
@@ -512,7 +509,6 @@ td {
 }
 /* Mobile devices (max-width: 767px) */
 @media (max-width: 767px) {
-
 
   section {
     position: relative;

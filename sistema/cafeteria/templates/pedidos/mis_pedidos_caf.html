@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
+    body.dark td{
+    background-color: rgb(63, 62, 62);
+    color: white;
+ }
     body.dark section{
     background: linear-gradient(110deg, #717f8f93, #6e6e6ee8);
     color: white;
@@ -26,7 +30,6 @@ body.dark .paginacion a,
         background-color: black;
         cursor: not-allowed;
     }
-    /* Modal */
     #modal {
         display: none;
         position: fixed;
@@ -42,17 +45,13 @@ body.dark .paginacion a,
         width: 90%;
         max-height: 80vh;
         overflow-y: auto;
-
-        /* Ocultar scrollbar pero mantener funcionalidad */
         scrollbar-width: none;
-        /* Para Firefox */
         -ms-overflow-style: none;
-        /* Para IE y Edge */
+        
     }
 
     #modal::-webkit-scrollbar {
         display: none;
-        /* Para Chrome, Safari y Opera */
     }
 
     #modal-backdrop {
@@ -107,14 +106,12 @@ body.dark .paginacion a,
     <h1>Mis pedidos de cafeteria</h1>
     <form method="GET" action="{% url 'cafeteria:mis_pedidos' %}">
         <div>
-            <!-- Input de búsqueda general -->
             <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador"
                 value="{{ request.GET.q }}">
             <button type="submit" class="btn-search" title="Buscar texto">
                 <i class="fas fa-search text-white"></i>
             </button>
 
-            <!-- Inputs de fecha (inicialmente ocultos) -->
             <div id="filtro-fechas">
                 <label for="fecha_inicio">Desde:</label>
                 <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
@@ -126,7 +123,6 @@ body.dark .paginacion a,
                     <i class="fas fa-search text-white"></i>
                 </button>
             </div>
-            <!-- Botón para limpiar filtros -->
             <a href="{% url 'cafeteria:mis_pedidos' %}">
                 <button type="button" class="clean" title="Limpiar búsqueda">
                     <i class="fas fa-trash text-white" title="Eliminar"></i>
@@ -158,7 +154,6 @@ body.dark .paginacion a,
                     </button>
                     <a href="{% url 'cafeteria:crear_devolucion_caf' pedido.id %}" ><button class="devolver"><i class="fas fa-undo-alt text-white" title="Devolver"></i></button></a>
 
-                    <!-- Contenido oculto para el modal -->
                     <div id="detalles-{{ pedido.id }}" class="detalles-ocultos" style="display:none;">
                         <div class="modal-header">
                             <h3 class="modal-title">Detalles del Pedido</h3>
@@ -258,12 +253,8 @@ body.dark .paginacion a,
     <span class="page-link disabled" aria-disabled="true">Siguiente</span>
     {% endif %}
 </div>
-
-
-
 </section>
 
-<!-- Contenedor del Modal -->
 <div id="modal-backdrop" onclick="cerrarModal()"></div>
 <div id="modal">
     <div id="modal-content"></div>

@@ -52,7 +52,7 @@
     }
 
  .btn-fecha {
-    position: absolute; /* o fixed, dependiendo de tu necesidad */
+    position: absolute; 
     background-color: #ffffff00;
     color: rgb(0, 0, 0);
     margin-left: 135vh;
@@ -126,10 +126,10 @@
 </style>
 
 <div class="estadisticas-container">
-    <!-- Botón para mostrar modal -->
+    
     <button class="btn-fecha" onclick="mostrarModal()">Buscar por fecha</button>
 
-    <!-- Modal -->
+    
     <div id="modalFechas" class="modal-fechas">
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarModal()">&times;</span>
@@ -150,7 +150,7 @@
         </div>
     </div>
 
-    <!-- Gráfica -->
+    
     <div class="cuadradoFondo">
         <div id="grafica">
             <h2>Gráfica de pedidos Administrativa</h2>
@@ -159,18 +159,18 @@
     </div>
 </div>
 
-<!-- Datos desde Django -->
+
 {{ nombres|json_script:"labels-data" }}
 {{ cantidades|json_script:"cantidades-data" }}
 
-<!-- Chart.js -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Obtener datos desde el HTML
+    
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    // Crear gráfica de barras
+    
     const ctx = document.getElementById('graficaPedidos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -214,7 +214,7 @@
         }
     });
 
-    // Funciones para el modal
+    
     function mostrarModal() {
         document.getElementById('modalFechas').style.display = 'flex';
     }
@@ -223,7 +223,7 @@
         document.getElementById('modalFechas').style.display = 'none';
     }
 
-    // (Opcional) Cerrar con la tecla ESC
+    // 
     // document.addEventListener('keydown', function(e) {
     //     if (e.key === 'Escape') {
     //         cerrarModal();

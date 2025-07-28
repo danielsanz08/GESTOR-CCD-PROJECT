@@ -24,7 +24,6 @@
         z-index: 0;
     }
 
-    /* Estilos para el modal de fechas */
     .btn-fecha {
         position: absolute;
         background-color: transparent;
@@ -155,11 +154,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Obtener datos desde los scripts ocultos
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    // Crear la gráfica
     const ctx = document.getElementById('graficaProductos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -193,7 +190,7 @@
                 x: {
                     ticks: {
                         callback: function(value, index) {
-                            // Acortar etiquetas largas para mejor visualización
+                            
                             return nombres[index].length > 15 ? 
                                    nombres[index].substring(0, 12) + '...' : 
                                    nombres[index];
@@ -217,7 +214,7 @@
         }
     });
 
-    // Funciones para el modal de fechas
+
     function mostrarModal() {
         document.getElementById('modalFechas').style.display = 'flex';
     }

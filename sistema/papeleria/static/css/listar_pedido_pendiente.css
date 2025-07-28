@@ -162,8 +162,6 @@ td {
   width: 10vh;
   height: 25px;
   text-align: center;
-
-  /* Centrado con Flexbox */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -423,14 +421,12 @@ td {
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    
-    /* Ocultar scrollbar pero mantener funcionalidad */
-    scrollbar-width: none; /* Para Firefox */
-    -ms-overflow-style: none; /* Para IE y Edge */
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
 }
 
 #modal::-webkit-scrollbar {
-    display: none; /* Para Chrome, Safari y Opera */
+    display: none; 
 }
 
     #modal-backdrop {

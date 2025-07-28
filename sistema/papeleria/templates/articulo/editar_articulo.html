@@ -177,7 +177,6 @@
         document.getElementById("form_articulo").addEventListener("submit", function (event) {
             let hayErrores = false;
             
-            // Validar campos requeridos
             if (campos.nombre.value.trim() === "") {
                 errores.nombre.textContent = "Este campo es requerido.";
                 hayErrores = true;
@@ -198,7 +197,7 @@
                 hayErrores = true;
             }
             
-            // Validar otros campos
+           
             const camposAValidar = {
                 nombre: validarTexto(campos.nombre.value),
                 tipo: validarTexto(campos.tipo.value),
@@ -221,7 +220,7 @@
                 return false;
             }
             
-            // Formatear valores antes de enviar
+         
             campos.precio.value = campos.precio.value.replace(/,/g, "");
             campos.cantidad.value = campos.cantidad.value.replace(/\./g, "");
             ["nombre", "tipo", "marca", "proveedor", "observacion"].forEach(campo => {
@@ -229,7 +228,7 @@
             });
         });
 
-        // Inicializar valores formateados al cargar la página
+        
         if (campos.precio.value) {
             let valor = campos.precio.value.replace(/[^0-9.]/g, "");
             const partes = valor.split(".");

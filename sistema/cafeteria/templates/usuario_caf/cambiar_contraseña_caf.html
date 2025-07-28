@@ -3,7 +3,6 @@
 {% block titulo %}Cambiar contraseña{% endblock %}
 {% block contenido %}
 
-
 <link rel="stylesheet" href="{% static 'css/cambiar_contraseña.css' %}?v={% now 'U' %}">
 <style>
     body.dark h1,
@@ -318,7 +317,6 @@
         updateSubmitButton();
     });
 
-    // Enviar el formulario con AJAX
     document.getElementById("change-password-form").addEventListener("submit", function(e) {
         e.preventDefault();
         

@@ -57,14 +57,13 @@ class ProductosEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductosEditForm, self).__init__(*args, **kwargs)
 
-        # Lista de campos a modificar
         optional_fields = [
             'nombre', 'marca', 'presentacion', 
             'precio', 'cantidad', 'unidad_medida', 'proveedor'
         ]
 
         for field in optional_fields:
-            self.fields[field].required = False  # Hace que el campo no sea obligatorio
+            self.fields[field].required = False 
 
         # Personalización de widgets
         self.fields['nombre'].widget.attrs.update({
@@ -98,17 +97,17 @@ class ProductosEditForm(forms.ModelForm):
 class PedidoProductoForm(forms.ModelForm):
     class Meta:
         model = PedidoProducto
-        fields = ['producto', 'cantidad', 'area', 'lugar']  # incluye area
+        fields = ['producto', 'cantidad', 'area', 'lugar']  
         widgets = {
             'producto': forms.Select(),
             'cantidad': forms.NumberInput(attrs={'min': 1, 'step': '1'}),
-            'area': forms.TextInput(attrs={'readonly': 'readonly'}),  # área es solo lectura porque se asigna desde usuario
+            'area': forms.TextInput(attrs={'readonly': 'readonly'}),  
             'lugar': forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Aquí no es necesario configurar dinámicamente el campo 'tipo' ya que no lo estamos usando
+        
 
 class DevolucionFormCaf(forms.ModelForm):
     class Meta:
@@ -124,10 +123,10 @@ class DevolucionFormCaf(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         if pedido_id:
-            # Forzar la actualización del label para mostrar solo el nombre
+            
             self.fields['pedido_producto'].queryset = PedidoProducto.objects.filter(
                 pedido__id=pedido_id
             ).select_related('producto')
             
-            # Opcional: puedes agregar esto para mejorar el formato en el select
+            
             self.fields['pedido_producto'].label_from_instance = lambda obj: obj.producto.nombre

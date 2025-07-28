@@ -16,7 +16,6 @@
     position: relative;
 
 }
-/*informacion del perfil*/
 .nombre, .rol, .email, .cargo{
     margin-bottom: 24px;
     padding-bottom: 14px;
@@ -36,7 +35,6 @@ label{
     font-size: 15px;
     text-align: center;
 }
-/* Botones */
 .botones {
     display: flex;
     justify-content: space-between;

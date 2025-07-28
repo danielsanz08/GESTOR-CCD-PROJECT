@@ -21,12 +21,10 @@ body.dark h1{
 
         <form method="post" id="pedidoForm">
             {% csrf_token %}
-
             <div class="mb-3" style="display: none;">
                 <label class="form-label">Área:</label>
                 <input type="text" class="form-control" value="{{ request.user.area }}" readonly>
             </div>
-
             <div id="articulos-container">
                 <div class="articulo-form default-form">
                     <label for="producto">Producto</label>
@@ -70,7 +68,6 @@ body.dark h1{
                 }
             </script>
             {% endif %}
-            <!-- Contenedor para los botones principales -->
             <div class="botones-principales">
                 <button type="button" onclick="agregarArticulo()" id="agregar">Añadir otro producto</button>
                 <button type="submit" id="realizar">Realizar Pedido</button>
@@ -78,7 +75,6 @@ body.dark h1{
         </form>
     </section>
 </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         let articulosSeleccionadosEnPedido = [];

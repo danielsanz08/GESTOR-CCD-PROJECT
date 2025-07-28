@@ -3,17 +3,17 @@ html, body {
     padding: 0;
     width: 100vw;
     height: 100vh;
-    overflow: hidden !important; /* Fuerza el ocultamiento del scroll */
+    overflow: hidden !important; 
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #1c96bb1c;
-    position: fixed; /* Evita cualquier desplazamiento */
+    position: fixed; 
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    touch-action: none; /* Deshabilita gestos táctiles */
+    touch-action: none; 
 }
 
 section {
@@ -23,12 +23,12 @@ section {
     border-radius: 10px;
     padding: 18px;
     width: 940px;
-    max-width: 940px; /* Fija el ancho máximo */
-    min-width: 940px; /* Fija el ancho mínimo */
+    max-width: 940px; 
+    min-width: 940px; 
     margin-top: 60px;
     height: 280px;
-    max-height: 280px; /* Fija la altura máxima */
-    min-height: 280px; /* Fija la altura mínima */
+    max-height: 280px; 
+    min-height: 280px; 
     animation: fadeInUp 0.8s ease-out;
     display: flex;
     flex-direction: column;

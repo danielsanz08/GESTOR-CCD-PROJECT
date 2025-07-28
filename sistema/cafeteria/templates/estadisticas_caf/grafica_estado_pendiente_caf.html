@@ -174,9 +174,8 @@
 <script>
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent);
-
-    // La mayor cantidad representa el 100%
-    const maxCantidad = Math.max(...cantidades, 1); // Evita división por cero
+    
+    const maxCantidad = Math.max(...cantidades, 1); 
     const porcentajes = cantidades.map(c => parseFloat(((c / maxCantidad) * 100).toFixed(2)));
 
     const ctx = document.getElementById('graficaPedidos').getContext('2d');

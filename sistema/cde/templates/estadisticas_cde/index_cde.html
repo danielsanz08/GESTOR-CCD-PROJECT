@@ -16,35 +16,33 @@
         background-color: black;
     }
     body.dark .modal-card {
-  background-color: #2b2b2b; /* Fondo oscuro */
-  color: #ffffff;            /* Texto claro */
-  border: 1px solid #444;    /* Borde tenue */
+  background-color: #2b2b2b; 
+  color: #ffffff;            
+  border: 1px solid #444;    
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
 }
 </style>
-<!-- Contenido para Administrador -->
+
 {% if request.user.role == 'Administrador' %}
 <div class="main-container">
     <div class="main-cards">
-        <!-- Card Usuarios -->
+       
         <div class="main-card" onclick="openModal('usuarios-modal')">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
 
-        <!-- Card Pedidos -->
+
         <div class="main-card" onclick="openModal('pedidos-modal')">
             <i data-feather="shopping-cart" class="main-card-icon"></i>
             <h2 class="main-card-title">Pedidos</h2>
         </div>
 
-        <!-- Card Estadísticas -->
         <div class="main-card" onclick="openModal('estadisticas-modal')">
             <i data-feather="bar-chart" class="main-card-icon"></i>
             <h2 class="main-card-title">Estadísticas</h2>
         </div>
 
-        <!-- Card Manual -->
         <div class="main-card" onclick="openModal('manual-modal')">
             <i data-feather="book-open" class="main-card-icon"></i>
             <h2 class="main-card-title">Manual</h2>
@@ -53,29 +51,27 @@
 </div>
 {% endif %}
 
-<!-- Contenido para Empleado -->
+
 {% if request.user.role == 'Empleado' %}
 <div class="main-container">
     <div class="main-cards_empleado">
-        <!-- Card Usuarios -->
+        
         <div class="main-card" onclick="openModal('usuarios-modal')">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
 
-        <!-- Card Pedidos -->
         <div class="main-card" onclick="openModal('pedidos-modal')">
             <i data-feather="shopping-cart" class="main-card-icon"></i>
             <h2 class="main-card-title">Pedidos</h2>
         </div>
 
-        <!-- Card Estadísticas -->
         <div class="main-card" onclick="openModal('estadisticas-modal')">
             <i data-feather="bar-chart" class="main-card-icon"></i>
             <h2 class="main-card-title">Estadísticas</h2>
         </div>
 
-        <!-- Card Manual -->
+      
         <div class="main-card" onclick="openModal('manual-modal')">
             <i data-feather="book-open" class="main-card-icon"></i>
             <h2 class="main-card-title">Manual</h2>
@@ -84,9 +80,6 @@
 </div>
 {% endif %}
 
-<!-- Modales (compartidos por ambos roles) -->
-
-<!-- Modal Usuarios -->
 <div class="modal-overlay" id="usuarios-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -108,7 +101,6 @@
     </div>
 </div>
 
-<!-- Modal Pedidos -->
 <div class="modal-overlay" id="pedidos-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -142,7 +134,6 @@
     </div>
 </div>
 
-<!-- Modal Estadísticas -->
 <div class="modal-overlay" id="estadisticas-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -160,7 +151,6 @@
     </div>
 </div>
 
-<!-- Modal Manual -->
 <div class="modal-overlay" id="manual-modal">
     <div class="modal-container">
         <div class="modal-header">
@@ -184,7 +174,7 @@
     });
 
     function openModal(modalId) {
-        console.log("Abriendo modal:", modalId); // Para depuración
+        console.log("Abriendo modal:", modalId); 
         document.getElementById(modalId).classList.add('active');
     }
 
@@ -192,7 +182,6 @@
         document.getElementById(modalId).classList.remove('active');
     }
 
-    // Cerrar modal al hacer clic fuera del contenido
     document.querySelectorAll('.modal-overlay').forEach(function (modal) {
         modal.addEventListener('click', function (e) {
             if (e.target === this) {
@@ -239,7 +228,6 @@
         cursor: pointer;
     }
 
-    /* Asegúrate que los iconos de feather se muestren */
     [data-feather] {
         width: 24px;
         height: 24px;

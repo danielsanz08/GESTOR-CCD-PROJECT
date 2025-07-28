@@ -9,7 +9,7 @@ class Articulo(models.Model):
     tipo = models.CharField(max_length=30, blank=True, null=True, default='No establecido')
     precio = models.PositiveBigIntegerField(blank=False, null=False)
     cantidad = models.PositiveIntegerField(
-        validators=[MaxValueValidator(9999999999)],  # Límite de 10 dígitos
+        validators=[MaxValueValidator(9999999999)],  
         blank=False,
         null=False
     )
@@ -81,7 +81,6 @@ class Devolucion(models.Model):
     fecha = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
-        # Al guardar la devolución, aumentamos la cantidad del artículo en inventario
         self.articulo.cantidad += self.cantidad_devuelta
         self.articulo.save()
         super().save(*args, **kwargs)

@@ -175,7 +175,6 @@
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    // ✅ Cálculo corregido: porcentajes con base en el total
     const total = cantidades.reduce((a, b) => a + b, 0) || 1;
     const porcentajes = cantidades.map(c => parseFloat(((c / total) * 100).toFixed(2)));
 
