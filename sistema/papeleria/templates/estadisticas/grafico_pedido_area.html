@@ -51,26 +51,25 @@
         font-size: 22px;
     }
 
- .btn-fecha {
-    position: absolute; 
-    background-color: #ffffff00;
-    color: rgb(0, 0, 0);
-    margin-left: 135vh;
-    margin-top: 30vh;
-    padding: 10px 20px;
-    border: 1px solid rgba(153, 134, 134, 0);
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    z-index: 2000;
-}
+    .btn-fecha {
+        position: absolute; 
+        background-color: #ffffff00;
+        color: rgb(0, 0, 0);
+        margin-left: 135vh;
+        margin-top: 30vh;
+        padding: 10px 20px;
+        border: 1px solid rgba(153, 134, 134, 0);
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        z-index: 2000;
+    }
 
-   .btn-fecha:hover {
-    transform: scale(1.05);
-    color: #007bff;
-}
-
+    .btn-fecha:hover {
+        transform: scale(1.05);
+        color: #007bff;
+    }
 
     .form-fechas {
         display: flex;
@@ -113,12 +112,14 @@
         border: 1px solid black;
         background-color: white;
     }
-    #btn-filtrar:hover{
+
+    #btn-filtrar:hover {
         background-color: #044080;
         cursor: pointer;
         color: white;
     }
-    #btn-clean:hover{
+
+    #btn-clean:hover {
         background-color: #8a0101;
         cursor: pointer;
         color: white;
@@ -126,10 +127,8 @@
 </style>
 
 <div class="estadisticas-container">
-    
     <button class="btn-fecha" onclick="mostrarModal()">Buscar por fecha</button>
 
-    
     <div id="modalFechas" class="modal-fechas">
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarModal()">&times;</span>
@@ -150,7 +149,6 @@
         </div>
     </div>
 
-    
     <div class="cuadradoFondo">
         <div id="grafica">
             <h2>Gráfica de pedidos Administrativa</h2>
@@ -159,18 +157,14 @@
     </div>
 </div>
 
-
 {{ nombres|json_script:"labels-data" }}
 {{ cantidades|json_script:"cantidades-data" }}
 
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    
     const ctx = document.getElementById('graficaPedidos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -191,22 +185,36 @@
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 10,
-                        callback: function(value) {
-                            return value;
-                        }
+                        stepSize: 10
                     },
                     title: {
                         display: true,
                         text: 'Cantidad de pedidos'
+                    }
+                },
+                x: {
+                    ticks: {
+                        callback: function(value) {
+                            const label = this.getLabelForValue(value);
+                            return label.length > 12 ? label.slice(0, 12) + '...' : label;
+                        },
+                        maxRotation: 0,
+                        minRotation: 0
+                    },
+                    title: {
+                        display: true,
+                        
                     }
                 }
             },
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: function (context) {
-                            return context.parsed.y;
+                        title: function(context) {
+                            return nombres[context[0].dataIndex]; 
+                        },
+                        label: function(context) {
+                            return `Cantidad: ${context.parsed.y}`;
                         }
                     }
                 }
@@ -214,7 +222,6 @@
         }
     });
 
-    
     function mostrarModal() {
         document.getElementById('modalFechas').style.display = 'flex';
     }
@@ -223,11 +230,10 @@
         document.getElementById('modalFechas').style.display = 'none';
     }
 
-    // 
-    // document.addEventListener('keydown', function(e) {
-    //     if (e.key === 'Escape') {
-    //         cerrarModal();
-    //     }
-    // });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            cerrarModal();
+        }
+    });
 </script>
 {% endblock %}

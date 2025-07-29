@@ -30,8 +30,7 @@ from openpyxl import Workbook
 import os
 from django.http import FileResponse, Http404
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-# Create your views here.
-# Página de inicio
+
 User = get_user_model()
 def acceso_denegado(request):
     return render(request, 'acceso_denegado.html')
@@ -39,15 +38,12 @@ def error_404_view(request, exception):
     return render(request, 'acceso_denegado.html', status=404)
 def timeouterror(request):
     try:
-        # Simulación de una operación que puede causar un TimeoutError
-        # Aquí va tu lógica real, como una conexión a red, base de datos externa, etc.
+        
         raise TimeoutError("Error de tiempo de espera")  # Simulación
 
-        # Si no ocurre error, puedes devolver otro template si lo deseas
         return render(request, 'exito.html')
 
     except TimeoutError:
-        # Solo captura TimeoutError y redirige a lan_error.html
         return render(request, 'lan_error.html')
     
 def inicio(request):
@@ -76,14 +72,13 @@ def crear_usuario(request):
                 user = form.save(commit=False)
                 role = user.role
 
-                # ✅ MODIFICADO: Permitir hasta 1 administrador activo en CREACIÓN
                 if role == 'Administrador':
                     admin_count = CustomUser.objects.filter(
                         role='Administrador',
                         is_active=True
                     ).count()
 
-                    limit = 1  # CAMBIADO: Límite de 1 para creación
+                    limit = 1  
                     if admin_count >= limit:
                         messages.error(
                             request,
@@ -91,19 +86,19 @@ def crear_usuario(request):
                         )
                         return redirect('libreria:crear_usuario')
 
-                    # Asignar permisos a administradores
+                   
                     user.acceso_pap = True
                     user.acceso_caf = True
                     user.acceso_cde = True
                 else:
-                    # Restringir permisos para empleados
+                    
                     user.acceso_pap = False
                     user.acceso_caf = False
                     user.acceso_cde = False
 
                 user.save()
 
-                # Notificación a administradores con HTML
+               
                 admin_emails = CustomUser.objects.filter(
                     role='Administrador',
                     is_active=True
@@ -115,7 +110,7 @@ def crear_usuario(request):
                 if admin_emails:
                     subject = "Nuevo usuario registrado en Gestor CCD"
                     
-                    # Crear el contenido HTML del email
+                    
                     html_content = f"""
                     <!DOCTYPE html>
 <html lang="es">
@@ -378,7 +373,6 @@ def crear_usuario(request):
         'breadcrumbs': breadcrumbs
     })
 
-
 def ver_usuario(request, user_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
@@ -392,7 +386,6 @@ from django.urls import NoReverseMatch
 def editar_usuario(request, user_id):
     usuario = get_object_or_404(CustomUser, id=user_id)
 
-    # Intentar generar las URLs del breadcrumb de forma segura
     try:
         ver_usuario_url = reverse('libreria:ver_usuario', kwargs={'user_id': user_id})
     except NoReverseMatch:
@@ -450,7 +443,6 @@ def lista_usuarios(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         html = render_to_string('partials/tabla_usuarios.html', {'usuarios': usuarios})
         return JsonResponse({'html': html})
-    # Filtrado por texto
     if q:
         usuarios = usuarios.filter(
             Q(username__icontains=q) |
@@ -461,7 +453,6 @@ def lista_usuarios(request):
             Q(email__icontains=q)
         )
 
-    # Filtrado por fecha
     if fecha_inicio_str:
         try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d').date()
@@ -476,12 +467,11 @@ def lista_usuarios(request):
         except ValueError:
             usuarios = CustomUser.objects.none()
 
-    # Procesar actualización de permisos si es POST
     if request.method == 'POST' and 'actualizar_permisos' in request.POST:
         usuario_id = request.POST.get('usuario_id')
         try:
             usuario = CustomUser.objects.get(id=usuario_id)
-            if usuario.role != 'Administrador':  # Solo actualizar si no es admin
+            if usuario.role != 'Administrador':  
                 usuario.acceso_pap = 'acceso_pap' in request.POST
                 usuario.acceso_caf = 'acceso_caf' in request.POST
                 usuario.acceso_cde = 'acceso_cde' in request.POST
@@ -493,7 +483,6 @@ def lista_usuarios(request):
             messages.error(request, "Usuario no encontrado.")
         return redirect('libreria:lista_usuarios')
 
-    # Paginación
     paginator = Paginator(usuarios, 4)
     page = request.GET.get('page')
     usuarios = paginator.get_page(page)
@@ -516,10 +505,9 @@ def cambiar_estado_usuario(request, user_id):
         estado_anterior = usuario.is_active
         nuevo_estado = 'is_active' in request.POST
         
-        # Evita que el usuario se desactive a sí mismo
         if request.user.id == usuario.id and not nuevo_estado:
             messages.error(request, "Error: No puedes desactivar tu propio usuario mientras estás autenticado.")
-        # Evita que los administradores se desactiven a sí mismos
+       
         elif request.user.id == usuario.id and usuario.role == 'Administrador' and not nuevo_estado:
             messages.error(request, "Error: Los usuarios con rol de Administrador no pueden desactivarse a sí mismos.")
         elif estado_anterior != nuevo_estado:
@@ -549,25 +537,22 @@ def verificar_contraseña_actual(request):
         data = json.loads(request.body)
         contraseña_actual = data.get('contraseña_actual', '')
         
-        # Debug: Log para ver qué se está recibiendo
+        
         logger.debug(f"Usuario: {request.user.username}")
         logger.debug(f"Contraseña recibida: {contraseña_actual}")
         
-        # Método 1: Usar check_password directamente (más directo)
+        
         password_valid = check_password(contraseña_actual, request.user.password)
         
-        # Método 2: Como respaldo, usar authenticate
         user_auth = authenticate(username=request.user.username, password=contraseña_actual)
         
-        # Debug: Log de resultados
         logger.debug(f"check_password result: {password_valid}")
         logger.debug(f"authenticate result: {user_auth is not None}")
         
-        # Usar check_password como método principal
         if password_valid:
             return JsonResponse({'valida': True})
         else:
-            # Intentar con authenticate como respaldo
+
             if user_auth is not None:
                 return JsonResponse({'valida': True})
             else:
@@ -588,26 +573,35 @@ def cambiar_contraseña(request):
         {'name': 'Inicio', 'url': '/index_pap'},
         {'name': 'Cambiar Contraseña', 'url': reverse('libreria:cambiar_contraseña')},
     ]
+    
     if request.method == 'POST':
         form = CustomPasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
-            return redirect('libreria:inicio')  # Redirige después de cambiar la contraseña
+            messages.success(request, "Contraseña cambiada exitosamente.")
+            return redirect('libreria:inicio')
+        else:
+            
+            for field in form.errors:
+                for error in form.errors[field]:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = CustomPasswordChangeForm(user=request.user)
-    return render(request, 'usuario/cambiar_contraseña.html', {'form': form, 'breadcrumbs': breadcrumbs})
+    
+    return render(request, 'usuario/cambiar_contraseña.html', {
+        'form': form,
+        'breadcrumbs': breadcrumbs
+    })
 
 def cambiar_contraseña_id(request, user_id):
-    """Vista para cambiar contraseña de cualquier usuario por ID"""
-    
+
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
         {'name': 'Listado de usuarios', 'url': '/lista_usuarios'},
         {'name': 'Cambiar Contraseña por ID', 'url': reverse('libreria:cambiar_contraseña_id', args=[user_id])},
     ]
 
-    # Obtiene el usuario objetivo a partir del ID
     target_user = get_object_or_404(User, id=user_id)
 
     if request.method == 'POST':
@@ -617,12 +611,11 @@ def cambiar_contraseña_id(request, user_id):
             target_user.set_password(new_password)
             target_user.save()
             messages.success(request, f'Contraseña cambiada exitosamente para {target_user.username} (ID: {target_user.id})')
-            
-            # ✅ Redirección corregida: no se pasa user_id ya que la URL no lo espera
             return redirect('libreria:lista_usuarios')
         else:
-            messages.error(request, 'Formulario inválido. Revisa los datos ingresados.')
-            print(form.errors)
+            for field in form.errors:
+                for error in form.errors[field]:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = CustomPasswordChangeForm(user=target_user)
 
@@ -650,7 +643,7 @@ def verificar_contraseña(request):
         return JsonResponse({'error': 'No se proporcionó contraseña'}, status=400)
     
     try:
-        # Verificar contra todos los usuarios
+      
         usuarios = User.objects.all()
         password_existe = False
         
@@ -666,7 +659,7 @@ def verificar_contraseña(request):
         
     except Exception as e:
         return JsonResponse({'error': f'Error al verificar contraseña: {str(e)}'}, status=500)
-# views.py
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -678,7 +671,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.urls import reverse
 from django.conf import settings
 import socket
-# Obtener el modelo de usuario personalizado
+
 User = get_user_model()
 
 def password_reset_request(request):
@@ -693,7 +686,7 @@ def password_reset_request(request):
                 reverse("libreria:password_reset_confirm", kwargs={"uidb64": uid, "token": token})
             )
 
-            # Contexto del correo
+           
             context = {
                 'user': user,
                 'reset_link': reset_link,
@@ -721,7 +714,7 @@ El equipo de Gestor CCD
 """
 
             try:
-                # Enviar email
+             
                 msg = EmailMultiAlternatives(
                     subject,
                     text_message,
@@ -734,17 +727,17 @@ El equipo de Gestor CCD
                 return redirect(reverse("libreria:password_reset_done") + "?sent=true")
 
             except socket.timeout:
-                # Error por tiempo de espera
+               
                 messages.error(request, "Hubo un problema de conexión al enviar el correo. Intenta nuevamente más tarde.")
                 return render(request, "password_reset.html")
 
             except Exception as e:
-                # Otro error (no se muestra al usuario por seguridad)
+               
                 print(f"Error enviando email: {e}")
                 return redirect(reverse("libreria:password_reset_done") + "?sent=error")
 
         except User.DoesNotExist:
-            # Usuario no encontrado, redirige sin indicar si existe o no
+          
             return redirect(reverse("libreria:password_reset_done") + "?sent=notfound")
 
     return render(request, "password_reset.html")
@@ -794,11 +787,9 @@ def validar_datos(request):
     
     errores = {}
 
-    # Validar correo electrónico
     if email and CustomUser.objects.filter(email=email).exists():
         errores['email'] = 'El email ya está en uso.'
 
-    # Retornar los errores (si los hay) o una respuesta de validación exitosa
     return JsonResponse(errores if errores else {'valid': True})
 
 def validate_password(request):
@@ -820,7 +811,7 @@ from reportlab.lib import colors
 from django.contrib.staticfiles import finders
 from papeleria.models import Articulo
 def draw_table_on_canvas(canvas, doc):
-    # Marca de agua
+    
     watermark_path = finders.find('imagen/LOGO.png')
     if watermark_path:
         canvas.saveState()
@@ -864,7 +855,7 @@ def obtener_usuarios(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
-    usuarios = CustomUser.objects.all()  # mejor nombrar 'usuarios' para que coincida
+    usuarios = CustomUser.objects.all()  
 
     if query:
         usuarios = usuarios.filter(
@@ -885,14 +876,14 @@ def obtener_usuarios(request):
 def wrap_text(text, max_len=20):
     parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
     for i in range(len(parts) - 1):
-        parts[i] += '-'  # Agrega guion al final de todas menos la última
+        parts[i] += '-'  
     return '\n'.join(parts)
 
 def wrap_text_p(text, max_len=26
                 ):
     parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
     for i in range(len(parts) - 1):
-        parts[i] += '-'  # Agrega guion al final de todas menos la última
+        parts[i] += '-'  
     return '\n'.join(parts)
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import ParagraphStyle
@@ -909,11 +900,9 @@ def reporte_usuario_pdf(request):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título
     titulo = Paragraph("REPORTE DE USUARIOS CCD", styles["Title"])
     elements.append(titulo)
 
-    # Encabezado empresa
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
         ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
@@ -934,7 +923,6 @@ def reporte_usuario_pdf(request):
     tabla_encabezado.setStyle(estilo_encabezado)
     elements.append(tabla_encabezado)
 
-    # Tabla usuario autenticado
     usuario = request.user
     data_usuario = [["Usuario", "Email", "Rol", "Cargo"]]
 
@@ -963,7 +951,6 @@ def reporte_usuario_pdf(request):
     table_usuario.setStyle(style_usuario)
     elements.append(table_usuario)
 
-    # Obtener usuarios filtrados
     usuarios_filtrados = obtener_usuarios(request)
 
     if not usuarios_filtrados.exists():
@@ -1002,7 +989,6 @@ def reporte_usuario_pdf(request):
         tabla_articulos.setStyle(style_articulos)
         elements.append(tabla_articulos)
 
-    # Construir el PDF
     doc.build(elements, onFirstPage=draw_table_on_canvas, onLaterPages=draw_table_on_canvas)
 
     buffer.seek(0)
@@ -1011,15 +997,15 @@ def reporte_usuario_pdf(request):
     return response
 
 def reporte_usuario_excel(request):
-    # Obtener usuarios filtrados
+  
     usuarios = obtener_usuarios(request)
 
-    # Crear archivo Excel
+    
     wb = Workbook()
     ws = wb.active
     ws.title = "Listado de Artículos CCD"
 
-    # Configurar columnas
+    
     column_widths = [10, 30, 20, 30, 30, 20, 15]
     for i, width in enumerate(column_widths, start=1):
         ws.column_dimensions[chr(64 + i)].width = width
@@ -1027,20 +1013,20 @@ def reporte_usuario_excel(request):
     ws.row_dimensions[1].height = 60
     ws.row_dimensions[2].height = 30
 
-    # Título
+    
     ws.merge_cells('A1:G1')
     ws['A1'] = "GESTOR CCD"
     ws['A1'].font = Font(size=24, bold=True)
     ws['A1'].alignment = Alignment(horizontal='center', vertical='center')
 
-    # Subtítulo
+    
     ws.merge_cells('A2:G2')
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     ws['A2'] = f"Listado de Artículos - {fecha_actual}"
     ws['A2'].font = Font(size=18)
     ws['A2'].alignment = Alignment(horizontal='center', vertical='center')
 
-    # Encabezados
+    
     headers = ["ID", "Usuario", "Rol", "Correo", "Cargo", "Área", "Estado"]
     ws.append(headers)
 
@@ -1051,7 +1037,7 @@ def reporte_usuario_excel(request):
         cell.font = Font(color="FFFFFF", bold=True)
         cell.alignment = Alignment(horizontal='center', vertical='center')
 
-    # Estilo de bordes
+    
     border = Border(
         left=Side(style='thin'),
         right=Side(style='thin'),
@@ -1059,7 +1045,7 @@ def reporte_usuario_excel(request):
         bottom=Side(style='thin')
     )
 
-    # Agregar datos o mensaje de "no encontrados"
+    
     if not usuarios.exists():
         ws.merge_cells('A4:G4')
         cell = ws['A4']
@@ -1080,22 +1066,22 @@ def reporte_usuario_excel(request):
                 estado
             ])
 
-    # Estilo para títulos y subtítulo
+    
     for row in ws.iter_rows(min_row=1, max_row=2, min_col=1, max_col=7):
         for cell in row:
             cell.border = border
             cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-    # Estilo para encabezados y datos
+    
     for row in ws.iter_rows(min_row=3, max_row=ws.max_row, min_col=1, max_col=7):
         for cell in row:
             cell.border = border
             cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-    # Filtro automático
+    
     ws.auto_filter.ref = "A3:G3"
 
-    # Preparar respuesta
+    
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )

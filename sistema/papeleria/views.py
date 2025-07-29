@@ -1407,12 +1407,20 @@ def grafica_pedidos_administrativa(request):
             fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'articulo__nombre'
+        'articulo__nombre',
+        'articulo__tipo'  # Añade el tipo de artículo
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    etiquetas = [item['articulo__nombre'] or 'Sin artículo' for item in pedidos_por_area_articulo]
+    # Modifica las etiquetas para incluir el tipo de artículo
+    etiquetas = [
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        if item['articulo__nombre'] and item['articulo__tipo']
+        else item['articulo__nombre'] or 'Sin artículo'
+        for item in pedidos_por_area_articulo
+    ]
+    
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_area.html', {
@@ -1451,13 +1459,18 @@ def grafica_pedidos_rues(request):
         fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'area',
-        'articulo__nombre'
+        'articulo__nombre',
+        'articulo__tipo'
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    etiquetas = [item['articulo__nombre'] or 'Sin artículo' for item in pedidos_por_area_articulo]
+    etiquetas = [
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        if item['articulo__nombre'] and item['articulo__tipo']
+        else item['articulo__nombre'] or 'Sin artículo'
+        for item in pedidos_por_area_articulo
+    ]
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_rues.html', {
@@ -1468,6 +1481,7 @@ def grafica_pedidos_rues(request):
         'fecha_fin': fecha_fin_str
     })
 
+@login_required(login_url='/acceso_denegado/')
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_presidencia(request):
     breadcrumbs = [
@@ -1481,28 +1495,33 @@ def grafica_pedidos_presidencia(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Presidencia')
 
-    if fecha_inicio_str:
-        try:
+    try:
+        if fecha_inicio_str:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-        except ValueError:
-            fecha_inicio = None
+    except ValueError:
+        fecha_inicio = None
 
-    if fecha_fin_str:
-        try:
+    try:
+        if fecha_fin_str:
             fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
-        except ValueError:
-            fecha_fin = None
+    except ValueError:
+        fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'area',
-        'articulo__nombre'
+        'articulo__nombre',
+        'articulo__tipo'
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    etiquetas = [item['articulo__nombre'] or 'Sin artículo' for item in pedidos_por_area_articulo]
+    etiquetas = [
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        if item['articulo__nombre'] and item['articulo__tipo']
+        else item['articulo__nombre'] or 'Sin artículo'
+        for item in pedidos_por_area_articulo
+    ]
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_presidencia.html', {
@@ -1512,14 +1531,14 @@ def grafica_pedidos_presidencia(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
-
 @login_required(login_url='/acceso_denegado/')
 @never_cache
+@login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_financiera(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
         {'name': 'Estadísticas', 'url': reverse('papeleria:index_estadistica')},
-        {'name': 'Pedidos financiera', 'url': reverse('papeleria:pedidos_financiera')},
+        {'name': 'Pedidos Financiera', 'url': reverse('papeleria:pedidos_financiera')},
     ]
 
     fecha_inicio_str = request.GET.get('fecha_inicio')
@@ -1527,27 +1546,33 @@ def grafica_pedidos_financiera(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Financiera')
 
-    if fecha_inicio_str:
-        try:
+    try:
+        if fecha_inicio_str:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-        except ValueError:
-            fecha_inicio = None
+    except ValueError:
+        fecha_inicio = None
 
-    if fecha_fin_str:
-        try:
+    try:
+        if fecha_fin_str:
             fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
-        except ValueError:
-            fecha_fin = None
+    except ValueError:
+        fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'articulo__nombre'
+        'articulo__nombre',
+        'articulo__tipo'
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    etiquetas = [item['articulo__nombre'] or 'Sin artículo' for item in pedidos_por_area_articulo]
+    etiquetas = [
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        if item['articulo__nombre'] and item['articulo__tipo']
+        else item['articulo__nombre'] or 'Sin artículo'
+        for item in pedidos_por_area_articulo
+    ]
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_financiera.html', {
@@ -1637,14 +1662,20 @@ def grafica_pedidos_competitividad(request):
             fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'area',
         'articulo__nombre',
-        'articulo__tipo',
+        'articulo__tipo'  # Asegúrate de incluir el tipo de artículo
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    etiquetas = [item['articulo__nombre'] or 'Sin artículo' for item in pedidos_por_area_articulo]
+    # Modifica las etiquetas para incluir el tipo de artículo
+    etiquetas = [
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        if item['articulo__nombre'] and item['articulo__tipo']
+        else item['articulo__nombre'] or 'Sin artículo'
+        for item in pedidos_por_area_articulo
+    ]
+    
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_competitividad.html', {

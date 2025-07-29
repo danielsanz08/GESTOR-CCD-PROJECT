@@ -31,17 +31,17 @@ class LoginForm(forms.Form):
 class PedidoProductoCdeForm(forms.ModelForm):
     class Meta:
         model = PedidoProductoCde
-        fields = ['producto', 'cantidad', 'area', 'evento']  # incluye area
+        fields = ['producto', 'cantidad', 'area', 'evento']  
         widgets = {
             'producto': forms.Select(),
             'cantidad': forms.NumberInput(attrs={'min': 1, 'step': '1'}),
-            'area': forms.TextInput(attrs={'readonly': 'readonly'}),  # área es solo lectura porque se asigna desde usuario
+            'area': forms.TextInput(attrs={'readonly': 'readonly'}), 
             'evento': forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Aquí no es necesario configurar dinámicamente el campo 'tipo' ya que no lo estamos usando
+        
 
 class DevolucionFormCde(forms.ModelForm):
     class Meta:
@@ -75,5 +75,4 @@ class DevolucionFormCde(forms.ModelForm):
                 pedido__id=pedido_id
             ).select_related('producto')
             
-            # Configurar para mostrar solo el nombre del producto
             self.fields['pedido_producto'].label_from_instance = lambda obj: obj.producto.nombre

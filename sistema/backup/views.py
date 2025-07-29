@@ -20,7 +20,6 @@ from datetime import datetime
 import os
 import logging
 
-# Configuración de logging
 logger = logging.getLogger(__name__)
 
 def error_404_view(request, exception):
@@ -106,7 +105,6 @@ def crear_nuevo_backup(request):
 
     if request.method == 'POST':
         try:
-            # Usar exportar_bd en lugar de crear_backup (o ajustar crear_backup)
             nombre_archivo, ruta_archivo = exportar_bd()
             
             tamano = os.path.getsize(ruta_archivo)
@@ -151,15 +149,13 @@ def restaurar_backup_view(request, id):
             messages.error(request, f"El archivo de backup no existe en {ruta_absoluta}")
             return redirect('backup:lista_backups')
 
-        # Cerrar sesión y limpiar
+        
         from django.contrib.auth import logout
         logout(request)
         request.session.flush()
         
-        # Cerrar conexiones existentes
         db.connections.close_all()
 
-        # ✅ VERIFICACIÓN AGREGADA
         try:
             import json
             with open(ruta_absoluta, 'r', encoding='utf-8') as f:
@@ -240,7 +236,6 @@ def exportar_bd(nombre_archivo=None):
     ruta_backup = os.path.join(settings.BACKUP_ROOT, nombre_archivo)
 
     try:
-        # Exportar incluyendo todas las relaciones y usando formato natural
         with open(ruta_backup, 'w', encoding='utf-8') as f:
             management.call_command(
                 'dumpdata',
@@ -306,8 +301,7 @@ def importar_backup_view(request):
         try:
             archivo_subido = request.FILES['archivo']
             nombre = request.POST.get('nombre', f"backup_importado_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
-
-            # Guardar el archivo primero
+            
             carpeta_backups = os.path.join(settings.MEDIA_ROOT, 'backups')
             os.makedirs(carpeta_backups, exist_ok=True)
             nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{archivo_subido.name}"
@@ -317,7 +311,6 @@ def importar_backup_view(request):
                 for chunk in archivo_subido.chunks():
                     destino.write(chunk)
 
-            # Crear registro del backup
             tamano = os.path.getsize(ruta_completa)
             tamano_mb = round(tamano / (1024 * 1024), 2)
             backup = Backup(
@@ -331,7 +324,6 @@ def importar_backup_view(request):
             backup.save()
 
             if 'restaurar' in request.POST:
-                # En lugar de implementar la restauración aquí, redirigimos a la vista de restauración
                 return redirect('backup:restaurar_backup', id=backup.id)
 
             messages.success(request, 'Backup importado exitosamente.')

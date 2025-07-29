@@ -127,7 +127,6 @@
 </style>
 
 <div class="estadisticas-container">
-    
     <button class="btn-fecha" onclick="mostrarModal()">Buscar por fecha</button>
 
     <div id="modalFechas" class="modal-fechas">
@@ -195,6 +194,17 @@
                         display: true,
                         text: 'Cantidad de pedidos'
                     }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 0,
+                        minRotation: 0,
+                        autoSkip: false,
+                        callback: function(value) {
+                            const label = this.getLabelForValue(value);
+                            return label.length > 12 ? label.slice(0, 12) + '...' : label;
+                        }
+                    }
                 }
             },
             plugins: {
@@ -202,6 +212,9 @@
                     callbacks: {
                         label: function (context) {
                             return context.parsed.y;
+                        },
+                        title: function (context) {
+                            return nombres[context[0].dataIndex]; // muestra nombre completo
                         }
                     }
                 }

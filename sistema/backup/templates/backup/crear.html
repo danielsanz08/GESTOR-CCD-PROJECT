@@ -53,14 +53,12 @@
         inputNombre.addEventListener('input', function () {
             let value = this.value;
 
-            // Mostrar u ocultar mensaje de límite
+            
             errorLimite.style.display = value.length > 15 ? 'block' : 'none';
 
-            // Mostrar u ocultar mensaje de caracteres repetidos
             const repetidos = /(.)\1{2,}/;
             errorRepetido.style.display = repetidos.test(value) ? 'block' : 'none';
 
-            // Capitalizar cada palabra
             const capitalizado = value
                 .toLowerCase()
                 .replace(/\b\w/g, letra => letra.toUpperCase());

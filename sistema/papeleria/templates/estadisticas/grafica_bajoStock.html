@@ -23,6 +23,7 @@
         z-index: 0; 
     }
 </style>
+
 <div class="estadisticas-container">
     <div id="cuadradoFondo"></div>
     <div id="grafica">
@@ -31,30 +32,28 @@
     </div>
 </div>
 
-
- {{ nombres|json_script:"labels-data" }}
+{{ nombres|json_script:"labels-data" }}
 {{ cantidades|json_script:"cantidades-data" }}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
-    const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent)
+    const cantidades = JSON.parse(document.getElementById('cantidades-data').textContent);
     
     const maxCantidad = 100;
-    
-    const cantidadesPorcentaje = cantidades.map(c =>{
+
+    const cantidadesPorcentaje = cantidades.map(c => {
         let porcentaje = (c / maxCantidad) * 100;
         return porcentaje > 100 ? 100 : porcentaje.toFixed(2);
-
     });
-    
+
     const ctx = document.getElementById('graficaBajoStock').getContext('2d');
-    new Chart(ctx,{
-        type:'bar',
+    new Chart(ctx, {
+        type: 'bar',
         data: {
             labels: nombres,
             datasets: [{
-                label : 'Porcentaje',
+                label: 'Porcentaje',
                 data: cantidadesPorcentaje,
                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
@@ -66,32 +65,42 @@
             }]
         },
         options: {
-            responsive : true,
+            responsive: true,
             scales: {
                 y: {
-                    beginAtZero : true,
-                    max:10,
+                    beginAtZero: true,
+                    max: 10,
                     title: {
-                        display : true,
-                        text : 'Cantidad (%)'
+                        display: true,
+                        text: 'Cantidad (%)'
                     },
                     ticks: {
-                        callback : function(value){
+                        callback: function(value) {
                             return value + '%';
                         }
                     }
+                },
+                x: {
+                    ticks: {
+                        callback: function(value, index, ticks) {
+                            const label = this.getLabelForValue(value);
+                            return label.length > 12 ? label.slice(0, 12) + '...' : label;
+                        },
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
                 }
             },
-            plugins : {
-                tooltip:{
-                    callbacks:{
-                        label: function (context){
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
                             return context.parsed.y + '%';
                         }
                     }
                 }
             }
         }
-    })
+    });
 </script>
 {% endblock %}

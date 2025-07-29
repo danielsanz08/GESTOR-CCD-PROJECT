@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const soloValidos = /^[a-zA-Z0-9 ]*$/;
         let tieneError = false;
 
-        // Validación de caracteres permitidos y longitud
         if (valor.length > 15 || !soloValidos.test(valor)) {
             errorLimite.style.display = 'block';
             tieneError = true;
@@ -67,8 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorLimite.style.display = 'none';
         }
 
-        // Validación de caracteres repetidos
-        const repetido = /(.)\1\1+/; // 3 o más repeticiones consecutivas
+        const repetido = /(.)\1\1+/; 
         if (repetido.test(valor)) {
             errorRepetido.style.display = 'block';
             tieneError = true;
@@ -76,8 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorRepetido.style.display = 'none';
         }
 
-        // Opcional: deshabilitar el botón si hay errores
-        // document.querySelector('button[type="submit"]').disabled = tieneError;
+
     });
 });
 </script>

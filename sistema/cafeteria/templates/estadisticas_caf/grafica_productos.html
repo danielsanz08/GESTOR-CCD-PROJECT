@@ -11,7 +11,6 @@
         left: 40vh;
         height: 55vh;
         z-index: 1;
-        
     }
 
     #cuadradoFondo {
@@ -159,16 +158,13 @@
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidadesAbsolutas = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    
     const maxCantidad = Math.max(...cantidadesAbsolutas);
 
-    
     const cantidadesPorcentaje = cantidadesAbsolutas.map(c => {
         let porcentaje = maxCantidad > 0 ? (c / maxCantidad) * 100 : 0;
         return parseFloat(porcentaje.toFixed(2));
     });
 
-    
     const ctx = document.getElementById('graficaProductos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -200,6 +196,17 @@
                         callback: function (value) {
                             return value + '%';
                         }
+                    }
+                },
+                x: {
+                    ticks: {
+                        callback: function(value, index, ticks) {
+                            const label = this.getLabelForValue(value);
+                            return label.length > 12 ? label.slice(0, 12) + '…' : label;
+                        },
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 }
             },

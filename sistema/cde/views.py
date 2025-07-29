@@ -1,55 +1,73 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib import messages
-from django.urls import reverse
-from django.db.models import Sum
-from django.utils.timezone import localtime
-from libreria.forms import CustomPasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
-from django.utils.html import escape
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.contrib.staticfiles import finders
-from django.db.models import Q
-from django.utils.timezone import make_aware
-
-from django.db import transaction
-from django.utils import timezone
-from datetime import datetime, timedelta
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
+from django.urls import reverse
+from django.db import transaction
+from django.db.models import Q, Sum
+from django.utils import timezone
+from django.utils.dateparse import parse_date
+from django.utils.timezone import localtime, make_aware
+from django.utils.html import escape
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
+from django.template.loader import render_to_string
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.conf import settings
+from cde.forms import LoginForm, PedidoProductoCdeForm, DevolucionFormCde
+from libreria.forms import CustomPasswordChangeForm, CustomUserForm
+from libreria.models import CustomUser
+from cafeteria.models import Productos
+from cde.models import PedidoCde, PedidoProductoCde, DevolucionCde
+from io import BytesIO
+from datetime import datetime, timedelta
+from django.contrib.staticfiles import finders
+
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
-from io import BytesIO
-from datetime import datetime
-from django.http import HttpResponse
-from django.db.models import Q
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
-from django.core.mail import send_mail
-from cde.forms import LoginForm
-from libreria.forms import CustomUserForm
-from django.core.mail import EmailMultiAlternatives
-from libreria.models import CustomUser
-from datetime import datetime
+def wrap_text_p(text, max_len=26
+                ):
+    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+    for i in range(len(parts) - 1):
+        parts[i] += '-' 
+    return '\n'.join(parts)
 
-from cafeteria.models import Productos
-from django.conf import settings
-from django.core.mail import send_mail
-from cde.models import PedidoCde, PedidoProductoCde, DevolucionCde
-from cde.forms import PedidoProductoCdeForm, LoginForm, DevolucionFormCde
-from django.db.models import Q
-from django.core.paginator import Paginator
-from cafeteria.models import Productos
+def wrap_text(text, max_len=23):
+    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+    for i in range(len(parts) - 1):
+        parts[i] += '-' 
+    return '\n'.join(parts)
 
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
-# Create your views here.
-# Ejemplo para el login de papelería
+User = get_user_model()
+
+def draw_table_on_canvas(canvas, doc):
+    # Marca de agua
+    watermark_path = finders.find('imagen/LOGO.png')
+    if watermark_path:
+        canvas.saveState()
+        canvas.setFillColor(colors.Color(1, 1, 1, alpha=0.3))
+        canvas.setStrokeColor(colors.Color(1, 1, 1, alpha=0.3))
+        canvas.drawImage(watermark_path,
+                         x=(doc.pagesize[0] - 600) / 2,
+                         y=(doc.pagesize[1] - 600) / 2,
+                         width=600, height=600, mask='auto')
+        canvas.restoreState()
+
+@login_required(login_url='/acceso_denegado/')
+def index_cde(request):
+    breadcrumbs = [
+        {'name': 'Inicio CDE', 'url': '/index_cde'},
+    ]
+    return render(request, 'index_cde/index_cde.html',{'breadcrumbs': breadcrumbs})
+
+#LOGIN
 def login_cde(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -57,21 +75,23 @@ def login_cde(request):
         user = authenticate(request, email=email, password=password)
 
         if user is not None:
-            if user.is_active and getattr(user, 'acceso_cde', False):
+            if not user.is_active:
+                messages.info(request, "Tu cuenta está inactiva. Contacta al administrador.")
+            elif not getattr(user, 'acceso_cde', False):
+                messages.error(request, "No tienes permiso para acceder a este módulo.")
+            else:
                 login(request, user)
                 return redirect('cde:index_cde')
-            else:
-                messages.error(request, "No tienes permiso para acceder a este módulo.")
         else:
             messages.error(request, "Credenciales inválidas.")
 
     return render(request, 'login_cde/login_cde.html')
+
 @login_required(login_url='/acceso_denegado/')
 def logout_cde(request):
     logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect(reverse('libreria:inicio'))
-User = get_user_model()
 
 @login_required(login_url='/acceso_denegado/')
 def crear_pedido_cde(request):
@@ -84,9 +104,8 @@ def crear_pedido_cde(request):
         try:
             estado = 'Confirmado' if request.user.role == 'Administrador' else 'Pendiente'
 
-            # Obtener la fecha personalizada si el checkbox fue activado
             usar_fecha_personalizada = request.POST.get('usar_fecha_personalizada') == 'on'
-            fecha_pedido = timezone.now()  # valor por defecto
+            fecha_pedido = timezone.now() 
 
             if usar_fecha_personalizada:
                 fecha_raw = request.POST.get('fecha_personalizada')
@@ -143,7 +162,6 @@ def crear_pedido_cde(request):
                     print(f"Error al procesar producto: {e}")
                     continue
 
-            # Notificar a administradores
             admin_users = CustomUser.objects.filter(role='Administrador', is_active=True)
             admin_emails = [admin.email for admin in admin_users if admin.email]
 
@@ -210,6 +228,7 @@ Este es un mensaje automático, por favor no respondas.
         'productos': productos,
         'breadcrumbs': breadcrumbs
     })
+
 @login_required(login_url='/acceso_denegado/')
 def ver_usuario_cde(request, id):
     breadcrumbs = [
@@ -218,13 +237,6 @@ def ver_usuario_cde(request, id):
     ]
     usuario = get_object_or_404(CustomUser, id=id)
     return render(request, 'usuario_cde/ver_perfil_cde.html', {'usuario': usuario, 'breadcrumbs': breadcrumbs})
-
-@login_required(login_url='/acceso_denegado/')
-def index_cde(request):
-    breadcrumbs = [
-        {'name': 'Inicio CDE', 'url': '/index_cde'},
-    ]
-    return render(request, 'index_cde/index_cde.html',{'breadcrumbs': breadcrumbs})
 
 @login_required(login_url='/acceso_denegado/')
 def mis_pedidos_cde(request):
@@ -268,13 +280,12 @@ def mis_pedidos_cde(request):
     paginator = Paginator(pedidos, 4)
     page_number = request.GET.get('page')
     pedidos_page = paginator.get_page(page_number)
-     # Agregar eventos únicos a cada pedido
+     
     for pedido in pedidos_page:
         eventos = pedido.productos.values_list('evento', flat=True)
         eventos_unicos = list(set(eventos))
         pedido.eventos_unicos = eventos_unicos
 
-    # Crear un string con los parámetros de búsqueda para la paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
@@ -291,8 +302,8 @@ def mis_pedidos_cde(request):
         'current_fecha_inicio': fecha_inicio_str,
         'current_fecha_fin': fecha_fin_str,
     })
+
 @login_required(login_url='/acceso_denegado/')
-@csrf_exempt  # Solo si no puedes usar {% csrf_token %} en el formulario
 @require_POST
 def cambiar_estado_pedido_cde(request, pedido_id):
     pedido = get_object_or_404(PedidoCde, id=pedido_id)
@@ -494,6 +505,7 @@ def cambiar_estado_pedido_cde(request, pedido_id):
             print(f"Error enviando email: {str(e)}")
 
     return redirect('cde:pedidos_pendientes_cde')
+
 @login_required(login_url='/acceso_denegado/')
 def pedidos_pendientes_cde(request):
     breadcrumbs = [
@@ -505,7 +517,6 @@ def pedidos_pendientes_cde(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    # Filtrar pedidos pendientes
     pedidos = PedidoCde.objects.filter(estado='Pendiente').order_by('-fecha_pedido')
 
     if query:
@@ -534,17 +545,14 @@ def pedidos_pendientes_cde(request):
         except ValueError:
             pass
 
-    # Paginación
     paginator = Paginator(pedidos, 4)
     page_number = request.GET.get('page')
     pedidos_page = paginator.get_page(page_number)
 
-    # Agregar eventos únicos por pedido
     for pedido in pedidos_page:
         eventos = pedido.productos.values_list('evento', flat=True)
         pedido.eventos_unicos = list(set(eventos))
 
-    # Parámetros para mantener filtros en la paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
@@ -573,7 +581,6 @@ def listado_pedidos_cde(request):
     fecha_inicio_str = request.GET.get('fecha_inicio')
     fecha_fin_str = request.GET.get('fecha_fin')
 
-    # Filtrar pedidos confirmados o cancelados
     pedidos = PedidoCde.objects.filter(estado__in=['Confirmado', 'Cancelado']).order_by('-fecha_pedido')
 
     if query:
@@ -602,17 +609,14 @@ def listado_pedidos_cde(request):
         except ValueError:
             pedidos = PedidoCde.objects.none()
 
-    # Paginación
     paginator = Paginator(pedidos, 4)
     page_number = request.GET.get('page')
     pedidos_page = paginator.get_page(page_number)
 
-    # Agregar eventos únicos por pedido
     for pedido in pedidos_page:
         eventos = pedido.productos.values_list('evento', flat=True)
         pedido.eventos_unicos = list(set(eventos))
 
-    # Parámetros para mantener filtros en la paginación
     query_params = ''
     if query:
         query_params += f'&q={query}'
@@ -630,33 +634,6 @@ def listado_pedidos_cde(request):
         'current_fecha_fin': fecha_fin_str,
     })
 
-#pdf
-def draw_table_on_canvas(canvas, doc):
-    # Marca de agua
-    watermark_path = finders.find('imagen/LOGO.png')
-    if watermark_path:
-        canvas.saveState()
-        canvas.setFillColor(colors.Color(1, 1, 1, alpha=0.3))
-        canvas.setStrokeColor(colors.Color(1, 1, 1, alpha=0.3))
-        canvas.drawImage(watermark_path,
-                         x=(doc.pagesize[0] - 600) / 2,
-                         y=(doc.pagesize[1] - 600) / 2,
-                         width=600, height=600, mask='auto')
-        canvas.restoreState()
-
-def wrap_text_p(text, max_len=26
-                ):
-    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
-    for i in range(len(parts) - 1):
-        parts[i] += '-' 
-    return '\n'.join(parts)
-
-def wrap_text(text, max_len=23):
-    parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
-    for i in range(len(parts) - 1):
-        parts[i] += '-'  # Agrega guion al final de todas menos la última
-    return '\n'.join(parts)
-from django.utils.dateparse import parse_date
 @login_required(login_url='/acceso_denegado/')
 def get_pedidos_filtrados_cde(request):
     query = request.GET.get('q')
@@ -682,13 +659,13 @@ def get_pedidos_filtrados_cde(request):
         fecha_fin_parseada = parse_date(fecha_fin)
 
         if fecha_inicio_parseada and fecha_fin_parseada:
-            # +1 día a la fecha fin para que incluya todo ese día
             pedidos = pedidos.filter(
                 fecha_pedido__gte=fecha_inicio_parseada,
                 fecha_pedido__lt=fecha_fin_parseada + timedelta(days=1)
             )
 
     return pedidos
+
 @login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pdf_cde(request):
     buffer = BytesIO()
@@ -706,11 +683,9 @@ def reporte_pedidos_pdf_cde(request):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título
     titulo = Paragraph("REPORTE DE PEDIDOS DE CENTRO DE EVENTOS", styles["Title"])
     elements.append(titulo)
 
-    # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
         ["GESTOR CCD", "Lista de artículos", "Correo:", f"Fecha"],
@@ -730,7 +705,6 @@ def reporte_pedidos_pdf_cde(request):
     ]))
     elements.append(tabla_encabezado)
 
-    # Datos del usuario
     usuario = request.user
     data_usuario = [["Usuario:", "Email:", "Rol:", "Cargo:"]]
     data_usuario.append([
@@ -753,7 +727,6 @@ def reporte_pedidos_pdf_cde(request):
     ]))
     elements.append(table_usuario)
 
-    # Pedidos filtrados
     pedidos = get_pedidos_filtrados_cde(request).prefetch_related('productos__producto', 'productos__devoluciones')
 
     if not pedidos.exists():
@@ -774,7 +747,7 @@ def reporte_pedidos_pdf_cde(request):
                     areas = set(p.area for p in productos if p.area and p.area != 'No establecido')
                     area_raw = ", ".join(areas) if areas else 'No establecido'
 
-                    # Devoluciones ya con wrap_text_p
+                    
                     devoluciones_list = []
                     for p in productos:
                         for d in p.devoluciones.all():
@@ -833,6 +806,7 @@ def reporte_pedidos_pdf_cde(request):
         content_type='application/pdf',
         headers={'Content-Disposition': 'attachment; filename="Lista de pedidos Gestor CCD.pdf"'}
     )
+
 @login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_excel_cde(request):
     pedidos = get_pedidos_filtrados_cde(request).prefetch_related(
@@ -950,6 +924,7 @@ def reporte_pedidos_excel_cde(request):
     response['Content-Disposition'] = 'attachment; filename="Reporte pedidos cde.xlsx"'
     wb.save(response)
     return response
+
 @login_required(login_url='/acceso_denegado/')
 def get_pedidos_filtrados_pendientes_cde(request):
     query = request.GET.get('q')
@@ -974,6 +949,7 @@ def get_pedidos_filtrados_pendientes_cde(request):
         pedidos = pedidos.filter(fecha_pedido__range=[fecha_inicio, fecha_fin])
 
     return pedidos
+
 @login_required(login_url='/acceso_denegado/')
 def reporte_pedidos_pendientes_pdf_cde(request):
     buffer = BytesIO()
@@ -995,11 +971,9 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Título principal
     titulo = Paragraph("REPORTE DE PEDIDOS PENDIENTES DE CENTRO DE EVENTOS", styles["Title"])
     elements.append(titulo)
 
-    # Encabezado institucional
     fecha_actual = datetime.now().strftime("%d/%m/%Y")
     encabezado_data = [
         ["GESTOR CCD", "Lista de artículos", "Correo:", "Fecha"],
@@ -1020,7 +994,6 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     tabla_encabezado.setStyle(estilo_encabezado)
     elements.append(tabla_encabezado)
 
-    # Datos del usuario
     usuario = request.user
     data_usuario = [["Usuario:", "Email:", "Rol:", "Cargo:"]]
     data_usuario.append([
@@ -1044,12 +1017,10 @@ def reporte_pedidos_pendientes_pdf_cde(request):
     table_usuario.setStyle(style_usuario)
     elements.append(table_usuario)
 
-    # Obtener filtros
     q = request.GET.get('q', '')
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
-    # Fetch pedidos con prefetch
     pedidos = get_pedidos_filtrados_pendientes_cde(request).prefetch_related('productos__producto')
 
     if q:
@@ -1084,7 +1055,7 @@ def reporte_pedidos_pendientes_pdf_cde(request):
         no_results = Paragraph("No se encontraron pedidos pendientes.", centered_style)
         elements.append(no_results)
     else:
-        # Encabezado
+        
         data_pedidos = [["ID Pedido", "Fecha", "Estado", "Registrado Por", "Productos", "Área"]]
 
         for pedido in pedidos:
@@ -1196,7 +1167,6 @@ def reporte_pedidos_pendientes_excel_cde(request):
 
     ws.auto_filter.ref = "A3:F3"
 
-    # Agregar datos o mensaje si no hay pedidos
     if not pedidos.exists():
         ws.merge_cells('A4:F4')
         cell = ws['A4']
@@ -1245,6 +1215,7 @@ def reporte_pedidos_pendientes_excel_cde(request):
     response['Content-Disposition'] = 'attachment; filename="Reporte pedidos pendientes cde.xlsx"'
     wb.save(response)
     return response
+
 @login_required(login_url='/acceso_denegado/')
 def index_estadistica_cde(request):
     breadcrumbs = [
@@ -1252,6 +1223,7 @@ def index_estadistica_cde(request):
 ]
 
     return render(request, 'estadisticas_cde/index_estadistica_cde.html', {'breadcrumbs': breadcrumbs})
+
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_cde(request):
     breadcrumbs = [
@@ -1283,7 +1255,6 @@ def grafica_pedidos_cde(request):
     else:
         fecha_fin = None
 
-    # ✅ Agrupar solo por producto para evitar repeticiones
     datos = productos.values(
         'producto__nombre'
     ).annotate(
@@ -1300,6 +1271,7 @@ def grafica_pedidos_cde(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str,
     })
+
 @login_required(login_url='/acceso_denegado/')
 def grafica_estado_pedido_cde(request):
     breadcrumbs = [
@@ -1345,6 +1317,7 @@ def grafica_estado_pedido_cde(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
+
 @login_required(login_url='/acceso_denegado/')
 def cambiar_contraseña_cde(request):
     breadcrumbs = [
@@ -1356,7 +1329,7 @@ def cambiar_contraseña_cde(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
-            return redirect('libreria:inicio')  # Redirige después de cambiar la contraseña
+            return redirect('libreria:inicio')  
     else:
         form = CustomPasswordChangeForm(user=request.user)
     return render(request, 'usuario_cde/cambiar_contraseña_cde.html', {'form': form, 'breadcrumbs': breadcrumbs})

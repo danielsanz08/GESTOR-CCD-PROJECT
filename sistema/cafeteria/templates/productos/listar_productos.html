@@ -98,13 +98,14 @@
                     <td class="td_tipo">${{ producto.precio_formateado }}</td>
                     <td class="td_acciones">
                         <a href="{% url 'cafeteria:editar_producto' producto.id %}">
-                            <button class="editar-btn"><i class="bi bi-pencil-square"></i></button>
+                            <button class="editar-btn"><i class="fas fa-edit text-white"></i>
+</button>
                         </a>
                         <button class="eliminar-btn" onclick="mostrarModal('{{ producto.id }}')">
-                        <i class="bi bi-trash"></i>
+                        <i class="fas fa-trash text-white"></i>
                     </button>
                         <button type="button" id="detalles" onclick="mostrarDetalles('{{ articulo.id }}')">
-                            <i data-feather="eye" class="icono"></i>
+                             <i class="fas fa-eye text-white"></i>
                         </button>
                     </td>
                 </tr>

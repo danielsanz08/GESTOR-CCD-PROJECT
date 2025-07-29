@@ -12,7 +12,7 @@ class PedidoCde(models.Model):
 
     registrado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,  # evita que se borre un usuario que tenga pedidos
+        on_delete=models.PROTECT, 
         null=False,
         blank=False,
         related_name='cde_pedidos',

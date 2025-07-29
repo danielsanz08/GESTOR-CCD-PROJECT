@@ -8,7 +8,7 @@ from django.core import serializers
 import subprocess
 from datetime import datetime
 def crear_backup():
-    # (se mantiene igual que antes)
+    
     modelos = [
         'libreria.CustomUser',
         'papeleria.Articulo',
@@ -46,22 +46,20 @@ def restaurar_backup_json(ruta_archivo):
       2) Backup “por modelos” (diccionario con clave=modelo y valor=serialización JSON).
     """
     try:
-        # 1) Abrimos el JSON
+        
         with open(ruta_archivo, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        # 2) Si es una lista, asumimos dump completo:
+        
         if isinstance(data, list):
-            # 2.a) Flush para vaciar TODA la BD (incl. sesiones).
-            #       Si no quieres perder la sesión, envuelve flush en try/except SessionInterrupted en la vista.
+            
             management.call_command('flush', interactive=False, verbosity=0)
-            # 2.b) Cargamos el dump completo
+            
             management.call_command('loaddata', ruta_archivo, verbosity=0)
             return
 
-        # 3) Si es un dict, asumimos backup “por modelos”:
         if isinstance(data, dict):
-            # 3.a) Borramos manualmente SOLO los modelos del backup
+            
             modelos_a_borrar = [
                 'libreria.CustomUser',
                 'papeleria.Articulo',
@@ -73,7 +71,7 @@ def restaurar_backup_json(ruta_archivo):
                 with transaction.atomic():
                     Modelo.objects.all().delete()
 
-            # 3.b) Para cada modelo, creamos un temp.json y hacemos loaddata
+            
             for model_name, model_data in data.items():
                 temp_file = os.path.join(settings.MEDIA_ROOT, 'temp.json')
                 with open(temp_file, 'w', encoding='utf-8') as tf:
@@ -84,7 +82,7 @@ def restaurar_backup_json(ruta_archivo):
 
             return
 
-        # 4) Si no es ni list ni dict, lanzamos error
+        
         raise ValueError("Formato JSON no reconocido para restauración.")
 
     except Exception as e:
@@ -110,7 +108,7 @@ def restaurar_backup(ruta_archivo):
     """Función principal de restauración que detecta el tipo de archivo"""
     if ruta_archivo.endswith('.json'):
         return restaurar_backup_json(ruta_archivo)
-    elif ruta_archivo.endswith('.sql'):      # <-- cambiar ruta_absoluta por ruta_archivo
+    elif ruta_archivo.endswith('.sql'):      
         return restaurar_backup_sql(ruta_archivo)
     else:
         raise ValueError("Formato de archivo no soportado")

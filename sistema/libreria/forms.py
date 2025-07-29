@@ -2,6 +2,7 @@ from django import forms
 from .models import CustomUser
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import ValidationError
 
 class CustomUserForm(forms.ModelForm):
     password = forms.CharField(

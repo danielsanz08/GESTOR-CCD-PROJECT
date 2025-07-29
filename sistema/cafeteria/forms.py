@@ -65,7 +65,6 @@ class ProductosEditForm(forms.ModelForm):
         for field in optional_fields:
             self.fields[field].required = False 
 
-        # Personalización de widgets
         self.fields['nombre'].widget.attrs.update({
             'class': 'form-control', 
             'placeholder': 'Nombre del producto'

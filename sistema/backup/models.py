@@ -7,7 +7,7 @@ from django.conf import settings
 
 class Backup(models.Model):
     nombre = models.CharField(max_length=255)
-    archivo = models.FileField(upload_to='backups/')  # Esto guardará en MEDIA_ROOT/backups/
+    archivo = models.FileField(upload_to='backups/') 
     tamano = models.CharField(max_length=100)
     modelos_incluidos = models.TextField()
     fecha_creacion = models.DateField(auto_now_add=True)
