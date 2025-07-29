@@ -201,7 +201,17 @@ html, body {
         height: 75vh;
         overflow: hidden;
         overflow-y: scroll;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        
+        padding-top: 20px;
+        
     }
+    .main-cards::-webkit-scrollbar,
+.main-cards_empleado::-webkit-scrollbar,
+.main-cards_admin::-webkit-scrollbar {
+    display: none; 
+}
     #estadisticas{
         display: none;
     }
@@ -217,8 +227,15 @@ html, body {
     .main-cards_admin {
         grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
+         scrollbar-width: none;
+        -ms-overflow-style: none;
     }
      #lista_usuario{
     display: none;
   }
+   .main-cards::-webkit-scrollbar,
+.main-cards_empleado::-webkit-scrollbar,
+.main-cards_admin::-webkit-scrollbar {
+    display: none; 
+}
 }

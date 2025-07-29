@@ -1,6 +1,6 @@
 {% extends 'navbar.html' %}
 {% load static %}
-{% block titulo %}Estadisticas - CCD{% endblock %}
+{% block titulo %}Estadísticas - CCD{% endblock %}
 {% block contenido %}
 <style>
     #grafica {
@@ -23,28 +23,26 @@
         height: 58vh;
         z-index: 0;
     }
-   
 
-/* Tablets (768px — 1024px) */
-@media (min-width: 768px) and (max-width: 1024px) {
-    #grafica {
-        width: 85%;
-        top: 18vh;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 90vh;
+    /* Tablets (768px — 1024px) */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        #grafica {
+            width: 85%;
+            top: 18vh;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 90vh;
+        }
+
+        #cuadradoFondo {
+            width: 85%;
+            top: 25vh;
+            left: 90%;
+            transform: translateX(-50%);
+            height: 55vh;
+            font-size: larger;
+        }
     }
-
-    #cuadradoFondo {
-        width: 85%;
-        top: 25vh;
-        left: 90%;
-        transform: translateX(-50%);
-        height: 55vh;
-        font-size: larger;
-    }
-}
-
 </style>
 
 <div class="estadisticas-container">
@@ -60,17 +58,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-   
     const nombres = JSON.parse(document.getElementById('labels-data').textContent);
     const cantidadesAbsolutas = JSON.parse(document.getElementById('cantidades-data').textContent);
 
-    
     const maxCantidad = Math.max(...cantidadesAbsolutas);
-
-   
     const cantidadesPorcentaje = cantidadesAbsolutas.map(c => ((c / maxCantidad) * 100).toFixed(2));
 
-    
     const ctx = document.getElementById('graficaArticulos').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -91,6 +84,14 @@
         options: {
             responsive: true,
             scales: {
+                x: {
+                    ticks: {
+                        display: false  // Oculta las etiquetas del eje X
+                    },
+                    grid: {
+                        display: false  // Oculta líneas verticales
+                    }
+                },
                 y: {
                     beginAtZero: true,
                     max: 100,

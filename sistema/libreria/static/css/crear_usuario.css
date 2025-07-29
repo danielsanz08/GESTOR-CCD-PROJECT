@@ -44,7 +44,7 @@ body {
     padding: 2rem;
     box-sizing: border-box;
     width: 95%;
-    
+
     height: 290px;
     left: 8vh;
     position: relative;
@@ -144,9 +144,14 @@ h2 {
         max-height: none;
         margin-top: 10vh;
         padding: 1rem 1rem 1rem 1rem;
-        
         overflow: hidden;
         overflow-y: scroll;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .formulario::-webkit-scrollbar {
+        display: none;
     }
 
     #userForm {
@@ -160,27 +165,34 @@ h2 {
         position: relative;
         top: -50px;
         left: 2vh;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
-    .titulo{
+     #userForm::-webkit-scrollbar {
+        display: none;
+    }
+    .titulo {
         position: relative;
         top: -30px;
     }
+
     input,
     .form-select {
         width: 100%;
         max-width: 100%;
     }
 
-      #btn {
-        position: relative; 
-        bottom: 1px; 
+    #btn {
+        position: relative;
+        bottom: 1px;
         left: 10%;
         width: 80%;
         min-width: unset;
         max-width: unset;
-        
-        margin: 0; 
+
+        margin: 0;
     }
+
     .error-message,
     .verification-indicator,
     .password-feedback {
@@ -191,67 +203,67 @@ h2 {
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
-   .formulario {
-       width: 85vw;
-       min-width: 75vw;
-       max-width: 85vw;
-       min-height: 60vh;
-       max-height: 85vh;
-       margin: 2vh auto;
-       padding: 1.5rem;
-       box-sizing: border-box;
-       overflow-y: auto;
-       position: relative;
-   }
+    .formulario {
+        width: 85vw;
+        min-width: 75vw;
+        max-width: 85vw;
+        min-height: 60vh;
+        max-height: 85vh;
+        margin: 2vh auto;
+        padding: 1.5rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+        position: relative;
+    }
 
-   #userForm {
-       display: grid;
-       grid-template-columns: 1fr 1fr;
-       gap: 1.5rem;
-       padding: 1.5rem;
-       width: 100%;
-       min-height: 50vh;
-       max-height: 75vh;
-       overflow-y: auto;
-       box-sizing: border-box;
-       left: -0vh;
-   }
+    #userForm {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        width: 100%;
+        min-height: 50vh;
+        max-height: 75vh;
+        overflow-y: auto;
+        box-sizing: border-box;
+        left: -0vh;
+    }
 
-   input,
-   .form-select {
-       width: 100%;
-       max-width: 100%;
-       height: 6vh;
-       box-sizing: border-box;
-       font-size: 1rem;
-   }
+    input,
+    .form-select {
+        width: 100%;
+        max-width: 100%;
+        height: 6vh;
+        box-sizing: border-box;
+        font-size: 1rem;
+    }
 
-   label {
-       font-size: 1.1rem;
-   }
+    label {
+        font-size: 1.1rem;
+    }
 
-   h2 {
-       font-size: 1.8rem;
-       margin: 0.5rem 0;
-   }
+    h2 {
+        font-size: 1.8rem;
+        margin: 0.5rem 0;
+    }
 
-   #btn {
-       position: static;
-       margin: 0.5rem auto;
-       width: 25vh;
-       height: 50px;
-       max-width: 250px;
-       grid-column: span 2;
-       font-size: 1.1rem;
-   }
+    #btn {
+        position: static;
+        margin: 0.5rem auto;
+        width: 25vh;
+        height: 50px;
+        max-width: 250px;
+        grid-column: span 2;
+        font-size: 1.1rem;
+    }
 
-   .error-message,
-   .verification-indicator,
-   .password-feedback {
-       position: static;
-       text-align: center;
-       margin-top: 0.5rem;
-       font-size: 1rem;
-       grid-column: span 2;
-   }
+    .error-message,
+    .verification-indicator,
+    .password-feedback {
+        position: static;
+        text-align: center;
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        grid-column: span 2;
+    }
 }

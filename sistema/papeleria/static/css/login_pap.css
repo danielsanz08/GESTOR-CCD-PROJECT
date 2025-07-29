@@ -105,6 +105,9 @@ a:hover {
   .formulario, .fondo {
     display: none;
   }
+  .atras-link {
+        display: none;
+      }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
@@ -124,6 +127,9 @@ a:hover {
     grid-column: span 2;
     margin: 1rem auto;
   }
+  .atras-link {
+        display: none;
+      }
 }
 
 /* Para dispositivos más pequeños (menos de 768px) */
@@ -137,4 +143,7 @@ a:hover {
   input, #btn {
     font-size: 0.9rem;
   }
+      .atras-link {
+        display: none;
+      }
 }

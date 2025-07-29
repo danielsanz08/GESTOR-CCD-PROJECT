@@ -93,7 +93,8 @@
             if (valor.trim().length > 0 && valor.length < 3) {
                 return "Debe tener al menos 3 caracteres.";
             }
-            if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,;:¡!¿?\"'()\/\-–—°²³µ¼½¾×÷+=_@#%&*\[\]{}|\\<>°²³µ¼½¾g\/m²]*$/.test(valor)) {
+            const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s.,;:¡!¿?"'()\/\-°²³µ¼½¾×÷+=_@#%&*[\]{}|\\<>]*$/;
+            if (!regex.test(valor)) {
                 return "Contiene caracteres inválidos.";
             }
             if (/(.)\1{2,}/.test(valor)) {
@@ -176,28 +177,27 @@
 
         document.getElementById("form_articulo").addEventListener("submit", function (event) {
             let hayErrores = false;
-            
+
             if (campos.nombre.value.trim() === "") {
                 errores.nombre.textContent = "Este campo es requerido.";
                 hayErrores = true;
             }
-            
+
             if (campos.marca.value.trim() === "") {
                 errores.marca.textContent = "Este campo es requerido.";
                 hayErrores = true;
             }
-            
+
             if (campos.precio.value.trim() === "") {
                 errores.precio.textContent = "Este campo es requerido.";
                 hayErrores = true;
             }
-            
+
             if (campos.cantidad.value.trim() === "") {
                 errores.cantidad.textContent = "Este campo es requerido.";
                 hayErrores = true;
             }
-            
-           
+
             const camposAValidar = {
                 nombre: validarTexto(campos.nombre.value),
                 tipo: validarTexto(campos.tipo.value),
@@ -207,20 +207,19 @@
                 proveedor: validarTexto(campos.proveedor.value),
                 observacion: validarObservacion(campos.observacion.value)
             };
-            
+
             Object.keys(camposAValidar).forEach(campo => {
                 if (camposAValidar[campo]) {
                     errores[campo].textContent = camposAValidar[campo];
                     hayErrores = true;
                 }
             });
-            
+
             if (hayErrores) {
                 event.preventDefault();
                 return false;
             }
-            
-         
+
             campos.precio.value = campos.precio.value.replace(/,/g, "");
             campos.cantidad.value = campos.cantidad.value.replace(/\./g, "");
             ["nombre", "tipo", "marca", "proveedor", "observacion"].forEach(campo => {
@@ -228,7 +227,6 @@
             });
         });
 
-        
         if (campos.precio.value) {
             let valor = campos.precio.value.replace(/[^0-9.]/g, "");
             const partes = valor.split(".");
@@ -255,5 +253,6 @@
         }
     });
 </script>
+
 
 {% endblock %}

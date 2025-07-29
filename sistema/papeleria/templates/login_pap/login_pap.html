@@ -1,36 +1,51 @@
 {% extends 'navbar.html' %}
-{% load static%}
+{% load static %}
 {% block contenido %}
 
 <link rel="stylesheet" href="{% static 'css/login_pap.css' %}?v={% now 'U' %}">
 <style>
-    body.dark .login{
+    body.dark .login {
         background-color: rgba(0, 0, 0, 0.788);
     }
     body.dark h3,
     body.dark label,
-    body.dark .op .contraseña{
+    body.dark .op .contraseña {
         color: white;
     }
-    body.dark #btn{
+    body.dark #btn {
         background: #013770;
     }
-    body.dark #btn:hover{
+    body.dark #btn:hover {
         background: #011d3b;
-        
     }
     body.resaltar-enlaces .papeleria,
     body.resaltar-enlaces .cafeteria,
-    body.resaltar-enlaces .contraseña{
+    body.resaltar-enlaces .contraseña {
         background-color: #1c96bb !important;
         width: 100px;
         display: inline;
     }
-
+    .atras-link {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #007bff;
+        text-decoration: none;
+        z-index: 1000;
+        position: relative;
+        top: -30vh;
+        right: 104vh;
+    }
+    .atras-link:hover {
+        text-decoration: underline;
+        color: #044993; ;
+    }
 </style>
+
+<a href="{% url 'libreria:inicio' %}" class="atras-link" title="Volver al inicio"><i data-feather="arrow-left"></i> </a>
+
 <form method="POST" action="{% url 'papeleria:login_papeleria' %}" class="login">
     <h3 class="titulo"><i data-feather="user"></i>
-        Iniciar sesión - Módulo papeleria</h3>
+        Iniciar sesión - Módulo papelería</h3>
     {% csrf_token %}
     <div class="form-group">
         <label for="email" class="email-label">Correo Electrónico</label>
@@ -40,11 +55,10 @@
         <label for="password" class="password-label">Contraseña</label>
         <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required title="Digita la contraseña">
     </div>
-    <button type="submit" class="btn btn-primary btn-block" id="btn" title="Iniciar sesion">Iniciar sesión</button>
+    <button type="submit" class="btn btn-primary btn-block" id="btn" title="Iniciar sesión">Iniciar sesión</button>
     <div class="op">
         <a href="{% url 'libreria:password_reset' %}" class="contraseña" title="Restablecer contraseña">¿Olvidaste la contraseña?</a>
     </div>
 </form>
-
 
 {% endblock %}

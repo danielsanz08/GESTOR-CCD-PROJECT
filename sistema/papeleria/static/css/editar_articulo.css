@@ -78,7 +78,7 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: rgb(33, 74, 187);
-    color: black;
+    color: rgb(255, 255, 255);
 }
 
 button[type="submit"]:disabled {

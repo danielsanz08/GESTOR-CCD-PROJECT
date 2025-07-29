@@ -142,11 +142,11 @@ body.dark .paginacion a,
                 <td>{{ pedido.fecha_formateada }}</td>
                 <td>{{ pedido.estado }}</td>
                 <td>
-                    <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')">
+                    <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')" title="Ver detalles">
                        <i class="fas fa-eye text-white"></i>
 
                     </button>
-                    <a href="{% url 'papeleria:crear_devolucion' pedido.id %}" class="devolver"><button class="devolver"><i class="fas fa-undo-alt text-white" title="Devolver"></i></button></a>
+                    <a href="{% url 'papeleria:crear_devolucion' pedido.id %}" class="devolver"><button class="devolver" title="Devoluciones"><i class="fas fa-undo-alt text-white" title="Devolver"></i></button></a>
 
                     <div id="detalles-{{ pedido.id }}" class="detalles-ocultos" style="display:none;">
                         <div class="modal-header">
@@ -229,7 +229,7 @@ body.dark .paginacion a,
         </tbody>
     </table>
 
-    <div class="paginacion" id="pag">
+    <div class="paginacion" id="pag" title="Paginación">
         {% if pedidos.has_previous %}
         <a href="?page={{ pedidos.previous_page_number }}{{ query_params }}">Anterior</a>
         {% else %}

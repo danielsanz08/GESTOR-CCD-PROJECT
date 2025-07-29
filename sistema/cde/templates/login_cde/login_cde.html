@@ -17,7 +17,22 @@
         background: #011d3b;
         
     }
+        .atras-link {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #007bff;
+        text-decoration: none;
+        z-index: 1000;
+        position: relative;
+        top: -30vh;
+        right: 104vh;
+    }
+    .atras-link:hover {
+        text-decoration: underline;
+        color: #044993; ;
+    }
 </style>
+<a href="{% url 'libreria:inicio' %}" class="atras-link" title="Volver al inicio"><i data-feather="arrow-left"></i> </a>
 <form method="POST" action="{% url 'cde:login_cde' %}" class="login">
     <h3><i data-feather="user"></i>
         Iniciar sesión - Módulo Centro de eventos</h3>

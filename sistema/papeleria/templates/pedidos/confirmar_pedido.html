@@ -86,7 +86,7 @@ body.dark .paginacion a,
                 <td class="fecha-td">{{ pedido.fecha_formateada }}</td>
                 <td class="estado-td">{{ pedido.estado }}</td>
                 <td class="edit-td">
-                    <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')">
+                    <button id="detalles" type="button" onclick="mostrarDetalles('{{ pedido.id }}')" title="Ver detalle">
                         <i class="fas fa-eye text-white"></i>
                     </button>
 
@@ -139,7 +139,7 @@ body.dark .paginacion a,
 
                 <td style="position: relative;" class="confirm-td">
                     {% if request.user.role == 'Administrador' %}
-                    <button class="btn-accion" onclick="mostrarMenuContextual(this)">
+                    <button class="btn-accion" onclick="mostrarMenuContextual(this)" title="Cambiar estado del pedido">
                         <i class="fas fa-ellipsis-h"></i>
                     </button>
                     {% else %}
@@ -155,7 +155,7 @@ body.dark .paginacion a,
                             action="{% url 'papeleria:cambiar_estado_pedido' pedido.id %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="Confirmado">
-                            <button type="submit" class="aprobar">
+                            <button type="submit" class="aprobar" title="Aprobar pedido">
                                 <i class="fas fa-check" id="aprobar"></i> Aprobar
                             </button>
                         </form>
@@ -164,7 +164,7 @@ body.dark .paginacion a,
                             action="{% url 'papeleria:cambiar_estado_pedido' pedido.id %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="Cancelado">
-                            <button type="submit" class="rechazar">
+                            <button type="submit" class="rechazar" title="Rechazar pedido">
                                 <i class="fas fa-times"></i> Rechazar
                             </button>
                         </form>
@@ -179,7 +179,7 @@ body.dark .paginacion a,
         </tbody>
     </table>
     </div>
-    <div class="paginacion" id="pag">
+    <div class="paginacion" id="pag" title="Paginación">
     {% if pedidos.has_previous %}
         <a href="?page={{ pedidos.previous_page_number }}{{ query_params }}" class="page-link">Anterior</a>
     {% else %}

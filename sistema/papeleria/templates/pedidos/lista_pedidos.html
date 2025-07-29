@@ -115,9 +115,9 @@ body.dark .paginacion a,
 
         <div id="filtro-fechas">
             <label for="fecha_inicio">Desde:</label>
-            <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+            <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}" title="Fecha inicio">
             <label for="fecha_fin">Hasta:</label>
-            <input type="date" name="fecha_fin" class="fecha_fin" value="{{ request.GET.fecha_fin }}">
+            <input type="date" name="fecha_fin" class="fecha_fin" value="{{ request.GET.fecha_fin }}" title="Fecha fin">
             <button type="submit" class="search-date" title="Buscar por fecha"><i class="fas fa-search"></i></button>
         </div>
 
@@ -152,7 +152,7 @@ body.dark .paginacion a,
                     <div id="detalles-{{ pedido.id }}" class="detalles-ocultos" style="display:none;">
                         <div class="modal-header">
                             <h3 class="modal-title">Detalles del Pedido #{{ pedido.id }}</h3>
-                            <button class="close-modal" onclick="cerrarModal()">&times;</button>
+                            <button class="close-modal" onclick="cerrarModal()" title="Ver detalles">&times;</button>
                         </div>
                         <div class="modal-body">
                             <p><strong>Registrado por:</strong> {{ pedido.registrado_por }}</p>

@@ -52,15 +52,15 @@
 
             {% if request.user.role == 'Administrador' %}
             <div class="mb-3">
-                <input type="checkbox" id="usar_fecha_personalizada" name="usar_fecha_personalizada">
+                <input type="checkbox" id="usar_fecha_personalizada" name="usar_fecha_personalizada" title="Use una fecha personalizada ">
                 <label for="usar_fecha_personalizada">Usar fecha personalizada</label>
-                <input type="datetime-local" id="fecha_personalizada" name="fecha_personalizada" disabled class="form-control">
+                <input type="datetime-local" id="fecha_personalizada" name="fecha_personalizada" disabled class="form-control" title="Use una fecha personalizada ">
             </div>
 
             {% endif %}
             <div class="botones-principales">
-                <button type="button" onclick="agregarArticulo()" id="agregar">Añadir otro artículo</button>
-                <button type="submit" id="realizar">Realizar Pedido</button>
+                <button type="button" onclick="agregarArticulo()" id="agregar" title="Añada otro articulo">Añadir otro artículo</button>
+                <button type="submit" id="realizar" title="Realizar pedido">Realizar Pedido</button>
             </div>
         </form>
     </section>

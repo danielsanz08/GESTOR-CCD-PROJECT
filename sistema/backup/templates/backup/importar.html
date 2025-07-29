@@ -39,12 +39,12 @@
         </div>
 
         <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="restaurar" name="restaurar">
+            <input type="checkbox" class="form-check-input" id="restaurar" name="restaurar" title="Restaurar">
             <label class="form-check-label" for="restaurar">Restaurar inmediatamente después de importar</label>
         </div>
 
-        <button type="submit" class="btn btn-primary">Importar Backup</button>
-        <a href="{% url 'backup:lista_backups' %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary" title="Importar backup">Importar Backup</button>
+        <a href="{% url 'backup:lista_backups' %}" class="btn btn-secondary" title="Cancelar">Cancelar</a>
     </form>
 </section>
 

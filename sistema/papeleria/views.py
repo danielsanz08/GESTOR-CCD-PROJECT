@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.db.models import Q, Sum, Count
 from django.core.paginator import Paginator
+from django.utils.html import escape
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.sessions.models import Session
@@ -394,7 +395,7 @@ def get_articulos_filtrados(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
 
-    articulos = Articulo.objects.select_related('registrado_por').order_by('nombre')
+    articulos = Articulo.objects.select_related('registrado_por').order_by('id')
 
 
     if query:
@@ -524,7 +525,7 @@ def reporte_articulo_pdf(request):
 
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Listado de articulos CCD.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="Listado de articulos de papeleria CCD.pdf"'
     return response
 
 @login_required(login_url='/acceso_denegado/')
@@ -610,7 +611,7 @@ def reporte_articulo_excel(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename="Listado de articulos CCD.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="Listado de articulos de papeleria CCD.xlsx"'
     wb.save(response)
     return response
 
@@ -747,7 +748,7 @@ def reporte_articulo_bajo_stock_pdf(request):
 
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Listado bajo stock CCD.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="Listado bajo stock de papeleria CCD.pdf"'
     return response
 
 @login_required(login_url='/acceso_denegado/')
@@ -832,7 +833,7 @@ def reporte_articulo_bajo_stock_excel(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename="Listado_articulos_bajo_stock.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="Listado articulos con bajo stock de papeleria.xlsx"'
     wb.save(response)
     return response
 

@@ -28,6 +28,7 @@ body.dark .paginacion .disabled{
     background-color: black;
     cursor: not-allowed;
 }
+
 </style>
 <div class="fondo">
     <img src="{% static 'imagen/LOGO.png' %}" alt="Logo CCD">
@@ -52,7 +53,7 @@ body.dark .paginacion .disabled{
         <div>
             
             <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador"
-                value="{{ request.GET.q }}" title="Buscador">
+                value="{{ request.GET.q }}" title="Buscador" style="top: -0.5vh;">
             <button type="submit" class="btn-search" title="Buscar texto">
                 <i class="fas fa-search text-white"></i>
 
