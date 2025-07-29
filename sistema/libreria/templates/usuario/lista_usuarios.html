@@ -35,7 +35,7 @@
     <h1>Usuarios de Gestor CCD</h1>
     <div>
         <form method="GET" action="{% url 'libreria:lista_usuarios' %}">
-    <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador" value="{{ request.GET.q }}">
+    <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador" value="{{ request.GET.q }}" title="Buscar">
     <button type="submit" class="btn-search" title="Buscar por texto">
         <i class="fas fa-search text-white"></i>
     </button>

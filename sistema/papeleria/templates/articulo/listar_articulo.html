@@ -33,7 +33,7 @@
 <section id="section">
     <h1>Artículos de papelería</h1>
 
-    <button class="print" title="Imprimir la tabla de articulos"><i class="bi bi-printer" id="icono"></i></button>
+    <button class="print"  title="Imprimir"><i class="bi bi-printer" id="icono"></i></button>
     <a
         href="{% url 'papeleria:reporte_articulo_pdf' %}?q={{ request.GET.q }}&fecha_inicio={{ request.GET.fecha_inicio }}&fecha_fin={{ request.GET.fecha_fin }}">
         <button class="pdf" title="Exportar a PDF"><i class="fas fa-file-pdf text-white"></i></button>
@@ -49,16 +49,16 @@
     <form method="GET" action="{% url 'papeleria:listar_articulo' %}">
         <div>
             <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador"
-                value="{{ request.GET.q }}">
+                value="{{ request.GET.q }}" title="Buscador">
             <button type="submit" class="btn-search" title="Buscar texto">
                 <i class="fas fa-search text-white"></i>
             </button>
 
             <div id="filtro-fechas">
                 <label for="fecha_inicio" class="desde">Desde:</label>
-                <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+                <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}" title="Fecha inicio">
                 <label for="fecha_fin" class="hasta">Hasta:</label>
-                <input type="date" class="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
+                <input type="date" class="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}" title="Fecha fin">
                 <button type="submit" class="search-date" title="Buscar por rango de fecha">
                     <i class="fas fa-search text-white"></i>
                 </button>
@@ -93,12 +93,12 @@
                     <td class="td_tipo">{{ articulo.tipo }}</td>
                     <td class="td_acciones">
                         <a href="{% url 'papeleria:editar_articulo' articulo.id %}">
-                            <button class="editar-btn"><i class="bi bi-pencil-square"></i></button>
+                            <button class="editar-btn" title="Editar articulo"><i class="bi bi-pencil-square"></i></button>
                         </a>
-                        <button class="eliminar-btn" onclick="mostrarModalEliminar('{{ articulo.id }}')">
+                        <button class="eliminar-btn" onclick="mostrarModalEliminar('{{ articulo.id }}')" title="Eliminar articulo">
                             <i class="bi bi-trash"></i>
                         </button>
-                        <button type="button" id="detalles" onclick="mostrarDetalles('{{ articulo.id }}')">
+                        <button type="button" id="detalles" onclick="mostrarDetalles('{{ articulo.id }}')" title="Mirar información">
                             <i class="bi bi-eye"></i>
                         </button>
                     </td>
@@ -139,7 +139,7 @@
         </table>
     </div>
 
-    <div class="paginacion" id="pag">
+    <div class="paginacion" id="pag" title="Paginación">
         {% if articulos.has_previous %}
         <a href="?page={{ articulos.previous_page_number }}{{ query_params }}">Anterior</a>
         {% else %}

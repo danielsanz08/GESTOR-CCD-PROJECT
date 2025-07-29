@@ -19,46 +19,46 @@
         <div class="mb-3">
             <label for="id_nombre" class="form-label">Nombre del artículo</label>
             <input type="text" name="nombre" id="id_nombre" class="form-control" required autocomplete="off"
-                placeholder="Maximo 40 caracteres" maxlength="40" value="{{ form.nombre.value|default:'' }}">
+                placeholder="Maximo 40 caracteres" maxlength="40" value="{{ form.nombre.value|default:'' }}" title="Nombre del articulo">
             <div class="error-msg error-nombre"></div>
         </div>
         <div class="mb-3">
             <label for="id_tipo" class="form-label">Digite el tipo de articulo</label>
             <input type="text" name="tipo" id="id_tipo" placeholder="Maximo 30 caracteres" maxlength="30"
-                value="{{ form.tipo.value|default:'No establecido' }}">
+                value="{{ form.tipo.value|default:'No establecido' }}" title="Tipo de articulo">
             <div class="error-msg error-tipo"></div>
         </div>
         <div class="mb-3">
             <label for="id_marca" class="form-label">Marca del artículo</label>
             <input type="text" name="marca" id="id_marca" class="form-control" required autocomplete="off"
-                placeholder="Maximo 30 caracteres" maxlength="30" value="{{ form.marca.value|default:'' }}">
+                placeholder="Maximo 30 caracteres" maxlength="30" value="{{ form.marca.value|default:'' }}" title="Marca del articulo">
             <div class="error-msg error-marca"></div>
         </div>
         <div class="mb-3">
             <label for="id_precio" class="form-label">Digite el precio</label>
             <input type="text" name="precio" id="id_precio" placeholder="Digite el precio del artículo"
-                value="{{ form.precio.value|default:'' }}">
+                value="{{ form.precio.value|default:'' }}" title="Precio del articulo">
             <div class="error-msg error-precio"></div>
         </div>
         <div class="mb-3">
             <label for="id_cantidad" class="form-label">Digite la cantidad</label>
             <input type="text" id="id_cantidad" name="cantidad" placeholder="Máximo 10 dígitos" maxlength="13"
-                value="{{ form.cantidad.value|default:'' }}">
+                value="{{ form.cantidad.value|default:'' }}" title="Cantidad del articulo">
             <div class="error-msg error-cantidad"></div>
         </div>
         <div class="mb-3">
             <label for="id_proveedor" class="form-label">Digite el proveedor</label>
             <input type="text" id="id_proveedor" name="proveedor" placeholder="Maximo 40 caracteres" maxlength="40"
-                value="{{ form.proveedor.value|default:'' }}">
+                value="{{ form.proveedor.value|default:'' }}" title="Proveedor del articulo">
             <div class="error-msg error-proveedor"></div>
         </div>
         <div class="mb-3">
             <label for="id_observacion" class="form-label">Observación del artículo</label>
             <input type="text" name="observacion" id="id_observacion" class="form-control"
-                placeholder="Maximo 30 caracteres" maxlength="50" value="{{ form.observacion.value|default:'' }}">
+                placeholder="Maximo 30 caracteres" maxlength="50" value="{{ form.observacion.value|default:'' }}" title="Observación del articulo">
             <div class="error-msg error-observacion"></div>
         </div>
-        <button type="submit" id="submitBtn" class="btn-edit">Editar artículo</button>
+        <button type="submit" id="submitBtn" class="btn-edit" title="Editar articulo">Editar artículo</button>
     </form>
 </div>
 

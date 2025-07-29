@@ -26,29 +26,29 @@
 </style>
 <div class="contenedor-principal">
     <!-- Botón "Regístrate" en esquina superior derecha -->
-    <a href="{% url 'libreria:crear_usuario' %}" class="registrate">Registrate</a>
+    <a href="{% url 'libreria:crear_usuario' %}" class="registrate" title="Crear usuario">Registrate</a>
 
     <!-- Div izquierdo (Logo) -->
-    <div class="div-izquierdo">
+    <div class="div-izquierdo" title="Cámara de comercio de Duitama">
         <img src="https://ccduitama.org.co/wp-content/uploads/2021/05/LOGOCCD-TRANSPARENCIA.png" alt="Logo CCD">
     </div>
 
     <!-- Div derecho (Secciones) -->
     <div class="div-derecho">
         <a href="{% url 'papeleria:login_papeleria' %}">
-            <div class="seccion" onclick="location.href='#';">
+            <div class="seccion" onclick="location.href='#';" title="Módulo de papeleria">
                 <h2 class="papeleria">Papelería</h2>
                 <p>Gestión completa de articulos y servicios de papelería</p>
             </div>
         </a>
         <a href="{% url 'cafeteria:login_cafeteria' %}">
-            <div class="seccion">
+            <div class="seccion" title="Módulo de cafetería">
                 <h2 class="cafeteria">Cafetería</h2>
                 <p>Administración y gestión de productos de cafetería y aseo</p>
             </div>
         </a>
         <a href="{% url 'cde:login_cde' %}">
-            <div class="seccion">
+            <div class="seccion" title="Módulo de centro de eventos">
                 <h2 class="cde">Centro de Eventos</h2>
                 <p> Gestión de pedidos para centro de eventos</p>
             </div>

@@ -23,7 +23,7 @@ body.dark .card-confirmid{
         <div class="mb-3">
             <label for="new_password1" class="form-label1">Nueva contraseña:</label>
             <input type="password" name="new_password1" id="new_password1" class="form-control1" required
-                placeholder="Digita tu nueva contraseña">
+                placeholder="Digita la nueva contraseña" title="Digita la nueva contraseña para {{ user.username }}">
             <div id="error-new1" class="error-new1"></div>
             <div class="verification-indicator" id="verifying-indicator">
                 <div class="spinner"></div>
@@ -34,11 +34,11 @@ body.dark .card-confirmid{
         <div class="mb-3" id="group-new2" style="display: none;">
             <label for="new_password2" class="form-label2">Confirmar nueva contraseña:</label>
             <input type="password" name="new_password2" id="new_password2" class="form-control2" required
-                placeholder="Digita nuevamente tu nueva contraseña">
+                placeholder="Digita nuevamente tu nueva contraseña" title="Digita la nueva contraseña para {{ user.username }}">
             <div id="error-new2" class="error-new2"></div>
         </div>
 
-        <button type="submit" class="btn" id="submit-btn" disabled>Restablecer</button>
+        <button type="submit" class="btn" id="submit-btn" disabled title="Restablecer">Restablecer</button>
     </form>
 </div>
 

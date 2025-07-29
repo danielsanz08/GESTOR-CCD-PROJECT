@@ -34,15 +34,15 @@
     {% csrf_token %}
     <div class="form-group">
         <label for="email" class="email-label">Correo Electrónico</label>
-        <input type="email" name="email" id="email" class="form-control" placeholder="Correo electrónico" required>
+        <input type="email" name="email" id="email" class="form-control" placeholder="Correo electrónico" required title="Digita el correo electrónico">
     </div>
     <div class="form-group">
         <label for="password" class="password-label">Contraseña</label>
-        <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required>
+        <input type="password" name="password" id="password" class="form-control" placeholder="Contraseña" required title="Digita la contraseña">
     </div>
-    <button type="submit" class="btn btn-primary btn-block" id="btn">Iniciar sesión</button>
+    <button type="submit" class="btn btn-primary btn-block" id="btn" title="Iniciar sesion">Iniciar sesión</button>
     <div class="op">
-        <a href="{% url 'libreria:password_reset' %}" class="contraseña">¿Olvidaste la contraseña?</a>
+        <a href="{% url 'libreria:password_reset' %}" class="contraseña" title="Restablecer contraseña">¿Olvidaste la contraseña?</a>
     </div>
 </form>
 

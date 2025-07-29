@@ -36,7 +36,6 @@ body.dark .paginacion .disabled{
 <section id="section">
     <h2>Articulos con stock bajo</h2>
     <div class="Bototnes">
-        
         <a
             href="{% url 'papeleria:reporte_articulo_bajo_stock_pdf' %}?q={{ request.GET.q }}&fecha_inicio={{ request.GET.fecha_inicio }}&fecha_fin={{ request.GET.fecha_fin }}">
             <button class="pdf" title="Exportar a PDF">
@@ -53,7 +52,7 @@ body.dark .paginacion .disabled{
         <div>
             
             <input type="text" name="q" id="buscador" placeholder="Buscar ..." class="buscador"
-                value="{{ request.GET.q }}">
+                value="{{ request.GET.q }}" title="Buscador">
             <button type="submit" class="btn-search" title="Buscar texto">
                 <i class="fas fa-search text-white"></i>
 
@@ -61,10 +60,10 @@ body.dark .paginacion .disabled{
 
             <div id="filtro-fechas">
                 <label for="fecha_inicio">Desde:</label>
-                <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+                <input type="date" name="fecha_inicio" class="fecha_inicio" value="{{ request.GET.fecha_inicio }}" title="Fecha inicio">
 
                 <label for="fecha_fin">Hasta:</label>
-                <input type="date" class="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
+                <input type="date" class="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}" title="Fecha fin">
 
                 <button type="submit" class="search-date" title="Buscar por rango de fecha">
                     <i class="fas fa-search text-white"></i>
@@ -100,7 +99,7 @@ body.dark .paginacion .disabled{
                     <td class="td_tipo">{{ articulo.tipo }}</td>
                     <td class="td_acciones">
                        
-                        <button type="button" id="detalles" onclick="mostrarDetalles('{{ articulo.id }}')">
+                        <button type="button" id="detalles" onclick="mostrarDetalles('{{ articulo.id }}')" title="Mirar información">
                             <i class="fas fa-eye text-white"></i>
 
                         </button>
@@ -133,7 +132,7 @@ body.dark .paginacion .disabled{
         </table>
     </div>
 
-    <div class="paginacion" id="pag">
+    <div class="paginacion" id="pag" title="Paginación">
         {% if articulos.has_previous %}
         <a href="?page={{ articulos.previous_page_number }}{{ query_params }}">Anterior</a>
         {% else %}

@@ -50,27 +50,27 @@ body.resaltar-titulos .main-card-title {
 {% if request.user.role == 'Administrador' %}
 <div class="main-container">
     <div class="main-cards">
-        <div class="main-card" onclick="openModal('usuarios-modal')" id="cards">
+        <div class="main-card" onclick="openModal('usuarios-modal')" id="cards" title="Apartado de usuarios">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
-        <div class="main-card" onclick="openModal('articulos-modal')">
+        <div class="main-card" onclick="openModal('articulos-modal')" title="Apartado de articulos">
             <i data-feather="package" class="main-card-icon"></i>
             <h2 class="main-card-title">Artículos</h2>
         </div>
-        <div class="main-card" onclick="openModal('pedidos-modal')">
+        <div class="main-card" onclick="openModal('pedidos-modal')" title="Apartado de pedidos">
             <i data-feather="shopping-cart" class="main-card-icon"></i>
             <h2 class="main-card-title">Pedidos</h2>
         </div>
-        <div class="main-card" onclick="openModal('estadisticas-modal')" id="estadisticas">
+        <div class="main-card" onclick="openModal('estadisticas-modal')" id="estadisticas" title="Apartado de estadísticas">
             <i data-feather="bar-chart" class="main-card-icon"></i>
             <h2 class="main-card-title">Estadísticas</h2>
         </div>
-        <div class="main-card" onclick="openModal('backup-modal')">
+        <div class="main-card" onclick="openModal('backup-modal')" title="Apartado de backup">
             <i data-feather="database" class="main-card-icon"></i>
             <h2 class="main-card-title">Backup</h2>
         </div>
-        <div class="main-card" onclick="openModal('manual-modal')">
+        <div class="main-card" onclick="openModal('manual-modal')" title="Apartado de manual de usuario">
             <i data-feather="book-open" class="main-card-icon"></i>
             <h2 class="main-card-title">Manual</h2>
         </div>
@@ -96,20 +96,20 @@ body.resaltar-titulos .main-card-title {
             <button class="close-modal" onclick="closeModal('usuarios-modal')">&times;</button>
         </div>
         <div class="modal-content">
-            <div class="modal-options">
-                <a href="{% url 'libreria:crear_usuario' %}" class="modal-option">
+            <div class="modal-options" >
+                <a href="{% url 'libreria:crear_usuario' %}" class="modal-option" title="Crear usuario">
                     <i data-feather="user-plus" class="modal-option-icon"></i>
                     <span class="modal-option-text">Crear usuario</span>
                 </a>
-                <a href="{% url 'libreria:ver_usuario' user.id %}" class="modal-option">
+                <a href="{% url 'libreria:ver_usuario' user.id %}" class="modal-option" title="Ver usuario">
                     <i data-feather="user" class="modal-option-icon"></i>
                     <span class="modal-option-text">Ver perfil</span>
                 </a>
-                <a href="{% url 'libreria:lista_usuarios' %}" class="modal-option" id="lista_usuario">
+                <a href="{% url 'libreria:lista_usuarios' %}" class="modal-option" id="lista_usuario" title="Listar usuarios">
                     <i data-feather="users" class="modal-option-icon"></i>
                     <span class="modal-option-text">Lista de usuarios</span>
                 </a>
-                <a href="{% url 'libreria:cambiar_contraseña' %}" class="modal-option">
+                <a href="{% url 'libreria:cambiar_contraseña' %}" class="modal-option" title="Cambiar contraseña">
                     <i data-feather="lock" class="modal-option-icon"></i>
                     <span class="modal-option-text">Cambiar contraseña</span>
                 </a>
@@ -126,15 +126,15 @@ body.resaltar-titulos .main-card-title {
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'papeleria:crear_articulo' %}" class="modal-option">
+                <a href="{% url 'papeleria:crear_articulo' %}" class="modal-option" title="Crear articulo">
                     <i data-feather="file-plus" class="modal-option-icon"></i>
                     <span class="modal-option-text">Crear artículo</span>
                 </a>
-                <a href="{% url 'papeleria:listar_articulo' %}" class="modal-option" >
+                <a href="{% url 'papeleria:listar_articulo' %}" class="modal-option" title="Listar articulos">
                     <i data-feather="package" class="modal-option-icon"></i>
                     <span class="modal-option-text">Listar artículos</span>
                 </a>
-                <a href="{% url 'papeleria:lista_bajo_stock' %}" class="modal-option">
+                <a href="{% url 'papeleria:lista_bajo_stock' %}" class="modal-option" title="Articulos bajo stock">
                     <i data-feather="alert-triangle" class="modal-option-icon"></i>
                     <span class="modal-option-text">Bajo stock</span>
                 </a>
@@ -152,19 +152,19 @@ body.resaltar-titulos .main-card-title {
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'papeleria:crear_pedido' %}" class="modal-option">
+                <a href="{% url 'papeleria:crear_pedido' %}" class="modal-option" title="Crear pedido">
                     <i data-feather="shopping-cart" class="modal-option-icon"></i>
                     <span class="modal-option-text">Nuevo pedido</span>
                 </a>
-                <a href="{% url 'papeleria:listado_pedidos' %}" class="modal-option">
+                <a href="{% url 'papeleria:listado_pedidos' %}" class="modal-option" title="Pedidos confirmados y cancelados">
                     <i data-feather="list" class="modal-option-icon"></i>
                     <span class="modal-option-text">Pedidos confirmados y cancelados</span>
                 </a>
-                <a href="{% url 'papeleria:pedidos_pendientes' %}" class="modal-option">
+                <a href="{% url 'papeleria:pedidos_pendientes' %}" class="modal-option" title="Pedidos pendientes">
                     <i data-feather="clock" class="modal-option-icon"></i>
                     <span class="modal-option-text">Pedidos pendientes</span>
                 </a>
-                <a href="{% url 'papeleria:mis_pedidos' %}" class="modal-option">
+                <a href="{% url 'papeleria:mis_pedidos' %}" class="modal-option" title="Mis pedidos">
                     <i data-feather="clipboard" class="modal-option-icon"></i>
                     <span class="modal-option-text">Mis pedidos</span>
                 </a>
@@ -181,7 +181,7 @@ body.resaltar-titulos .main-card-title {
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'papeleria:index_estadistica' %}" class="modal-option">
+                <a href="{% url 'papeleria:index_estadistica' %}" class="modal-option" title="Ver estadisticas">
                     <i data-feather="bar-chart" class="modal-option-icon"></i>
                     <span class="modal-option-text">Ver estadísticas</span>
                 </a>
@@ -198,7 +198,7 @@ body.resaltar-titulos .main-card-title {
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'backup:index_backup' %}" class="modal-option">
+                <a href="{% url 'backup:index_backup' %}" class="modal-option" title="Backup">
                     <i data-feather="database" class="modal-option-icon"></i>
                     <span class="modal-option-text">Gestión de Backup</span>
                 </a>
@@ -215,7 +215,7 @@ body.resaltar-titulos .main-card-title {
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'libreria:manual_usuario' %}" target="_blank" class="modal-option">
+                <a href="{% url 'libreria:manual_usuario' %}" target="_blank" class="modal-option" title="Manual de usuario">
                     <i data-feather="book-open" class="modal-option-icon"></i>
                     <span class="modal-option-text">Abrir manual</span>
                 </a>
@@ -228,16 +228,16 @@ body.resaltar-titulos .main-card-title {
 sty
 <div class="main-container">
     <div class="main-cards_empleado">
-        <div class="main-card" onclick="openModal('usuarios-modal')" >
+        <div class="main-card" onclick="openModal('usuarios-modal')" title="Apartado de usuarios">
             <i data-feather="users" class="main-card-icon"></i>
             <h2 class="main-card-title">Usuarios</h2>
         </div>
-        <div class="main-card" onclick="openModal('pedidos-modal')">
+        <div class="main-card" onclick="openModal('pedidos-modal')" title="Apartado de pedidos">
             <i data-feather="shopping-cart" class="main-card-icon"></i>
             <h2 class="main-card-title">Pedidos</h2>
         </div>
         
-        <div class="main-card" onclick="openModal('manual-modal')">
+        <div class="main-card" onclick="openModal('manual-modal')" title="Apartado de manual de usuario">
             <i data-feather="book-open" class="main-card-icon"></i>
             <h2 class="main-card-title">Manual</h2>
         </div>
@@ -253,11 +253,11 @@ sty
         <div class="modal-content">
             <div class="modal-options">
                 
-                <a href="{% url 'libreria:ver_usuario' user.id %}" class="modal-option">
+                <a href="{% url 'libreria:ver_usuario' user.id %}" class="modal-option" title="Ver perfil">
                     <i data-feather="user" class="modal-option-icon"></i>
                     <span class="modal-option-text">Ver perfil</span>
                 </a>
-                <a href="{% url 'libreria:cambiar_contraseña' %}" class="modal-option">
+                <a href="{% url 'libreria:cambiar_contraseña' %}" class="modal-option" title="Cambiar contraseña">
                     <i data-feather="lock" class="modal-option-icon"></i>
                     <span class="modal-option-text">Cambiar contraseña</span>
                 </a>
@@ -274,11 +274,11 @@ sty
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'papeleria:crear_pedido' %}" class="modal-option">
+                <a href="{% url 'papeleria:crear_pedido' %}" class="modal-option" title="Crear nuevo pedido">
                     <i data-feather="shopping-cart" class="modal-option-icon"></i>
                     <span class="modal-option-text">Nuevo pedido</span>
                 </a>
-                <a href="{% url 'papeleria:mis_pedidos' %}" class="modal-option">
+                <a href="{% url 'papeleria:mis_pedidos' %}" class="modal-option" title="Mis pedidos">
                     <i data-feather="clipboard" class="modal-option-icon"></i>
                     <span class="modal-option-text">Mis pedidos</span>
                 </a>
@@ -295,7 +295,7 @@ sty
         </div>
         <div class="modal-content">
             <div class="modal-options">
-                <a href="{% url 'libreria:manual_usuario' %}" target="_blank" class="modal-option">
+                <a href="{% url 'libreria:manual_usuario' %}" target="_blank" class="modal-option" title="Manual de usuario">
                     <i data-feather="book-open" class="modal-option-icon"></i>
                     <span class="modal-option-text">Abrir manual</span>
                 </a>
@@ -306,7 +306,7 @@ sty
 {% endif %}
 {% if request.user.role == 'Administrador' and request.user.acceso_pap and es_papeleria and mostrar_alerta and bajo_stock %}
 <div id="stock-alert" class="alert-overlay">
-    <div class="alert-box">
+    <div class="alert-box" title="Alerta bajo stock">
         <button class="close-btn" onclick="cerrarAlerta()">&times;</button>
         <p>¡Atención! Hay artículos con stock menor a 10 unidades.</p>
     </div>
