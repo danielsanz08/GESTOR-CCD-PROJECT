@@ -3,7 +3,7 @@
     "model": "libreria.customuser",
     "fields": {
         "password": "pbkdf2_sha256$1000000$xAK0t1B7mo54UBkRgLYHHE$qlwi7KcYegZVQ6fw4M7OJJzObUA1z5vlbPlwjyeSApQ=",
-        "last_login": "2025-07-29T19:15:33.398Z",
+        "last_login": "2025-07-30T19:17:00.060Z",
         "is_superuser": false,
         "username": "Daniel Sanchez",
         "email": "jonnathansz73@gmail.com",
@@ -13,8 +13,8 @@
         "fecha_registro": "2025-07-26",
         "is_active": true,
         "is_staff": false,
-        "session_key": "y7a0f3ep8psaapkc0iasyyge9b51ncbi",
-        "session_token": "f9731ce8-4306-4883-b8d8-d98ae83c097c",
+        "session_key": "vmvq3isyq1pq4d48fbw0rwwrazxtw5er",
+        "session_token": "b7181cd3-4ff2-4e66-8eca-df0505036f7f",
         "acceso_pap": true,
         "acceso_caf": true,
         "acceso_cde": true,
@@ -30,7 +30,7 @@
         "is_superuser": false,
         "username": "Carlos Andres Orozco",
         "email": "carlos@gmail.com",
-        "role": "Empleado",
+        "role": "Administrador",
         "area": "Registros públicos",
         "cargo": "Auxiliar En Gestion Documental",
         "fecha_registro": "2025-07-26",
@@ -117,7 +117,7 @@
 {
     "model": "libreria.customuser",
     "fields": {
-        "password": "pbkdf2_sha256$1000000$Mq9g3usNKoL8pHXcefQJBW$ovFmCWu5MCuIEuH3rdea+C+D1bzRrYqvGKJW5+AL9do=",
+        "password": "pbkdf2_sha256$1000000$L3ikPJ0jSnOYrDC9vPc0Ee$/9L9e/mdi/8awihFdyyNJB2Zv1zyc9Gu9jD3OVvVyl0=",
         "last_login": "2025-07-29T16:30:52.542Z",
         "is_superuser": false,
         "username": "Diego Ortiz",
@@ -126,7 +126,7 @@
         "area": "Financiera",
         "cargo": "Aprendiz Sena",
         "fecha_registro": "2025-07-26",
-        "is_active": true,
+        "is_active": false,
         "is_staff": false,
         "session_key": "n8v0l536bdfhk02pqkwmewo26lqokdcu",
         "session_token": "c0895e76-ad61-4cab-8920-9fb09f53f320",
@@ -209,7 +209,7 @@
         "observacion": "No hay",
         "tipo": "Científica",
         "precio": 2000,
-        "cantidad": 1,
+        "cantidad": 0,
         "proveedor": "Casio",
         "registrado_por": [
             "jonnathansz73@gmail.com"
@@ -311,24 +311,7 @@
         "observacion": "No hay",
         "tipo": "Pequeño",
         "precio": 3000,
-        "cantidad": 2,
-        "proveedor": "Javeriana",
-        "registrado_por": [
-            "jonnathansz73@gmail.com"
-        ],
-        "fecha_registro": "2025-07-28"
-    }
-},
-{
-    "model": "papeleria.articulo",
-    "pk": 10,
-    "fields": {
-        "nombre": "Agenda",
-        "marca": "Q'nota",
-        "observacion": "Cuadriculadas",
-        "tipo": "Argolladas",
-        "precio": 3000,
-        "cantidad": 3,
+        "cantidad": 0,
         "proveedor": "Javeriana",
         "registrado_por": [
             "jonnathansz73@gmail.com"
@@ -422,6 +405,23 @@
     }
 },
 {
+    "model": "papeleria.articulo",
+    "pk": 16,
+    "fields": {
+        "nombre": "Agendas",
+        "marca": "Norma",
+        "observacion": "No hay",
+        "tipo": "Argolladas",
+        "precio": 3000,
+        "cantidad": 33,
+        "proveedor": "Javeriana",
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_registro": "2025-07-30"
+    }
+},
+{
     "model": "papeleria.pedido",
     "pk": 1,
     "fields": {
@@ -501,8 +501,8 @@
             "viviana@gmail.com"
         ],
         "fecha_pedido": "2025-07-27T21:30:53.566Z",
-        "fecha_estado": null,
-        "estado": "Pendiente"
+        "fecha_estado": "2025-07-30T19:21:46.493Z",
+        "estado": "Cancelado"
     }
 },
 {
@@ -825,8 +825,8 @@
             "diego@gmail.com"
         ],
         "fecha_pedido": "2025-07-29T16:31:01.991Z",
-        "fecha_estado": null,
-        "estado": "Pendiente"
+        "fecha_estado": "2025-07-30T19:21:24.013Z",
+        "estado": "Cancelado"
     }
 },
 {
@@ -862,6 +862,18 @@
         ],
         "fecha_pedido": "2025-07-29T19:36:01.868Z",
         "fecha_estado": "2025-07-29T19:36:01.868Z",
+        "estado": "Confirmado"
+    }
+},
+{
+    "model": "papeleria.pedido",
+    "pk": 38,
+    "fields": {
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_pedido": "2021-01-01T19:17:00Z",
+        "fecha_estado": "2025-07-30T19:18:05.953Z",
         "estado": "Confirmado"
     }
 },
@@ -1351,17 +1363,6 @@
 },
 {
     "model": "papeleria.pedidoarticulo",
-    "pk": 47,
-    "fields": {
-        "pedido": 31,
-        "articulo": 10,
-        "cantidad": 33,
-        "tipo": "Argolladas",
-        "area": "Financiera"
-    }
-},
-{
-    "model": "papeleria.pedidoarticulo",
     "pk": 48,
     "fields": {
         "pedido": 31,
@@ -1369,17 +1370,6 @@
         "cantidad": 22,
         "tipo": "Gruesa",
         "area": "Financiera"
-    }
-},
-{
-    "model": "papeleria.pedidoarticulo",
-    "pk": 49,
-    "fields": {
-        "pedido": 32,
-        "articulo": 10,
-        "cantidad": 33,
-        "tipo": "Argolladas",
-        "area": "Administrativa"
     }
 },
 {
@@ -1438,6 +1428,17 @@
     }
 },
 {
+    "model": "papeleria.pedidoarticulo",
+    "pk": 55,
+    "fields": {
+        "pedido": 38,
+        "articulo": 1,
+        "cantidad": 1,
+        "tipo": "Oficio",
+        "area": "Registros públicos"
+    }
+},
+{
     "model": "papeleria.devolucion",
     "pk": 1,
     "fields": {
@@ -1468,17 +1469,6 @@
         "cantidad_devuelta": 10,
         "razon": "fin de contrato",
         "fecha": "2025-07-27T21:52:49.471Z"
-    }
-},
-{
-    "model": "papeleria.devolucion",
-    "pk": 4,
-    "fields": {
-        "pedido": 32,
-        "articulo": 10,
-        "cantidad_devuelta": 33,
-        "razon": "fin de contrato",
-        "fecha": "2025-07-28T13:24:50.368Z"
     }
 },
 {
@@ -1526,11 +1516,22 @@
     }
 },
 {
+    "model": "papeleria.devolucion",
+    "pk": 9,
+    "fields": {
+        "pedido": 38,
+        "articulo": 1,
+        "cantidad_devuelta": 1,
+        "razon": "fin de contrato",
+        "fecha": "2025-07-30T19:19:09.850Z"
+    }
+},
+{
     "model": "cafeteria.productos",
     "pk": 1,
     "fields": {
         "nombre": "Café",
-        "marca": "Tostao",
+        "marca": "Tostaó",
         "precio": 2000,
         "cantidad": 9,
         "proveedor": "Javeriana",
@@ -1662,6 +1663,23 @@
     }
 },
 {
+    "model": "cafeteria.productos",
+    "pk": 9,
+    "fields": {
+        "nombre": "Café",
+        "marca": "Tostoaá",
+        "precio": 3444,
+        "cantidad": 44,
+        "proveedor": "Javerianá",
+        "registrado_por": [
+            "jonnathansz73@gmail.com"
+        ],
+        "fecha_registro": "2025-07-29",
+        "unidad_medida": "Kilogramos",
+        "presentacion": "Javeriana"
+    }
+},
+{
     "model": "cafeteria.pedido",
     "pk": 1,
     "fields": {
@@ -1728,9 +1746,9 @@
         "registrado_por": [
             "diego@gmail.com"
         ],
-        "fecha_estado": null,
+        "fecha_estado": "2025-07-29T22:26:26.463Z",
         "fecha_pedido": "2025-07-28T13:55:57.637Z",
-        "estado": "Pendiente"
+        "estado": "Cancelado"
     }
 },
 {
@@ -1740,9 +1758,9 @@
         "registrado_por": [
             "diego@gmail.com"
         ],
-        "fecha_estado": null,
+        "fecha_estado": "2025-07-29T22:25:04.813Z",
         "fecha_pedido": "2025-07-28T13:57:09.854Z",
-        "estado": "Pendiente"
+        "estado": "Cancelado"
     }
 },
 {
@@ -1776,9 +1794,9 @@
         "registrado_por": [
             "diego@gmail.com"
         ],
-        "fecha_estado": null,
+        "fecha_estado": "2025-07-29T22:22:22.743Z",
         "fecha_pedido": "2025-07-28T14:01:01.002Z",
-        "estado": "Pendiente"
+        "estado": "Cancelado"
     }
 },
 {
@@ -2011,7 +2029,7 @@
             "diego@gmail.com"
         ],
         "fecha_pedido": "2025-07-28T14:10:58.885Z",
-        "estado": "Pendiente"
+        "estado": "Cancelado"
     }
 },
 {
@@ -2236,6 +2254,20 @@
             "jonnathansz73@gmail.com"
         ],
         "fecha_devolucion": "2025-07-28T14:22:42.153Z"
+    }
+},
+{
+    "model": "backup.backup",
+    "pk": 1,
+    "fields": {
+        "nombre": "Backup Ccd",
+        "archivo": "backups/backup_db_20250729_153521.json",
+        "tamano": "0.05 MB",
+        "modelos_incluidos": "libreria.CustomUser, papeleria.Articulo, papeleria.Pedido, papeleria.PedidoArticulo, cafeteria.Productos, cafeteria.Pedido, cafeteria.PedidoProducto, cde.PedidoCde, cde.PedidoProductoCde (con relaciones)",
+        "fecha_creacion": "2025-07-29",
+        "creado_por": [
+            "jonnathansz73@gmail.com"
+        ]
     }
 }
 ]

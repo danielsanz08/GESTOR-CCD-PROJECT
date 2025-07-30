@@ -250,13 +250,13 @@ table {
 .td_nombre,
 .td_cargo {
   max-width: 200px;
-  width: 200px; /* Fija el ancho */
-  height: 30px; /* Fija la altura */
-  overflow: hidden; /* Oculta el contenido que exceda */
-  text-overflow: ellipsis; /* Añade puntos suspensivos si el texto es muy largo */
-  white-space: nowrap; /* Evita el salto de línea */
+  width: 200px; 
+  height: 30px; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
   padding: 5px 10px;
-  box-sizing: border-box; /* Incluye el padding en el ancho/alto total */
+  box-sizing: border-box; 
 }
 
 td {

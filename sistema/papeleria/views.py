@@ -79,30 +79,49 @@ def validar_datos(request):
 #LOGIN Y LOGOUT
 def login_papeleria(request):
     if request.method == 'POST':
+        print("POST recibido")
+        print("Datos enviados:", request.POST)
+
         email = request.POST.get('email')
         password = request.POST.get('password')
+
+        print("Email:", email)
+        print("Password:", password)
+
+        if not email or not password:
+            messages.error(request, "Todos los campos son obligatorios.")
+            return render(request, 'login_pap/login_pap.html')
+
         user = authenticate(request, email=email, password=password)
 
         if user is not None:
+            print("Usuario autenticado:", user.email)
             if user.is_active and getattr(user, 'acceso_pap', False):
-                if user.session_key:
+                # Cierra sesión previa si existe
+                if hasattr(user, 'session_key') and user.session_key:
                     Session.objects.filter(session_key=user.session_key).delete()
 
-                login(request, user)
+                login(request, user)  # Crea nueva sesión automáticamente
 
-                user.session_key = request.session.session_key
+                # Asigna nueva información de sesión
+                session_key = request.session.session_key
                 token = str(uuid.uuid4())
+                request.session['session_token'] = token
+
+                user.session_key = session_key
                 user.session_token = token
                 user.save()
-
-                request.session['session_token'] = token
 
                 messages.success(request, "¡Inicio de sesión exitoso!")
                 return redirect('papeleria:index_pap')
             else:
                 messages.error(request, "No tienes permiso para acceder a este módulo.")
+                print("Usuario sin acceso al módulo.")
         else:
             messages.error(request, "Credenciales inválidas.")
+            print("Autenticación fallida: usuario no encontrado o contraseña incorrecta.")
+    else:
+        print("Método no POST:", request.method)
 
     return render(request, 'login_pap/login_pap.html')
 
@@ -1392,26 +1411,25 @@ def grafica_pedidos_administrativa(request):
 
     if fecha_fin_str:
         try:
-            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
-            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(pedido__fecha_pedido__lt=fecha_fin)  # < usando < para incluir todo el día anterior
         except ValueError:
             fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'articulo__nombre',
-        'articulo__tipo'  # Añade el tipo de artículo
+        'articulo__tipo'
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    # Modifica las etiquetas para incluir el tipo de artículo
     etiquetas = [
-        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})"
         if item['articulo__nombre'] and item['articulo__tipo']
         else item['articulo__nombre'] or 'Sin artículo'
         for item in pedidos_por_area_articulo
     ]
-    
+
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_area.html', {
@@ -1435,19 +1453,19 @@ def grafica_pedidos_rues(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Registros públicos')
 
-    try:
-        if fecha_inicio_str:
+    if fecha_inicio_str:
+        try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    except ValueError:
-        fecha_inicio = None
+        except ValueError:
+            fecha_inicio = None
 
-    try:
-        if fecha_fin_str:
-            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
-            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
-    except ValueError:
-        fecha_fin = None
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(pedido__fecha_pedido__lt=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'articulo__nombre',
@@ -1457,11 +1475,12 @@ def grafica_pedidos_rues(request):
     ).order_by('articulo__nombre')
 
     etiquetas = [
-        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})"
         if item['articulo__nombre'] and item['articulo__tipo']
         else item['articulo__nombre'] or 'Sin artículo'
         for item in pedidos_por_area_articulo
     ]
+    
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_rues.html', {
@@ -1471,7 +1490,6 @@ def grafica_pedidos_rues(request):
         'fecha_inicio': fecha_inicio_str,
         'fecha_fin': fecha_fin_str
     })
-
 @login_required(login_url='/acceso_denegado/')
 @login_required(login_url='/acceso_denegado/')
 def grafica_pedidos_presidencia(request):
@@ -1486,19 +1504,19 @@ def grafica_pedidos_presidencia(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Presidencia')
 
-    try:
-        if fecha_inicio_str:
+    if fecha_inicio_str:
+        try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    except ValueError:
-        fecha_inicio = None
+        except ValueError:
+            fecha_inicio = None
 
-    try:
-        if fecha_fin_str:
-            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
-            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
-    except ValueError:
-        fecha_fin = None
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(pedido__fecha_pedido__lt=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'articulo__nombre',
@@ -1508,11 +1526,12 @@ def grafica_pedidos_presidencia(request):
     ).order_by('articulo__nombre')
 
     etiquetas = [
-        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})"
         if item['articulo__nombre'] and item['articulo__tipo']
         else item['articulo__nombre'] or 'Sin artículo'
         for item in pedidos_por_area_articulo
     ]
+    
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_presidencia.html', {
@@ -1537,19 +1556,19 @@ def grafica_pedidos_financiera(request):
 
     pedidos = PedidoArticulo.objects.filter(area='Financiera')
 
-    try:
-        if fecha_inicio_str:
+    if fecha_inicio_str:
+        try:
             fecha_inicio = datetime.strptime(fecha_inicio_str, '%Y-%m-%d')
             pedidos = pedidos.filter(pedido__fecha_pedido__gte=fecha_inicio)
-    except ValueError:
-        fecha_inicio = None
+        except ValueError:
+            fecha_inicio = None
 
-    try:
-        if fecha_fin_str:
-            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d')
-            pedidos = pedidos.filter(pedido__fecha_pedido__lte=fecha_fin)
-    except ValueError:
-        fecha_fin = None
+    if fecha_fin_str:
+        try:
+            fecha_fin = datetime.strptime(fecha_fin_str, '%Y-%m-%d') + timedelta(days=1)
+            pedidos = pedidos.filter(pedido__fecha_pedido__lt=fecha_fin)
+        except ValueError:
+            fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
         'articulo__nombre',
@@ -1559,11 +1578,12 @@ def grafica_pedidos_financiera(request):
     ).order_by('articulo__nombre')
 
     etiquetas = [
-        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})"
         if item['articulo__nombre'] and item['articulo__tipo']
         else item['articulo__nombre'] or 'Sin artículo'
         for item in pedidos_por_area_articulo
     ]
+    
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_financiera.html', {
@@ -1602,9 +1622,8 @@ def grafica_pedidos_gestion_empresarial(request):
             fecha_fin = None
 
     pedidos_por_area_articulo = pedidos.values(
-        'area',
         'articulo__nombre',
-        'articulo__tipo',
+        'articulo__tipo'
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
@@ -1615,6 +1634,7 @@ def grafica_pedidos_gestion_empresarial(request):
         else item['articulo__nombre'] or 'Sin artículo'
         for item in pedidos_por_area_articulo
     ]
+    
     cantidades = [item['total_cantidad'] or 0 for item in pedidos_por_area_articulo]
 
     return render(request, 'estadisticas/grafico_pedido_gestion_empresarial.html', {
@@ -1654,14 +1674,13 @@ def grafica_pedidos_competitividad(request):
 
     pedidos_por_area_articulo = pedidos.values(
         'articulo__nombre',
-        'articulo__tipo'  # Asegúrate de incluir el tipo de artículo
+        'articulo__tipo'
     ).annotate(
         total_cantidad=Sum('cantidad')
     ).order_by('articulo__nombre')
 
-    # Modifica las etiquetas para incluir el tipo de artículo
     etiquetas = [
-        f"{item['articulo__nombre']} ({item['articulo__tipo']})" 
+        f"{item['articulo__nombre']} ({item['articulo__tipo']})"
         if item['articulo__nombre'] and item['articulo__tipo']
         else item['articulo__nombre'] or 'Sin artículo'
         for item in pedidos_por_area_articulo
@@ -2212,10 +2231,14 @@ def graficas_usuario(request):
 def crear_devolucion(request, pedido_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
-        {'name': 'Devoluciones Papeleria', 'url': reverse('papeleria:crear_devolucion', args=[pedido_id])
-}
+        {'name': 'Devoluciones Papeleria', 'url': reverse('papeleria:crear_devolucion', args=[pedido_id])}
     ]
     pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    # Validación: no permitir devoluciones si el pedido está cancelado
+    if pedido.estado == "Cancelado":
+        messages.error(request, "No puedes registrar una devolución porque el pedido ha sido cancelado.")
+        return redirect('papeleria:mis_pedidos')
 
     if request.method == 'POST':
         form = DevolucionForm(request.POST, pedido_id=pedido_id)

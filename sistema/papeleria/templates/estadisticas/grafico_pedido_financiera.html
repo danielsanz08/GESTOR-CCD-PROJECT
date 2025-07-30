@@ -197,7 +197,7 @@
                 },
                 x: {
                     ticks: {
-                        display: false  // 👈 Esto oculta las etiquetas completamente
+                        display: false
                     },
                     grid: {
                         offset: true
@@ -224,6 +224,21 @@
                     bottom: 20
                 }
             }
+        }
+    });
+
+    function mostrarModal() {
+        document.getElementById('modalFechas').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalFechas').style.display = 'none';
+    }
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('modalFechas');
+        if (event.target === modal) {
+            modal.style.display = 'none';
         }
     });
 </script>

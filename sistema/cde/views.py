@@ -1330,9 +1330,14 @@ def cambiar_contraseña_cde(request):
 def crear_devolucion_cde(request, pedido_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_cde'},
-        {'name': 'Devoluciones CDE', 'url': reverse('cde:crear_devolucion_cde', args=[pedido_id])
-}]
+        {'name': 'Devoluciones CDE', 'url': reverse('cde:crear_devolucion_cde', args=[pedido_id])}
+    ]
     pedido = get_object_or_404(PedidoCde, id=pedido_id)
+
+    # Validación: no permitir devoluciones si el pedido está cancelado
+    if pedido.estado == "Cancelado":
+        messages.error(request, "No puedes registrar una devolución porque el pedido ha sido cancelado.")
+        return redirect('cde:mis_pedidos_cde')
 
     if request.method == 'POST':
         form = DevolucionFormCde(request.POST, pedido_id=pedido_id)

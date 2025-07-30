@@ -2007,9 +2007,14 @@ def graficas_usuario_caf(request):
 def crear_devolucion_caf(request, pedido_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
-        {'name': 'Devoluciones Cafeteria', 'url': reverse('cafeteria:crear_devolucion_caf', args=[pedido_id])
-}]
+        {'name': 'Devoluciones Cafeteria', 'url': reverse('cafeteria:crear_devolucion_caf', args=[pedido_id])}
+    ]
     pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    # Validación: no permitir devoluciones si el pedido está cancelado
+    if pedido.estado == "Cancelado":
+        messages.error(request, "No puedes registrar una devolución porque el pedido ha sido cancelado.")
+        return redirect('cafeteria:mis_pedidos')
 
     if request.method == 'POST':
         form = DevolucionFormCaf(request.POST, pedido_id=pedido_id)

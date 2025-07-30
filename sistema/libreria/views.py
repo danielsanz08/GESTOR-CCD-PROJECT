@@ -48,7 +48,7 @@ def timeouterror(request):
     
 def inicio(request):
     return render(request, 'index/index.html')
-
+@login_required(login_url='/acceso_denegado/')
 def manual_usuario_view(request):
     pdf_path = os.path.join(settings.BASE_DIR, 'libreria', 'static', 'manual','manual_usuario_papeleria.pdf')
     try:
@@ -372,7 +372,7 @@ def crear_usuario(request):
         'admin_exists': admin_exists,
         'breadcrumbs': breadcrumbs
     })
-
+@login_required(login_url='/acceso_denegado/')
 def ver_usuario(request, user_id):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
@@ -382,7 +382,7 @@ def ver_usuario(request, user_id):
     return render(request, 'usuario/ver_perfil.html', {'usuario': usuario, 'breadcrumbs': breadcrumbs})
 
 from django.urls import NoReverseMatch
-
+@login_required(login_url='/acceso_denegado/')
 def editar_usuario(request, user_id):
     usuario = get_object_or_404(CustomUser, id=user_id)
 
@@ -427,6 +427,8 @@ def verificar_usuario(request):
     context = {
         'usuarios': usuarios
     }
+
+@login_required(login_url='/acceso_denegado/')
 def lista_usuarios(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
@@ -498,7 +500,7 @@ from .models import CustomUser
 import json
 from django.views.decorators.http import require_http_methods
 
-@login_required
+@login_required(login_url='/acceso_denegado/')
 def cambiar_estado_usuario(request, user_id):
     if request.method == 'POST':
         usuario = get_object_or_404(CustomUser, id=user_id)
@@ -525,6 +527,7 @@ def cambiar_estado_usuario(request, user_id):
 from django.contrib.auth.hashers import check_password
 import logging
 logger = logging.getLogger(__name__)
+@login_required(login_url='/acceso_denegado/')
 @require_http_methods(["POST"])
 def verificar_contraseña_actual(request):
     """
@@ -567,7 +570,7 @@ def verificar_contraseña_actual(request):
     except Exception as e:
         logger.error(f"Error en verificar_contraseña_actual: {str(e)}")
         return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
-
+@login_required(login_url='/acceso_denegado/')
 def cambiar_contraseña(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_pap'},
@@ -577,12 +580,11 @@ def cambiar_contraseña(request):
     if request.method == 'POST':
         form = CustomPasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, "Contraseña cambiada exitosamente.")
-            return redirect('libreria:inicio')
+            form.save()
+            logout(request)  
+            messages.success(request, "Contraseña cambiada exitosamente. Por favor inicia sesión nuevamente.")
+            return redirect('libreria:inicio')  
         else:
-            
             for field in form.errors:
                 for error in form.errors[field]:
                     messages.error(request, f"{field}: {error}")
@@ -593,7 +595,7 @@ def cambiar_contraseña(request):
         'form': form,
         'breadcrumbs': breadcrumbs
     })
-
+@login_required(login_url='/acceso_denegado/')
 def cambiar_contraseña_id(request, user_id):
 
     breadcrumbs = [

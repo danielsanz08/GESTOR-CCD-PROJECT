@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = 'django-insecure-w=vb@dyxyk30)xbk52m@kx1q9)aj5s685fma)a+zh9jc0!1jy2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -64,7 +64,7 @@ MIDDLEWARE = [
     'libreria.middlewares.single_session.SingleSessionMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # por defecto
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  
 SESSION_SAVE_EVERY_REQUEST = True
 # Agrega estas configuraciones al final del archivo
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -97,7 +97,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ccd',
         'USER': 'root',
-        'PASSWORD': '',  # Cambia esto si tienes una contraseña
+        'PASSWORD': '', 
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -111,7 +111,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Password validation
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -134,7 +134,7 @@ TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
-# Login settings
+
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = 'papeleria:login_view'
 
