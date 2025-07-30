@@ -41,7 +41,7 @@ def wrap_text(text, max_len=20):
         parts[i] += '-' 
     return '\n'.join(parts)
 
-def wrap_text_p(text, max_len=20):
+def wrap_text_p(text, max_len=17):
     parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
     for i in range(len(parts) - 1):
         if not parts[i].endswith('-'):
@@ -365,14 +365,14 @@ def reporte_productos_pdf(request):
         data_productos = [["ID", "Nombre", "Marca", "Precio", "Cantidad", "U. de medida", "Proveedor", "Presentación"]]
         for producto in usuarios_filtrados:
             data_productos.append([
-                wrap_text(str(producto.id)),
-                wrap_text(producto.nombre),
-                wrap_text(producto.marca),
-                wrap_text("{:,}".format(producto.precio)),
-                wrap_text(str(producto.cantidad)),
-                wrap_text(str(producto.unidad_medida)),
-                wrap_text(producto.proveedor),
-                wrap_text(producto.presentacion),
+                wrap_text_p(str(producto.id)),
+                wrap_text_p(producto.nombre),
+                wrap_text_p(producto.marca),
+                wrap_text_p("{:,}".format(producto.precio)),
+                wrap_text_p(str(producto.cantidad)),
+                wrap_text_p(str(producto.unidad_medida)),
+                wrap_text_p(producto.proveedor),
+                wrap_text_p(producto.presentacion),
             ])
 
         tabla_productos = Table(data_productos, colWidths=[30, 100, 100, 110, 70, 100, 105])
@@ -1019,10 +1019,7 @@ def mis_pedidos(request):
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
-            Q(id__icontains=query) |
-            Q(productos__area__icontains=query) |
-            Q(productos__lugar__icontains=query) | 
-            Q(productos__producto__nombre__icontains=query)
+            Q(id__icontains=query)
         ).distinct()
 
     if fecha_inicio_str:
@@ -1286,10 +1283,7 @@ def pedidos_pendientes(request):
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
-            Q(id__icontains=query) |
-            Q(productos__area__icontains=query) |
-            Q(productos__lugar__icontains=query) |  
-            Q(productos__producto__nombre__icontains=query)
+            Q(id__icontains=query)
         ).distinct()
 
 
@@ -1351,10 +1345,7 @@ def listado_pedidos_caf(request):
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
-            Q(id__icontains=query) |
-            Q(productos__area__icontains=query) |
-            Q(productos__lugar__icontains=query) | 
-            Q(productos__producto__nombre__icontains=query)
+            Q(id__icontains=query)
         ).distinct()
 
     if fecha_inicio_str:
@@ -1529,7 +1520,7 @@ def reporte_pedidos_pdf_caf(request):
                     wrap_text_p(pedido.fecha_pedido.strftime('%d-%m-%Y')),
                     wrap_text_p(pedido.get_estado_display()),
                     wrap_text_p(pedido.registrado_por.username if pedido.registrado_por else 'No definido'),
-                    wrap_text_p('Error al cargar productos'),
+                    wrap_text('Error al cargar productos'),
                     wrap_text_p('Error al cargar área'),
                     wrap_text_p('Error al cargar devoluciones')
                 ])
@@ -1672,7 +1663,7 @@ def grafica_pedidos_caf(request):
     breadcrumbs = [
         {'name': 'Inicio', 'url': '/index_caf'},
         {'name': 'Estadísticas', 'url': reverse('cafeteria:index_estadistica_caf')}, 
-        {'name': 'Gráfico de pedidos Administrativa', 'url': reverse('cafeteria:grafica_pedidos_caf')},
+        {'name': 'Gráfico de pedidos ', 'url': reverse('cafeteria:grafica_pedidos_caf')},
     ]
 
     fecha_inicio_str = request.GET.get('fecha_inicio')

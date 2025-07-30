@@ -970,11 +970,8 @@ def mis_pedidos(request):
 
     if query:
         pedidos = pedidos.filter(
-            Q(registrado_por__username__icontains=query) |
+           Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
-            Q(articulos__articulo__nombre__icontains=query) |
-            Q(articulos__cantidad__icontains=query) |
-            Q(articulos__tipo__icontains=query) |
             Q(articulos__area__icontains=query) |
             Q(id__icontains=query)
         ).distinct()
@@ -1237,9 +1234,6 @@ def listado_pedidos(request):
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
-            Q(articulos__articulo__nombre__icontains=query) |
-            Q(articulos__cantidad__icontains=query) |
-            Q(articulos__tipo__icontains=query) |
             Q(articulos__area__icontains=query) |
             Q(id__icontains=query)
         ).distinct()
@@ -1297,9 +1291,6 @@ def pedidos_pendientes(request):
         pedidos = pedidos.filter(
             Q(registrado_por__username__icontains=query) |
             Q(estado__icontains=query) |
-            Q(articulos__articulo__nombre__icontains=query) |
-            Q(articulos__cantidad__icontains=query) |
-            Q(articulos__tipo__icontains=query) |
             Q(articulos__area__icontains=query) |
             Q(id__icontains=query)
         ).distinct()

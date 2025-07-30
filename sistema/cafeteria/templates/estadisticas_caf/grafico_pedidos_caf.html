@@ -22,6 +22,7 @@
         left: 35vh;
         height: 58vh;
         z-index: 0;
+        border: 1px solid black;
     }
 
     .btn-fecha {
@@ -104,6 +105,7 @@
         text-align: center;
         border: 1px solid black;
         background-color: white;
+        text-decoration: none;
     }
 
     #btn-filtrar:hover {
@@ -188,14 +190,7 @@
                     }
                 },
                 x: {
-                    ticks: {
-                        callback: function(value, index) {
-                            
-                            return nombres[index].length > 15 ? 
-                                   nombres[index].substring(0, 12) + '...' : 
-                                   nombres[index];
-                        }
-                    }
+                    display: false
                 }
             },
             plugins: {
@@ -213,7 +208,6 @@
             }
         }
     });
-
 
     function mostrarModal() {
         document.getElementById('modalFechas').style.display = 'flex';

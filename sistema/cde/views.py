@@ -523,11 +523,7 @@ def pedidos_pendientes_cde(request):
         pedidos = pedidos.filter(
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
-            Q(fecha_pedido__icontains=query) |
             Q(registrado_por__username__icontains=query) |
-            Q(productos__producto__nombre__icontains=query) |
-            Q(productos__cantidad__icontains=query) |
-            Q(productos__area__icontains=query) |
             Q(productos__evento__icontains=query)
         ).distinct()
 
@@ -587,11 +583,7 @@ def listado_pedidos_cde(request):
         pedidos = pedidos.filter(
             Q(id__icontains=query) |
             Q(estado__icontains=query) |
-            Q(fecha_pedido__icontains=query) |
             Q(registrado_por__username__icontains=query) |
-            Q(productos__producto__nombre__icontains=query) |
-            Q(productos__cantidad__icontains=query) |
-            Q(productos__area__icontains=query) |
             Q(productos__evento__icontains=query)
         ).distinct()
 
