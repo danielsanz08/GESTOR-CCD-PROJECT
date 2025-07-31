@@ -1,0 +1,25 @@
+[
+{
+    "model": "libreria.customuser",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$0BCVX3Au7XGfFL1jFDY9ES$aXBKVnCOb5xieDaI9e2J6H5v5ObBg0/x+wXfoxW972k=",
+        "last_login": "2025-07-31T02:07:21.431Z",
+        "is_superuser": false,
+        "username": "Daniel Sanchez",
+        "email": "jonnathansz73@gmail.com",
+        "role": "Administrador",
+        "area": "Administrativa",
+        "cargo": "Aprendiz Sena",
+        "fecha_registro": "2025-07-30",
+        "is_active": true,
+        "is_staff": false,
+        "session_key": "lol2ak6gd3khy8g2o29w49lzzdhfjt94",
+        "session_token": "992f6956-be7a-4c99-97f6-7f6a9f41928d",
+        "acceso_pap": true,
+        "acceso_caf": true,
+        "acceso_cde": true,
+        "groups": [],
+        "user_permissions": []
+    }
+}
+]
