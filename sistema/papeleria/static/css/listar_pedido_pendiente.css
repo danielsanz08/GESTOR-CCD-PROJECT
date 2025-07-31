@@ -19,7 +19,7 @@ section {
   text-align: center;
   padding: 10px 20px 20px 20px;
   width: 190vh;
-  height: 60vh;
+  height: 63vh;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -101,10 +101,10 @@ td {
 }
 
 #filtro-fechas {
-
-  position: absolute;
-  left: 95vh;
-  top: 12vh;
+  position: fixed;
+  right: 370px;
+  top: 225px;
+  
 }
 
 .fecha_inicio,
@@ -138,7 +138,7 @@ td {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
   position: absolute;
-  left: 58vh;
+  left: 62vh;
   top: 0vh;
   width: 10vh;
   text-align: center;
@@ -179,9 +179,9 @@ td {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
-  position: absolute;
-  right: 20vh;
-  top: 12vh;
+  position: relative;
+  top: 0.5vh;
+  left: 1030px;
   width: 10vh;
   text-align: center;
   margin-right: 1vh;
@@ -276,7 +276,7 @@ td {
   transition: background-color 0.3s, color 0.3s;
   cursor: pointer;
   position: relative;
-  top: 290px;
+  top: 250px;
 }
 
 .paginacion a:hover {

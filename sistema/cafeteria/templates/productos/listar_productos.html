@@ -47,9 +47,7 @@
         href="{% url 'cafeteria:reporte_productos_excel' %}?q={{ request.GET.q }}&fecha_inicio={{ request.GET.fecha_inicio }}&fecha_fin={{ request.GET.fecha_fin }}">
         <button class="excel" title="Exportar a Excel"><i class="fas fa-file-excel text-white"></i></button>
     </a>
-    <a href="{% url 'cafeteria:crear_producto' %}">
-        <button class="crear" title="Crear articulo"><i class="bi bi-plus-circle"></i></button>
-    </a>
+   
 
     <form method="GET" action="{% url 'cafeteria:listar_productos' %}">
         <div>

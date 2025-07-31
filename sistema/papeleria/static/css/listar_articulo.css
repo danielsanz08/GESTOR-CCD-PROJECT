@@ -15,7 +15,7 @@ section {
   padding: 10px 20px 20px 20px;
   border-radius: 10px;
   min-height: 415px;
-  max-height: 385px;
+  max-height: 415px;
   min-width: 1260px;
   max-width: 1200px;
   box-sizing: border-box;
@@ -29,16 +29,17 @@ section {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   position: relative;
   left: -53vh;
-  top: -4vh;
-  width: 320px !important;
+  top: -0.5vh;
+  width: 300px !important;
   height: 25px !important;
   box-sizing: border-box;
 }
 
 #filtro-fechas {
-  position: absolute;
-  right: 300px;
-  top: 80px;
+  position: fixed;
+  right: 380px;
+  top: 225px;
+  
 }
 
 .fecha_inicio {
@@ -90,11 +91,11 @@ section {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
-  position: absolute;
-  right: -87px;
+  position: fixed;
+  right: 300px;
   width: 60px;
   height: 25px;
-  top: -2px;
+  top: 225px;
   text-align: center;
 }
 
@@ -141,9 +142,9 @@ section {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: none;
-  position: absolute;
-  right: 134px;
-  top: 76px;
+  position: fixed;
+  right: 234px;
+  top: 223px;
   width: 60px;
   text-align: center;
   margin-right: 1px;
@@ -223,7 +224,7 @@ section {
   border-radius: 10px;
   
   position: relative;
-  top: -0.2vh;
+  top: 8px;
   left: 85vh;
   color: rgb(0, 0, 0);
   transition: background-color 0.3s, transform 0.2s;
